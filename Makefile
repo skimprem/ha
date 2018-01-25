@@ -17,3 +17,4 @@ uninstall: ha
 clean:
 	rm -rf *.mod
 	rm -rf *.o
+	rm -rf *.exe
