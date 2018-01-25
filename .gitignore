@@ -1,0 +1,3 @@
+# fortran modules and object files
+*.mod
+*.o
