@@ -1,3 +1,6 @@
 # fortran modules and object files
 *.mod
 *.o
+
+# executable files
+*.exe
