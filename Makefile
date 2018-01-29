@@ -2,20 +2,21 @@ objects = ha.o
 comp = gfortran
 outdir = ~/bin/
 NFDIR = /usr
+exec = ha.exe
 
 ha: $(objects)
-	$(comp) -o ha.exe -static $(objects) -I$(NFDIR)/include -L$(NFDIR)/lib/x86_64-linux-gnu -lnetcdff
+	$(comp) -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff
 
-ha.o: ha.f03
-	$(comp) -c ha.f03 -I$(NFDIR)/include 
+ha.o: ha.f90
+	$(comp) -c -I$(NFDIR)/include/ ha.f90
 
 install: ha
-	cp ./ha $(outdir)
+	cp ./$(exec) $(outdir)
 
 uninstall: ha 
-	rm $(outdir)/ha
+	rm $(outdir)/$(exec)
 
 clean:
 	rm -rf *.mod
 	rm -rf *.o
-	rm -rf *.exe
+	rm -rf $(exec)
