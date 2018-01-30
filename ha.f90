@@ -11,7 +11,6 @@ use hamodule
   integer :: j = 0
   type(ncfile) :: input_file
   integer :: ncstatus
-  !integer :: ncun, ncstatus, ndim, nvar, natt, unlimdim, fmtnum, dimid, dimlen
 
   arg = ''
 
@@ -44,11 +43,11 @@ use hamodule
 
   input_file%cmode = nf90_nowrite
 
-  !ncstatus = nf90_open(&
-    !path = input_file%path,&
-    !mode = input_file%cmode,&
-    !ncid = input_file%ncid&
-  !)
+  ncstatus = nf90_open(&
+    path = input_file%path,&
+    mode = input_file%cmode,&
+    ncid = input_file%ncid&
+  )
 
   !if(ncstatus /= nf90_noerr) call nc_error_check('nc_open', ncstatus, input_file%paht)
 
