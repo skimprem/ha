@@ -1,2 +1,0 @@
-gfortran -o ha.exe -static ha.o -L/usr/lib/x86_64-linux-gnu/ -lnetcdff
-Makefile:8: recipe for target 'ha' failed
