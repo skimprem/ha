@@ -7,7 +7,6 @@ use hamodule
 
   character(*), parameter :: version = '1.0'
   character(*) :: arg*500 !, ncfile*250
-  character(len = nf90_max_name) :: dimname
   integer :: j = 0
   type(ncfile) :: input_file
   integer :: ncstatus
@@ -35,7 +34,6 @@ use hamodule
       call input_check('noarg', arg, '--ncfile')
       call input_check('nofile', arg)
       input_file%path = adjustl(arg)
-      print '(a)', 'input ncfile = '//trim(adjustl(input_file%path))
     case default
       call input_check('noopt', arg)
     end select
@@ -49,35 +47,33 @@ use hamodule
     ncid = input_file%ncid&
   )
 
-  !if(ncstatus /= nf90_noerr) call nc_error_check('nc_open', ncstatus, input_file%paht)
+  if(ncstatus /= nf90_noerr) call nc_error_check('nc_open', ncstatus, input_file%path)
 
-  !ncstatus = nf90_inquire(&
-    !ncid = input_file%ncid,&
-    !ndimensions = input_file%ncinquire%ndimensions,&
-    !nvariables = input_file%ncinquire%nvariables,&
-    !nattributes = input_file%ncinquire%nattributes,&
-    !unlimiteddimid = input_file%ncinquire%unlimiteddimid,&
-    !formatnum = input_file%ncinquire%formatnum&
-  !)
+  ncstatus = nf90_inquire(&
+    ncid = input_file%ncid,&
+    ndimensions = input_file%inquire%ndimensions,&
+    nvariables = input_file%inquire%nvariables,&
+    nattributes = input_file%inquire%nattributes,&
+    unlimiteddimid = input_file%inquire%unlimiteddimid,&
+    formatnum = input_file%inquire%formatnum&
+  )
 
-  !if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire', ncstatus)
+  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire', ncstatus)
 
-  !print *, 'nDimensions = ', ndim
-  !print *, 'nvariables = ', nvar 
-  !print *, 'nAttributes = ', natt
-  !print *, 'unlimitedDimid = ', unlimdim
-  !print *, 'formatNum = ', fmtnum
+  ncstatus = nf90_inq_dimid(&
+    input_file%ncid,&
+    'test',&
+    input_file%inquire%dimid&
+  )
 
-  !ncstatus = nf90_inq_dimid(ncun, 'test', dimid)
-  !ncstatus = nf90_inquire_dimension(ncun, dimid, name = dimname, len = dimlen)
-
-  !print *, 'dimid = ', dimid
-  !print *, 'dimname = ', dimname
-  !print *, 'dimlen = ', dimlen
-
-!contains
-
-
+  ncstatus = nf90_inquire_dimension(&
+    input_file%inquire%ncid,&
+    input_file%inquire%dimid,&
+    name = input_file%inquire%name,&
+    len = input_file%inquire%len&
+  )
+  
+  call print_nc_info(input_file)
 
 !function blank_string(string)
   !implicit none
