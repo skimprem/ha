@@ -51,26 +51,46 @@ use hamodule
 
   ncstatus = nf90_inquire(&
     ncid = input_file%ncid,&
-    ndimensions = input_file%inquire%ndimensions,&
-    nvariables = input_file%inquire%nvariables,&
-    nattributes = input_file%inquire%nattributes,&
-    unlimiteddimid = input_file%inquire%unlimiteddimid,&
-    formatnum = input_file%inquire%formatnum&
+    ndimensions = input_file%ndimensions,&
+    nvariables = input_file%nvariables,&
+    nattributes = input_file%nattributes,&
+    unlimiteddimid = input_file%unlimiteddimid,&
+    formatnum = input_file%formatnum&
   )
 
   if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire', ncstatus)
 
   ncstatus = nf90_inq_dimid(&
-    input_file%ncid,&
-    'test',&
-    input_file%inquire%dimid&
+    ncid = input_file%ncid,&
+    name = 'test',&
+    dimid = input_file%dimid&
   )
+  
+  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inq_dimid', ncstatus)
 
   ncstatus = nf90_inquire_dimension(&
-    input_file%inquire%ncid,&
-    input_file%inquire%dimid,&
-    name = input_file%inquire%name,&
-    len = input_file%inquire%len&
+    ncid = input_file%ncid,&
+    dimid = input_file%dimid,&
+    name = input_file%name,&
+    len = input_file%len&
+  )
+
+  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire_dimension', ncstatus)
+
+  ncstatus = nf90_inq_varid(&
+    ncid = input_file%ncid,&
+    name = 'test',&
+    varid = input_file%varid&
+  )
+
+  ncstatus = nf90_inquire_variable(&
+    ncid = input_file%ncid,&
+    varid = input_file%varid,&
+    name = input_file%name,&
+    xtype = input_file%xtype,&
+    ndims = input_file%ndims,&
+    dimids = input_file%dimids,&
+    natts = input_file%natts&
   )
   
   call print_nc_info(input_file)

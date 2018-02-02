@@ -2,16 +2,54 @@ module hamodule
 
 use netcdf
 
-type ncinquire
-  integer :: ncid, ndimensions, nvariables, nattributes, unlimiteddimid, formatnum,&
-  dimid, len
-  character(len=nf90_max_name) :: name
-end type ncinquire
-
 type ncfile
-  character(500) :: path
-  integer :: cmode, ncid, initialsize, chunksize
-  type(ncinquire) :: inquire
+  character(1000) :: path
+  character(nf90_max_name) ::& !
+             name,& !
+             newname,& !
+             curname !
+  integer ::& !
+             cmode,& !
+             ncid,& !
+             initialsize,& !
+             chunksize,& !
+             fillmode,& !
+             old_mode,& !
+             h_minfree,& !
+             v_align,& !
+             v_minfree,& !
+             r_align,& !
+             ndimensions,& !
+             nvariables,& !
+             nattributes,& !
+             unlimiteddimid,& !
+             formatnum,& !
+             len,& !
+             dimid,& !
+             xtype,& !
+             varid,& !
+             ndims,& !
+             natts,& !
+             attnum,& !
+             ncid_in,& !
+             varid_in,& !
+             ncid_out,& !
+             varid_out !
+
+  integer, dimension(:), allocatable ::& !
+             dimids,& !
+             int_values,& !
+             start,& !
+             count,& !
+             stride,& !
+             map !
+
+  real(8), dimension(:), allocatable ::& !
+             real_values !
+
+  logical, dimension(:), allocatable ::& !
+             logical_values !
+
 end type ncfile
 
 contains
@@ -26,15 +64,29 @@ subroutine nc_error_check(check_type, ncstatus, string)
 
   select case(check_type)
   case('nc_open')
+    print *, 'nc status = ', ncstatus
     select case(ncstatus)
     case(2)
       print '(a)', 'ERROR: File '//trim(adjustl(string))//' do not exist!'
       stop 'Stopped!'
     end select
   case('nc_inquire')
+    print *, 'nc status = ', ncstatus
     select case(ncstatus)
     case(2)
       stop 'Stopped!'
+    end select
+  case('nc_inq_dimid')
+    print *, 'nc status = ', ncstatus
+    select case(ncstatus)
+    case(2)
+      stop 'Stopped!'
+    end select
+  case('nc_inquire_dimension')
+    print *, 'nc status = ', ncstatus
+    select case(ncstatus)
+      case(2)
+        stop 'Stopped!'
     end select
   end select
 
@@ -95,6 +147,7 @@ subroutine print_nc_info(nc_file, type_info)
   implicit none
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in), optional :: type_info
+  !allocatable nc_file%dimids
   
   print '(a)', 'ncid: '//&
   integer_to_string(nc_file%ncid, int_string_len(nc_file%ncid))
@@ -102,20 +155,21 @@ subroutine print_nc_info(nc_file, type_info)
   print '(a)', 'mode: '//&
   integer_to_string(nc_file%cmode, int_string_len(nc_file%cmode))
   print '(a)', 'nDimensions: '//&
-  integer_to_string(nc_file%inquire%ndimensions, int_string_len(nc_file%inquire%ndimensions))
+  integer_to_string(nc_file%ndimensions, int_string_len(nc_file%ndimensions))
   print '(a)', 'nVariables: '//&
-  integer_to_string(nc_file%inquire%nvariables, int_string_len(nc_file%inquire%nvariables))
+  integer_to_string(nc_file%nvariables, int_string_len(nc_file%nvariables))
   print '(a)', 'nAttributes: '//&
-  integer_to_string(nc_file%inquire%nattributes, int_string_len(nc_file%inquire%nattributes))
+  integer_to_string(nc_file%nattributes, int_string_len(nc_file%nattributes))
   print '(a)', 'unlimitedDimid: '//&
-  integer_to_string(nc_file%inquire%unlimiteddimid, int_string_len(nc_file%inquire%unlimiteddimid))
+  integer_to_string(nc_file%unlimiteddimid, int_string_len(nc_file%unlimiteddimid))
   print '(a)', 'formatNum: '//&
-  integer_to_string(nc_file%inquire%formatnum, int_string_len(nc_file%inquire%formatnum))
+  integer_to_string(nc_file%formatnum, int_string_len(nc_file%formatnum))
   print '(a)', 'dimid: '//&
-  integer_to_string(nc_file%inquire%dimid, int_string_len(nc_file%inquire%dimid))
-  print '(a)', 'name: '//trim(adjustl(nc_file%inquire%name))
+  integer_to_string(nc_file%dimid, int_string_len(nc_file%dimid))
+  print '(a)', 'name: '//trim(adjustl(nc_file%name))
   print '(a)', 'len: '//&
-  integer_to_string(nc_file%inquire%len, int_string_len(nc_file%inquire%len))
+  integer_to_string(nc_file%len, int_string_len(nc_file%len))
+  !print '(a)', ''//
 
 
 end subroutine print_nc_info
