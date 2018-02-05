@@ -7,7 +7,7 @@ use hamodule
 
   character(*), parameter :: version = '1.0'
   character(*) :: arg*500 !, ncfile*250
-  integer :: j = 0
+  integer :: j = 0, i
   type(ncfile) :: input_file
   integer :: ncstatus
 
@@ -41,57 +41,58 @@ use hamodule
 
   input_file%cmode = nf90_nowrite
 
-  ncstatus = nf90_open(&
-    path = input_file%path,&
-    mode = input_file%cmode,&
-    ncid = input_file%ncid&
+  call nc_error_check(&
+    'nc_open',&
+    nf90_open(&
+      path = input_file%path,&
+      mode = input_file%cmode,&
+      ncid = input_file%ncid&
+    )&
   )
 
-  if(ncstatus /= nf90_noerr) call nc_error_check('nc_open', ncstatus, input_file%path)
-
-  ncstatus = nf90_inquire(&
-    ncid = input_file%ncid,&
-    ndimensions = input_file%ndimensions,&
-    nvariables = input_file%nvariables,&
-    nattributes = input_file%nattributes,&
-    unlimiteddimid = input_file%unlimiteddimid,&
-    formatnum = input_file%formatnum&
+  call nc_error_check(&
+    'nc_inquire',&
+    nf90_inquire(&
+      ncid = input_file%ncid,&
+      ndimensions = input_file%ndimensions,&
+      nvariables = input_file%nvariables,&
+      nattributes = input_file%nattributes,&
+      unlimiteddimid = input_file%unlimiteddimid,&
+      formatnum = input_file%formatnum&
+    )&
   )
 
-  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire', ncstatus)
+  do i = 1, input_file%ndimensions
+    print *, 'dim = ', i
+    call nc_error_check(&
+      'nc_inquire_dimension',&
+      nf90_inquire_dimension(&
+        ncid = input_file%ncid,&
+        dimid = i,&
+        name = input_file%name,&
+        len = input_file%len&
+      )&
+    )
+    print '(a)', trim(input_file%name)//' '//integer_to_string(input_file%len, int_string_len(input_file%len))
+  end do
 
-  ncstatus = nf90_inq_dimid(&
-    ncid = input_file%ncid,&
-    name = 'test',&
-    dimid = input_file%dimid&
-  )
-  
-  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inq_dimid', ncstatus)
+  !ncstatus = nf90_inq_varid(&
+    !ncid = input_file%ncid,&
+    !name = 'test',&
+    !varid = input_file%varid&
+  !)
 
-  ncstatus = nf90_inquire_dimension(&
-    ncid = input_file%ncid,&
-    dimid = input_file%dimid,&
-    name = input_file%name,&
-    len = input_file%len&
-  )
+  !call nc_error_check('nc_inq_varid', ncstatus)
 
-  if(ncstatus /= nf90_noerr) call nc_error_check('nc_inquire_dimension', ncstatus)
-
-  ncstatus = nf90_inq_varid(&
-    ncid = input_file%ncid,&
-    name = 'test',&
-    varid = input_file%varid&
-  )
-
-  ncstatus = nf90_inquire_variable(&
-    ncid = input_file%ncid,&
-    varid = input_file%varid,&
-    name = input_file%name,&
-    xtype = input_file%xtype,&
-    ndims = input_file%ndims,&
-    dimids = input_file%dimids,&
-    natts = input_file%natts&
-  )
+  !ncstatus = nf90_inquire_variable(&
+    !ncid = input_file%ncid,&
+    !varid = input_file%varid,&
+    !name = input_file%name,&
+    !xtype = input_file%xtype,&
+    !ndims = input_file%ndims,&
+    !dimids = input_file%dimids,&
+    !natts = input_file%natts&
+  !)
   
   call print_nc_info(input_file)
 

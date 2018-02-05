@@ -54,41 +54,38 @@ end type ncfile
 
 contains
 
-subroutine nc_error_check(check_type, ncstatus, string)
+subroutine nc_error_check(check_type, ncstatus)
+
+  use netcdf
 
   implicit none
   
   character(*), intent(in) :: check_type
   integer, intent(in) :: ncstatus
-  character(*), intent(in), optional :: string
 
-  select case(check_type)
-  case('nc_open')
-    print *, 'nc status = ', ncstatus
-    select case(ncstatus)
-    case(2)
-      print '(a)', 'ERROR: File '//trim(adjustl(string))//' do not exist!'
-      stop 'Stopped!'
+  if(ncstatus /= nf90_noerr) then
+    select case(check_type)
+    case('nc_open')
+      print '(a)',&
+      'Error in nc_open: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+    case('nc_inquire')
+      print '(a)',&
+      'Error in nc_inquire: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+    case('nc_inq_dimid')
+      print '(a)',&
+      'Error in nc_inq_dimid: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+    case('nc_inquire_dimension')
+      print '(a)',&
+      'Error in nc_inquire_dimension: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+    case('nc_inq_varid')
+      print '(a)',&
+      'Error in nc_inq_varid: '//integer_to_string(ncstatus, int_string_len(ncstatus))
     end select
-  case('nc_inquire')
-    print *, 'nc status = ', ncstatus
-    select case(ncstatus)
-    case(2)
-      stop 'Stopped!'
-    end select
-  case('nc_inq_dimid')
-    print *, 'nc status = ', ncstatus
-    select case(ncstatus)
-    case(2)
-      stop 'Stopped!'
-    end select
-  case('nc_inquire_dimension')
-    print *, 'nc status = ', ncstatus
-    select case(ncstatus)
-      case(2)
-        stop 'Stopped!'
-    end select
-  end select
+    print '(a)', trim(nf90_strerror(ncstatus))
+    stop 'Stopped!'
+  end if
+
+  return
 
 end subroutine nc_error_check
 
@@ -147,30 +144,30 @@ subroutine print_nc_info(nc_file, type_info)
   implicit none
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in), optional :: type_info
-  !allocatable nc_file%dimids
   
-  print '(a)', 'ncid: '//&
+  print '(a)', 'nc file info:'
+  print '(1x,a)', 'ncid: '//&
   integer_to_string(nc_file%ncid, int_string_len(nc_file%ncid))
-  print '(a)', 'path: '//trim(adjustl(nc_file%path))
-  print '(a)', 'mode: '//&
+  print '(1x,a)', 'path: '//trim(adjustl(nc_file%path))
+  print '(1x,a)', 'mode: '//&
   integer_to_string(nc_file%cmode, int_string_len(nc_file%cmode))
-  print '(a)', 'nDimensions: '//&
+  print '(1x,a)', 'nDimensions: '//&
   integer_to_string(nc_file%ndimensions, int_string_len(nc_file%ndimensions))
-  print '(a)', 'nVariables: '//&
+  print '(1x,a)', 'nVariables: '//&
   integer_to_string(nc_file%nvariables, int_string_len(nc_file%nvariables))
-  print '(a)', 'nAttributes: '//&
+  print '(1x,a)', 'nAttributes: '//&
   integer_to_string(nc_file%nattributes, int_string_len(nc_file%nattributes))
-  print '(a)', 'unlimitedDimid: '//&
+  print '(1x,a)', 'unlimitedDimid: '//&
   integer_to_string(nc_file%unlimiteddimid, int_string_len(nc_file%unlimiteddimid))
-  print '(a)', 'formatNum: '//&
+  print '(1x,a)', 'formatNum: '//&
   integer_to_string(nc_file%formatnum, int_string_len(nc_file%formatnum))
-  print '(a)', 'dimid: '//&
-  integer_to_string(nc_file%dimid, int_string_len(nc_file%dimid))
-  print '(a)', 'name: '//trim(adjustl(nc_file%name))
-  print '(a)', 'len: '//&
-  integer_to_string(nc_file%len, int_string_len(nc_file%len))
-  !print '(a)', ''//
-
+  !print '(1x,a)', 'dimid: '//&
+  !integer_to_string(nc_file%dimid, int_string_len(nc_file%dimid))
+  !print '(1x,a)', 'name: '//trim(adjustl(nc_file%name))
+  !print '(1x,a)', 'len: '//&
+  !integer_to_string(nc_file%len, int_string_len(nc_file%len))
+  !print '(1x,a)', 'varid: '//&
+  !integer_to_string(nc_file%varid, int_string_len(nc_file%varid))
 
 end subroutine print_nc_info
 
