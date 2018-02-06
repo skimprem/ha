@@ -7,7 +7,7 @@ use hamodule
 
   character(*), parameter :: version = '1.0'
   character(*) :: arg*500 !, ncfile*250
-  integer :: j = 0, i
+  integer :: j = 0, i, k
   type(ncfile) :: input_file
   integer :: ncstatus
 
@@ -62,19 +62,92 @@ use hamodule
     )&
   )
 
+  allocate(&
+    input_file%dimension(input_file%ndimensions),&
+    input_file%variable(input_file%nvariables)&
+  )
+  
   do i = 1, input_file%ndimensions
-    print *, 'dim = ', i
+
     call nc_error_check(&
       'nc_inquire_dimension',&
       nf90_inquire_dimension(&
         ncid = input_file%ncid,&
         dimid = i,&
-        name = input_file%name,&
-        len = input_file%len&
+        name = input_file%dimension(i)%name,&
+        len = input_file%dimension(i)%len&
       )&
     )
-    print '(a)', trim(input_file%name)//' '//integer_to_string(input_file%len, int_string_len(input_file%len))
+
   end do
+
+  do i = 1, input_file%nvariables
+
+    call nc_error_check(&
+      'nc_inquire_variable',&
+      nf90_inquire_variable(&
+        ncid = input_file%ncid,&
+        varid = i,&
+        name = input_file%variable(i)%name,&
+        xtype = input_file%variable(i)%xtype,&
+        ndims = input_file%variable(i)%ndims,&
+        natts = input_file%variable(i)%natts&
+      )&
+    )
+
+    allocate(&
+      input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
+      input_file%variable(i)%attribute(input_file%variable(i)%natts)&
+    )
+
+    input_file%variable(i)%varid = i
+
+    call nc_error_check(&
+      'nc_inquire_variable',&
+      nf90_inquire_variable(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        dimids = input_file%variable(i)%dimids&
+      )&
+    )
+
+    do k = 1, input_file%variable(i)%natts
+      
+      input_file%variable(i)%attribute(j)%attnum = j
+
+      call nc_error_check(&
+        'nc_inq_attname',&
+        nf90_inq_attname(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          attnum = input_file%variable(i)%attribute(j)%attnum,&
+          name = input_file%variable(i)%attribute(j)%name&
+        )&
+      )
+      
+      call nc_error_check(&
+        'nc_inquire_attribute',&
+        nf90_inquire_attribute(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          xtype = input_file%variable(i)%attribute(j)%xtype,&
+          len = input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+
+    end do
+
+  end do
+
+  !call nc_error_check(&
+    !'nc_inq_dimids',&
+    !nf90_inq_dimids(&
+      !ncid = input_file%ncid,&
+      !ndims = input_file%ndims,&
+      !dimids = input_file%dimids,&
+    !)&
+  !)
 
   !ncstatus = nf90_inq_varid(&
     !ncid = input_file%ncid,&

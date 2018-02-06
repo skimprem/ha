@@ -2,53 +2,89 @@ module hamodule
 
 use netcdf
 
+type ncdimensions
+
+  character(nf90_max_name) ::&
+    name
+  integer ::&
+    dimid,&
+    len
+
+end type ncdimensions
+
+type ncattributes
+  
+  character(nf90_max_name) ::&
+    name
+  integer ::&
+    xtype,&
+    len,&
+    attnum 
+
+end type ncattributes
+
+type ncvariables
+
+  character(nf90_max_name) ::&
+    name
+  integer ::&
+    varid,&
+    xtype,&
+    ndims,&
+    natts
+  integer, dimension(:), allocatable ::&
+    dimids
+  type(ncattributes), dimension(:), allocatable :: attribute
+
+end type ncvariables
+
 type ncfile
   character(1000) :: path
-  character(nf90_max_name) ::& !
-             name,& !
-             newname,& !
-             curname !
+  !character(nf90_max_name) ::& !
+    !newname,& !
+    !curname !
   integer ::& !
-             cmode,& !
-             ncid,& !
-             initialsize,& !
-             chunksize,& !
-             fillmode,& !
-             old_mode,& !
-             h_minfree,& !
-             v_align,& !
-             v_minfree,& !
-             r_align,& !
-             ndimensions,& !
-             nvariables,& !
-             nattributes,& !
-             unlimiteddimid,& !
-             formatnum,& !
-             len,& !
-             dimid,& !
-             xtype,& !
-             varid,& !
-             ndims,& !
-             natts,& !
-             attnum,& !
-             ncid_in,& !
-             varid_in,& !
-             ncid_out,& !
-             varid_out !
+    cmode,& !
+    ncid,& !
+    !initialsize,& !
+    !chunksize,& !
+    !fillmode,& !
+    !old_mode,& !
+    !h_minfree,& !
+    !v_align,& !
+    !v_minfree,& !
+    !r_align,& !
+    ndimensions,& !
+    nvariables,& !
+    nattributes,& !
+    unlimiteddimid,& !
+    formatnum!,& !
+    !dimid,& !
+    !xtype,& !
+    !size,& !
+    !nfields,& !
+    !ncid_in,& !
+    !varid_in,& !
+    !ncid_out,& !
+    !varid_out !
 
-  integer, dimension(:), allocatable ::& !
-             dimids,& !
-             int_values,& !
-             start,& !
-             count,& !
-             stride,& !
-             map !
+  type(ncdimensions), dimension(:), allocatable :: dimension
 
-  real(8), dimension(:), allocatable ::& !
-             real_values !
+  type(ncvariables), dimension(:), allocatable :: variable
 
-  logical, dimension(:), allocatable ::& !
-             logical_values !
+  !integer, dimension(:), allocatable ::& !
+    !dimids,& !
+    !int_values,& !
+    !start,& !
+    !count,& !
+    !stride,& !
+    !map !
+
+  !real(8), dimension(:), allocatable ::& !
+    !real_values !
+
+  !logical, dimension(:), allocatable ::& !
+    !logical_values !
 
 end type ncfile
 
@@ -144,22 +180,51 @@ subroutine print_nc_info(nc_file, type_info)
   implicit none
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in), optional :: type_info
+  integer :: i, j
   
   print '(a)', 'nc file info:'
-  print '(1x,a)', 'ncid: '//&
+  print '(2x,a)', 'ncid: '//&
   integer_to_string(nc_file%ncid, int_string_len(nc_file%ncid))
-  print '(1x,a)', 'path: '//trim(adjustl(nc_file%path))
-  print '(1x,a)', 'mode: '//&
+  print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
+  print '(2x,a)', 'mode: '//&
   integer_to_string(nc_file%cmode, int_string_len(nc_file%cmode))
-  print '(1x,a)', 'nDimensions: '//&
+  print '(2x,a)', 'nDimensions: '//&
   integer_to_string(nc_file%ndimensions, int_string_len(nc_file%ndimensions))
-  print '(1x,a)', 'nVariables: '//&
+  do i = 1, nc_file%ndimensions
+    print '(4x,a)', 'dim "'//trim(nc_file%dimension(i)%name)//'": '//&
+    integer_to_string(nc_file%dimension(i)%len, int_string_len(nc_file%dimension(i)%len))
+  end do
+  print '(2x,a)', 'nVariables: '//&
   integer_to_string(nc_file%nvariables, int_string_len(nc_file%nvariables))
-  print '(1x,a)', 'nAttributes: '//&
+  do i = 1, nc_file%nvariables
+    print '(4x,a)', 'var "'//trim(nc_file%variable(i)%name)//'":'
+    print '(6x,a)', 'xtype: '//&
+    integer_to_string(nc_file%variable(i)%xtype, int_string_len(nc_file%variable(i)%xtype))
+    print '(6x,a)', 'ndims: '//&
+    integer_to_string(nc_file%variable(i)%ndims, int_string_len(nc_file%variable(i)%ndims))
+    do j = 1, nc_file%variable(i)%ndims
+      print '(8x,a)', 'dimid: '//&
+      integer_to_string(nc_file%variable(i)%dimids(j), int_string_len(nc_file%variable(i)%dimids(j)))
+    end do
+    print '(6x,a)', 'natts: '//&
+    integer_to_string(nc_file%variable(i)%natts, int_string_len(nc_file%variable(i)%natts))
+    do j = 1, nc_file%variable(i)%natts
+      print '(8x,a)', 'att "'//trim(nc_file%variable(i)%attribute(j)%name)//'":'
+      print '(10x,a)', 'xtype: '//&
+      integer_to_string(nc_file%variable(i)%attribute(j)%xtype,&
+      int_string_len(nc_file%variable(i)%attribute(j)%xtype))
+      print '(10x,a)', 'len: '//&
+      integer_to_string(nc_file%variable(i)%attribute(j)%len,&
+      int_string_len(nc_file%variable(i)%attribute(j)%len))
+
+      !integer_to_s
+    end do
+  end do
+  print '(2x,a)', 'nAttributes: '//&
   integer_to_string(nc_file%nattributes, int_string_len(nc_file%nattributes))
-  print '(1x,a)', 'unlimitedDimid: '//&
+  print '(2x,a)', 'unlimitedDimid: '//&
   integer_to_string(nc_file%unlimiteddimid, int_string_len(nc_file%unlimiteddimid))
-  print '(1x,a)', 'formatNum: '//&
+  print '(2x,a)', 'formatNum: '//&
   integer_to_string(nc_file%formatnum, int_string_len(nc_file%formatnum))
   !print '(1x,a)', 'dimid: '//&
   !integer_to_string(nc_file%dimid, int_string_len(nc_file%dimid))
