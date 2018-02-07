@@ -21,6 +21,18 @@ type ncattributes
     len,&
     attnum 
 
+  character(nf90_max_name) ::&
+    value_char
+
+  integer, dimension(:), allocatable ::&
+    value_int2
+  integer(4), dimension(:), allocatable ::&
+    value_int4
+  real(4), dimension(:), allocatable ::&
+    value_real4
+  real(8), dimension(:), allocatable ::&
+    value_real8
+
 end type ncattributes
 
 type ncvariables
@@ -180,7 +192,7 @@ subroutine print_nc_info(nc_file, type_info)
   implicit none
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in), optional :: type_info
-  integer :: i, j
+  integer :: i, j, k
   
   print '(a)', 'nc file info:'
   print '(2x,a)', 'ncid: '//&
@@ -216,7 +228,20 @@ subroutine print_nc_info(nc_file, type_info)
       print '(10x,a)', 'len: '//&
       integer_to_string(nc_file%variable(i)%attribute(j)%len,&
       int_string_len(nc_file%variable(i)%attribute(j)%len))
-
+    
+      select case(nc_file%variable(i)%attribute(j)%xtype)
+      case(5)
+        do k = 1, nc_file%variable(i)%attribute(j)%len
+          print *, 'att val real4 = ', nc_file%variable(i)%attribute(j)%value_real4(k)
+        end do
+      case(6)
+        do k = 1, nc_file%variable(i)%attribute(j)%len
+          print *, 'att val real8 = ', nc_file%variable(i)%attribute(j)%value_real8(k)
+        end do
+      case(2)
+        print '(12x,a)', 'att val char = '//&
+        trim(nc_file%variable(i)%attribute(j)%value_char)
+      end select
       !integer_to_s
     end do
   end do

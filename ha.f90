@@ -6,8 +6,8 @@ use hamodule
   implicit none
 
   character(*), parameter :: version = '1.0'
-  character(*) :: arg*500 !, ncfile*250
-  integer :: j = 0, i, k
+  character(*) :: arg*500, temp*500 !, ncfile*250
+  integer :: k = 0, i, j
   type(ncfile) :: input_file
   integer :: ncstatus
 
@@ -18,9 +18,9 @@ use hamodule
     stop
   end if
 
-  do while(j < command_argument_count())
-    j = j + 1
-    call get_command_argument(j, arg)
+  do while(k < command_argument_count())
+    k = k + 1
+    call get_command_argument(k, arg)
 
     if(trim(adjustl(arg)) == '') then
       print '(a)', 'ERROR: Do not set any option!'
@@ -29,8 +29,8 @@ use hamodule
 
     select case(arg)
     case('--ncfile')
-      j = j + 1
-      call get_command_argument(j, arg)
+      k = k + 1
+      call get_command_argument(k, arg)
       call input_check('noarg', arg, '--ncfile')
       call input_check('nofile', arg)
       input_file%path = adjustl(arg)
@@ -111,7 +111,7 @@ use hamodule
       )&
     )
 
-    do k = 1, input_file%variable(i)%natts
+    do j = 1, input_file%variable(i)%natts
       
       input_file%variable(i)%attribute(j)%attnum = j
 
@@ -136,6 +136,77 @@ use hamodule
         )&
       )
 
+      select case(input_file%variable(i)%attribute(j)%xtype)
+      case(0)
+        ! 0
+      case(1)
+        ! NC_BYTE: 8-bit signed integer
+      case(7)
+        ! NC_UBYTE: 8-bit unsigned integer
+      case(2)
+        ! NC_CHAR: 8-bit character byte
+        !allocate(&
+          !input_file%variable(i)%attribute(j)%value_char(&
+            !input_file%variable(i)%attribute(j)%len&
+          !)&
+        !)
+        call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = input_file%ncid,&
+            varid = input_file%variable(i)%varid,&
+            name = input_file%variable(i)%attribute(j)%name,&
+            values = input_file%variable(i)%attribute(j)%value_char&
+          )&
+        )
+
+      case(3)
+        ! NC_SHORT: 16-bit signed integer
+      case(8)
+        ! NC_USHORT: 16-bit unsigned integer
+      case(4)
+        ! NC_INT: (NC_LONG): 32-bit signed integer
+      case(9)
+        ! NC_UINT: 32-bit unsigned integer
+      case(10)
+        ! NC_INT64: 64-bit signed integer
+      case(11)
+        ! NC_UINT64: 64-bit unsigned integer
+      case(5)
+        ! NC_FLOAT: 32-bit floating point
+        allocate(&
+          input_file%variable(i)%attribute(j)%value_real4(&
+            input_file%variable(i)%attribute(j)%len&
+          )&
+        )
+        call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = input_file%ncid,&
+            varid = input_file%variable(i)%varid,&
+            name = input_file%variable(i)%attribute(j)%name,&
+            values = input_file%variable(i)%attribute(j)%value_real4&
+          )&
+        )
+      case(6)
+        ! NC_DOUBLE: 64-bit floating point
+        allocate(&
+          input_file%variable(i)%attribute(j)%value_real8(&
+            input_file%variable(i)%attribute(j)%len&
+          )&
+        )
+        call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = input_file%ncid,&
+            varid = input_file%variable(i)%varid,&
+            name = input_file%variable(i)%attribute(j)%name,&
+            values = input_file%variable(i)%attribute(j)%value_real8&
+          )&
+        )
+      case(12)
+        ! NC_STRING: variable length character string
+      end select
     end do
 
   end do
@@ -168,69 +239,5 @@ use hamodule
   !)
   
   call print_nc_info(input_file)
-
-!function blank_string(string)
-  !implicit none
-  !logical :: blank_string
-  !character(*), intent(in) :: string
-  !blank_string = .false. 
-  !if (trim(adjustl(string)) == '') then
-    !blank_string = .true. 
-  !end if
-!end function
-
-!subroutine print_error(i, arg)
-  !! i-parameter
-  !! 1: unrecognized option -> stop
-  !! 2: do not set option 'arg' -> stop
-  !! 3: do not set necessary option -> stop
-  !! 4: unrecognized parameter 'arg' -> stop
-  !! 5: do not set parameter 'arg' -> stop
-  !! 6: do not set necessary parameter -> stop
-  !! 7: file not exist -> stop
-  !! 8: file not exist -> return
-  !! 9: unrecognized parameter 'arg' -> return
-  !implicit none
-  !character(*), optional :: arg
-  !integer, optional :: i
-  !!print '(/)'
-  !if (present(i)) then
-    !select case(i)
-    !case (1)
-      !print '(a,a,a,/)', 'ERROR: Unrecognized command-line option "', arg, '"'
-    !case (2)
-      !print '(a,a,a,/)', 'ERROR: Do not set option "', arg, '"'
-    !case (3)
-      !print '(a,/)', 'ERROR: Do not set necessary option!'
-    !case (4)
-      !print '(a,a,a,/)', 'ERROR: Unrecognized command-line parameter "', arg, '"'
-    !case (5)
-      !print '(a,a,a,/)', 'ERROR: Do not define parameter of option "',&
-      !arg, '"'
-    !case (6)
-      !print '(a,/)', 'ERROR: Do not set necessary parameter!'
-    !case (7)
-      !print '(a,a,a)', 'ERROR: No such file "', arg, '"'
-    !case (8)
-      !print '(a,a,a,/)', 'ERROR: No such file "', arg, '"'
-      !return
-    !case (9)
-      !print '(a,a,a,/)', 'ERROR: Unrecognized parameter "', arg, '" &
-      !in input file'
-      !!call print_help()
-      !return
-    !case (10)
-      !write(6, '(1x,a,a,a)', advance = 'no') 'WARNING: File "', arg, &
-      !'" is exist! Overwrite? [y/n]:'
-      !return
-    !case default
-      !print '(a,/)', 'ERROR!'
-    !end select
-  !else
-    !print '(a,/)', 'ERROR!'
-  !end if
-  !!call print_help()
-  !stop
-!end subroutine
 
 end program ha
