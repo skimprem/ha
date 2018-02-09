@@ -196,7 +196,7 @@ subroutine print_nc_info(nc_file, type_info)
   
   print '(a)', 'nc file info:'
   print '(2x,a)', 'ncid: '//&
-  integer_to_string(nc_file%ncid, int_string_len(nc_file%ncid))
+  number_to_string(iv = nc_file%ncid, len = num_len(iv = nc_file%ncid))
   print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
   print '(2x,a)', 'mode: '//&
   integer_to_string(nc_file%cmode, int_string_len(nc_file%cmode))
@@ -232,17 +232,24 @@ subroutine print_nc_info(nc_file, type_info)
       select case(nc_file%variable(i)%attribute(j)%xtype)
       case(5)
         do k = 1, nc_file%variable(i)%attribute(j)%len
-          print *, 'att val real4 = ', nc_file%variable(i)%attribute(j)%value_real4(k)
+          print '(10x,a)',&
+          'att val real4 = '//&
+          number_to_string(rv = nc_file%variable(i)%attribute(j)%value_real4(k),&
+          len = num_len(rv = nc_file%variable(i)%attribute(j)%value_real4(k)))
         end do
       case(6)
         do k = 1, nc_file%variable(i)%attribute(j)%len
-          print *, 'att val real8 = ', nc_file%variable(i)%attribute(j)%value_real8(k)
+          print '(10x,a)',&
+          'att val real8 = '//&
+          number_to_string(rv = nc_file%variable(i)%attribute(j)%value_real8(k),&
+          len = num_len(rv = nc_file%variable(i)%attribute(j)%value_real8(k)))
+
+          !print *, 'att val real8 = ', nc_file%variable(i)%attribute(j)%value_real8(k)
         end do
       case(2)
         print '(12x,a)', 'att val char = '//&
         trim(nc_file%variable(i)%attribute(j)%value_char)
       end select
-      !integer_to_s
     end do
   end do
   print '(2x,a)', 'nAttributes: '//&
@@ -261,6 +268,33 @@ subroutine print_nc_info(nc_file, type_info)
 
 end subroutine print_nc_info
 
+integer(4) function num_len(iv, rv)
+
+  implicit none
+  integer, intent(in), optional :: iv
+  !integer(4), intent(in), optional :: i4
+  real, intent(in), optional :: rv
+  !real(8), intent(in), optional :: r8
+  character(10000) :: string
+
+  if(present(iv)) then
+    write(string, *) iv
+  !else if(present(i4)) then
+    !write(string, *) i4
+  else if(present(rv)) then
+    write(string, *) rv
+  !else if(present(r8)) then
+    !write(string, *) r8
+  else
+    string = ''
+  end if
+
+  num_len = len_trim(adjustl(string))
+
+  return
+
+end function num_len
+
 integer(4) function int_string_len(val)
 
   implicit none
@@ -274,6 +308,54 @@ integer(4) function int_string_len(val)
   return
 
 end function int_string_len
+
+integer(4) function real_string_len(val)
+
+  implicit none
+  real(4), intent(in) :: val
+  character(10000) :: string
+
+  write(string, *) val
+
+  real_string_len = len_trim(adjustl(string))
+
+  return
+
+end function real_string_len
+
+function number_to_string(iv, rv, len, frmt)
+  
+  implicit none
+  integer, intent(in), optional :: iv
+  real, intent(in), optional :: rv
+  integer(4), intent(in) :: len
+  character(*), intent(in), optional :: frmt
+  character(10000) :: string
+  character(len=len) :: number_to_string
+
+  if(present(frmt)) then
+    if(present(iv)) then
+      write(string, frmt) iv
+    else if(present(rv)) then
+      write(string, frmt) rv
+    else
+      string = ''
+    end if
+  else
+    if(present(iv)) then
+      write(string, *) iv
+    else if(present(rv)) then
+      write(string, *) rv
+    else
+      string = ''
+    end if
+  end if
+
+  number_to_string = trim(adjustl(string))
+
+  !return
+
+end function number_to_string
 
 function integer_to_string(val, string_len, frmt)
 
@@ -295,6 +377,27 @@ function integer_to_string(val, string_len, frmt)
   return
 
 end function integer_to_string
+
+function real_to_string(val, string_len, frmt)
+  
+  implicit none
+  real(4), intent(in) :: val
+  integer(4), intent(in) :: string_len
+  character(*), intent(in), optional :: frmt
+  character(10000) :: string
+  character(len=string_len) :: real_to_string
+
+  if(present(frmt)) then
+    write(string, frmt) val
+  else
+    write(string, *) val
+  end if
+  
+  real_to_string = trim(adjustl(string))
+
+  return
+
+end function real_to_string
 
 end module hamodule
 
