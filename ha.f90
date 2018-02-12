@@ -94,6 +94,22 @@ use hamodule
         natts = input_file%variable(i)%natts&
       )&
     )
+    
+    input_file%variable(i)%type%name = ''
+    call nc_error_check(&
+      'nc_inq_type',&
+      nf90_inq_type(&
+        ncid = input_file%ncid,&
+        xtype = input_file%variable(i)%xtype,&
+        name = input_file%variable(i)%type%name,&
+        size = input_file%variable(i)%type%size,&
+        nfields = input_file%variable(i)%type%nfields&
+      )&
+    )
+
+    print *, 'type name: '//trim(input_file%variable(i)%type%name)
+    print *, 'type size: ', input_file%variable(i)%type%size
+    print *, 'type nfields: ', input_file%variable(i)%type%nfields
 
     allocate(&
       input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
@@ -145,11 +161,6 @@ use hamodule
         ! NC_UBYTE: 8-bit unsigned integer
       case(2)
         ! NC_CHAR: 8-bit character byte
-        !allocate(&
-          !input_file%variable(i)%attribute(j)%value_char(&
-            !input_file%variable(i)%attribute(j)%len&
-          !)&
-        !)
         call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
@@ -159,7 +170,6 @@ use hamodule
             values = input_file%variable(i)%attribute(j)%value_char&
           )&
         )
-
       case(3)
         ! NC_SHORT: 16-bit signed integer
       case(8)
@@ -209,35 +219,17 @@ use hamodule
       end select
     end do
 
+    !call nc_error_check(&
+      !'nc_get_var',&
+      !nf90_get_var(&
+        !ncid = input_file%ncid,&
+        !varid = input_file%variable(i)%varid,&
+        !values = input_file%
+      !)&
+    !)
+
   end do
-
-  !call nc_error_check(&
-    !'nc_inq_dimids',&
-    !nf90_inq_dimids(&
-      !ncid = input_file%ncid,&
-      !ndims = input_file%ndims,&
-      !dimids = input_file%dimids,&
-    !)&
-  !)
-
-  !ncstatus = nf90_inq_varid(&
-    !ncid = input_file%ncid,&
-    !name = 'test',&
-    !varid = input_file%varid&
-  !)
-
-  !call nc_error_check('nc_inq_varid', ncstatus)
-
-  !ncstatus = nf90_inquire_variable(&
-    !ncid = input_file%ncid,&
-    !varid = input_file%varid,&
-    !name = input_file%name,&
-    !xtype = input_file%xtype,&
-    !ndims = input_file%ndims,&
-    !dimids = input_file%dimids,&
-    !natts = input_file%natts&
-  !)
-  
+ 
   call print_nc_info(input_file)
 
 end program ha

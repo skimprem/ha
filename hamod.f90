@@ -35,6 +35,14 @@ type ncattributes
 
 end type ncattributes
 
+type ncxtypes
+  character(nf90_max_name) ::&
+    name
+  integer ::&
+    size,&
+    nfields
+end type ncxtypes
+
 type ncvariables
 
   character(nf90_max_name) ::&
@@ -46,7 +54,10 @@ type ncvariables
     natts
   integer, dimension(:), allocatable ::&
     dimids
+  !character(nf90_max_name) ::&
+    !type_name
   type(ncattributes), dimension(:), allocatable :: attribute
+  type(ncxtypes) :: type
 
 end type ncvariables
 
@@ -115,19 +126,45 @@ subroutine nc_error_check(check_type, ncstatus)
     select case(check_type)
     case('nc_open')
       print '(a)',&
-      'Error in nc_open: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+      'Error in nc_open: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
     case('nc_inquire')
       print '(a)',&
-      'Error in nc_inquire: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+      'Error in nc_inquire: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
     case('nc_inq_dimid')
       print '(a)',&
-      'Error in nc_inq_dimid: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+      'Error in nc_inq_dimid: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
     case('nc_inquire_dimension')
       print '(a)',&
-      'Error in nc_inquire_dimension: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+      'Error in nc_inquire_dimension: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
     case('nc_inq_varid')
       print '(a)',&
-      'Error in nc_inq_varid: '//integer_to_string(ncstatus, int_string_len(ncstatus))
+      'Error in nc_inq_varid: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    case('nc_variable')
+      print '(a)',&
+      'Error in nc_variable: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    case('nc_inq_attname')
+      print '(a)',&
+      'Error in nc_inq_attname: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    case('nc_inquire_attribute')
+      print '(a)',&
+      'Error in nc_inquire_attribute: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    case('nc_get_att')
+      print '(a)',&
+      'Error in nc_get_att: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    case('nc_')
+      print '(a)',&
+      'Error in nc_: '//&
+      number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+
     end select
     print '(a)', trim(nf90_strerror(ncstatus))
     stop 'Stopped!'
@@ -194,97 +231,101 @@ subroutine print_nc_info(nc_file, type_info)
   character(*), intent(in), optional :: type_info
   integer :: i, j, k
   
+  print '(a)', trim(nf90_inq_libvers())
   print '(a)', 'nc file info:'
   print '(2x,a)', 'ncid: '//&
-  number_to_string(iv = nc_file%ncid, len = num_len(iv = nc_file%ncid))
+  number_to_string(iv = int(nc_file%ncid, 4),&
+  len = num_len(iv = int(nc_file%ncid, 4)))
   print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
   print '(2x,a)', 'mode: '//&
-  integer_to_string(nc_file%cmode, int_string_len(nc_file%cmode))
+  number_to_string(iv = int(nc_file%cmode, 4),&
+  len = num_len(int(nc_file%cmode, 4)))
   print '(2x,a)', 'nDimensions: '//&
-  integer_to_string(nc_file%ndimensions, int_string_len(nc_file%ndimensions))
+  number_to_string(iv = int(nc_file%ndimensions, 4),&
+  len = num_len(int(nc_file%ndimensions, 4)))
   do i = 1, nc_file%ndimensions
-    print '(4x,a)', 'dim "'//trim(nc_file%dimension(i)%name)//'": '//&
-    integer_to_string(nc_file%dimension(i)%len, int_string_len(nc_file%dimension(i)%len))
+    print '(4x,a)', 'name: '//trim(nc_file%dimension(i)%name)
+    print '(6x,a)', 'len: '//&
+    number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
+    len = num_len(iv = int(nc_file%dimension(i)%len,4)))
   end do
   print '(2x,a)', 'nVariables: '//&
-  integer_to_string(nc_file%nvariables, int_string_len(nc_file%nvariables))
+  number_to_string(iv = int(nc_file%nvariables, 4),&
+  len = num_len(iv = int(nc_file%nvariables, 4)))
   do i = 1, nc_file%nvariables
-    print '(4x,a)', 'var "'//trim(nc_file%variable(i)%name)//'":'
+    print '(4x,a)', 'name: '//trim(nc_file%variable(i)%name)
     print '(6x,a)', 'xtype: '//&
-    integer_to_string(nc_file%variable(i)%xtype, int_string_len(nc_file%variable(i)%xtype))
+    number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
+    len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
     print '(6x,a)', 'ndims: '//&
-    integer_to_string(nc_file%variable(i)%ndims, int_string_len(nc_file%variable(i)%ndims))
+    number_to_string(iv = int(nc_file%variable(i)%ndims, 4),&
+    len = num_len(iv = int(nc_file%variable(i)%ndims, 4)))
     do j = 1, nc_file%variable(i)%ndims
       print '(8x,a)', 'dimid: '//&
-      integer_to_string(nc_file%variable(i)%dimids(j), int_string_len(nc_file%variable(i)%dimids(j)))
+      number_to_string(iv = int(nc_file%variable(i)%dimids(j), 4),&
+      len = num_len(iv = int(nc_file%variable(i)%dimids(j), 4)))
     end do
     print '(6x,a)', 'natts: '//&
-    integer_to_string(nc_file%variable(i)%natts, int_string_len(nc_file%variable(i)%natts))
+    number_to_string(iv = int(nc_file%variable(i)%natts, 4),&
+    len = num_len(iv = int(nc_file%variable(i)%natts, 4)))
     do j = 1, nc_file%variable(i)%natts
-      print '(8x,a)', 'att "'//trim(nc_file%variable(i)%attribute(j)%name)//'":'
+      print '(8x,a)', 'name: '//&
+      trim(nc_file%variable(i)%attribute(j)%name)
       print '(10x,a)', 'xtype: '//&
-      integer_to_string(nc_file%variable(i)%attribute(j)%xtype,&
-      int_string_len(nc_file%variable(i)%attribute(j)%xtype))
+      number_to_string(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4),&
+      len = num_len(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4)))
       print '(10x,a)', 'len: '//&
-      integer_to_string(nc_file%variable(i)%attribute(j)%len,&
-      int_string_len(nc_file%variable(i)%attribute(j)%len))
+      number_to_string(iv = int(nc_file%variable(i)%attribute(j)%len, 4),&
+      len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
     
       select case(nc_file%variable(i)%attribute(j)%xtype)
       case(5)
         do k = 1, nc_file%variable(i)%attribute(j)%len
           print '(10x,a)',&
-          'att val real4 = '//&
-          number_to_string(rv = nc_file%variable(i)%attribute(j)%value_real4(k),&
-          len = num_len(rv = nc_file%variable(i)%attribute(j)%value_real4(k)))
+          'value '//&
+          number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
+          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value_real4(k), 4),&
+          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value_real4(k), 4)))!,&
+          !frmt = '(f10.3)')
         end do
       case(6)
         do k = 1, nc_file%variable(i)%attribute(j)%len
           print '(10x,a)',&
-          'att val real8 = '//&
-          number_to_string(rv = nc_file%variable(i)%attribute(j)%value_real8(k),&
-          len = num_len(rv = nc_file%variable(i)%attribute(j)%value_real8(k)))
-
-          !print *, 'att val real8 = ', nc_file%variable(i)%attribute(j)%value_real8(k)
+          'value '//&
+          number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
+          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value_real8(k), 4),&
+          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value_real8(k), 4)))!,&
+          !frmt = '(f100.3)')
         end do
       case(2)
-        print '(12x,a)', 'att val char = '//&
+        print '(10x,a)', 'value: '//&
         trim(nc_file%variable(i)%attribute(j)%value_char)
       end select
     end do
   end do
   print '(2x,a)', 'nAttributes: '//&
-  integer_to_string(nc_file%nattributes, int_string_len(nc_file%nattributes))
+  number_to_string(iv = int(nc_file%nattributes, 4),&
+  len = num_len(iv = int(nc_file%nattributes, 4)))
   print '(2x,a)', 'unlimitedDimid: '//&
-  integer_to_string(nc_file%unlimiteddimid, int_string_len(nc_file%unlimiteddimid))
+  number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
+  len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
   print '(2x,a)', 'formatNum: '//&
-  integer_to_string(nc_file%formatnum, int_string_len(nc_file%formatnum))
-  !print '(1x,a)', 'dimid: '//&
-  !integer_to_string(nc_file%dimid, int_string_len(nc_file%dimid))
-  !print '(1x,a)', 'name: '//trim(adjustl(nc_file%name))
-  !print '(1x,a)', 'len: '//&
-  !integer_to_string(nc_file%len, int_string_len(nc_file%len))
-  !print '(1x,a)', 'varid: '//&
-  !integer_to_string(nc_file%varid, int_string_len(nc_file%varid))
+  number_to_string(iv = int(nc_file%formatnum, 4),&
+  len = num_len(iv = int(nc_file%formatnum, 4)))
 
 end subroutine print_nc_info
 
 integer(4) function num_len(iv, rv)
 
   implicit none
-  integer, intent(in), optional :: iv
-  !integer(4), intent(in), optional :: i4
+  integer(4), intent(in), optional :: iv
   real, intent(in), optional :: rv
-  !real(8), intent(in), optional :: r8
   character(10000) :: string
 
   if(present(iv)) then
     write(string, *) iv
-  !else if(present(i4)) then
-    !write(string, *) i4
   else if(present(rv)) then
     write(string, *) rv
-  !else if(present(r8)) then
-    !write(string, *) r8
   else
     string = ''
   end if
@@ -295,38 +336,10 @@ integer(4) function num_len(iv, rv)
 
 end function num_len
 
-integer(4) function int_string_len(val)
-
-  implicit none
-  integer(4), intent(in) :: val
-  character(10000) :: string
-
-  write(string, *) val
-
-  int_string_len = len_trim(adjustl(string))
-
-  return
-
-end function int_string_len
-
-integer(4) function real_string_len(val)
-
-  implicit none
-  real(4), intent(in) :: val
-  character(10000) :: string
-
-  write(string, *) val
-
-  real_string_len = len_trim(adjustl(string))
-
-  return
-
-end function real_string_len
-
 function number_to_string(iv, rv, len, frmt)
   
   implicit none
-  integer, intent(in), optional :: iv
+  integer(4), intent(in), optional :: iv
   real, intent(in), optional :: rv
   integer(4), intent(in) :: len
   character(*), intent(in), optional :: frmt
@@ -353,51 +366,9 @@ function number_to_string(iv, rv, len, frmt)
 
   number_to_string = trim(adjustl(string))
 
-  !return
+  return
 
 end function number_to_string
-
-function integer_to_string(val, string_len, frmt)
-
-  implicit none
-  integer(4), intent(in) :: val
-  integer(4), intent(in) :: string_len
-  character(*), intent(in), optional :: frmt
-  character(10000) :: string
-  character(len=string_len) :: integer_to_string
-  
-  if(present(frmt)) then
-      write(string, frmt) val
-  else
-      write(string, *) val
-  end if
-
-  integer_to_string = trim(adjustl(string))
-
-  return
-
-end function integer_to_string
-
-function real_to_string(val, string_len, frmt)
-  
-  implicit none
-  real(4), intent(in) :: val
-  integer(4), intent(in) :: string_len
-  character(*), intent(in), optional :: frmt
-  character(10000) :: string
-  character(len=string_len) :: real_to_string
-
-  if(present(frmt)) then
-    write(string, frmt) val
-  else
-    write(string, *) val
-  end if
-  
-  real_to_string = trim(adjustl(string))
-
-  return
-
-end function real_to_string
 
 end module hamodule
 
