@@ -102,14 +102,12 @@ use hamodule
         ncid = input_file%ncid,&
         xtype = input_file%variable(i)%xtype,&
         name = input_file%variable(i)%type%name,&
-        size = input_file%variable(i)%type%size,&
-        nfields = input_file%variable(i)%type%nfields&
+        size = input_file%variable(i)%type%size&
       )&
     )
 
     print *, 'type name: '//trim(input_file%variable(i)%type%name)
     print *, 'type size: ', input_file%variable(i)%type%size
-    print *, 'type nfields: ', input_file%variable(i)%type%nfields
 
     allocate(&
       input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
@@ -155,11 +153,11 @@ use hamodule
       select case(input_file%variable(i)%attribute(j)%xtype)
       case(0)
         ! 0
-      case(1)
+      case(nf90_byte)
         ! NC_BYTE: 8-bit signed integer
-      case(7)
+      case(nf90_ubyte)
         ! NC_UBYTE: 8-bit unsigned integer
-      case(2)
+      case(nf90_char)
         ! NC_CHAR: 8-bit character byte
         call nc_error_check(&
           'nc_get_att',&
@@ -170,19 +168,19 @@ use hamodule
             values = input_file%variable(i)%attribute(j)%value_char&
           )&
         )
-      case(3)
+      case(nf90_short)
         ! NC_SHORT: 16-bit signed integer
-      case(8)
+      case(nf90_ushort)
         ! NC_USHORT: 16-bit unsigned integer
-      case(4)
+      case(nf90_int)
         ! NC_INT: (NC_LONG): 32-bit signed integer
-      case(9)
+      case(nf90_uint)
         ! NC_UINT: 32-bit unsigned integer
-      case(10)
+      case(nf90_int64)
         ! NC_INT64: 64-bit signed integer
-      case(11)
+      case(nf90_uint64)
         ! NC_UINT64: 64-bit unsigned integer
-      case(5)
+      case(nf90_float)
         ! NC_FLOAT: 32-bit floating point
         allocate(&
           input_file%variable(i)%attribute(j)%value_real4(&
@@ -198,7 +196,7 @@ use hamodule
             values = input_file%variable(i)%attribute(j)%value_real4&
           )&
         )
-      case(6)
+      case(nf90_double)
         ! NC_DOUBLE: 64-bit floating point
         allocate(&
           input_file%variable(i)%attribute(j)%value_real8(&
@@ -214,7 +212,7 @@ use hamodule
             values = input_file%variable(i)%attribute(j)%value_real8&
           )&
         )
-      case(12)
+      case(nf90_string)
         ! NC_STRING: variable length character string
       end select
     end do
