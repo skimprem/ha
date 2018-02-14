@@ -12,6 +12,17 @@ type ncdimensions
 
 end type ncdimensions
 
+type ncvalues
+
+  integer(2), dimension(:), allocatable :: short
+  integer(4), dimension(:), allocatable :: int
+  integer(8), dimension(:), allocatable :: int64
+  real(4), dimension(:), allocatable :: float
+  real(8), dimension(:), allocatable :: double
+  character(nf90_max_name) :: char
+
+end type ncvalues
+
 type ncattributes
   
   character(nf90_max_name) ::&
@@ -21,26 +32,19 @@ type ncattributes
     len,&
     attnum 
 
-  character(nf90_max_name) ::&
-    value_char
-
-  integer, dimension(:), allocatable ::&
-    value_int2
-  integer(4), dimension(:), allocatable ::&
-    value_int4
-  real(4), dimension(:), allocatable ::&
-    value_real4
-  real(8), dimension(:), allocatable ::&
-    value_real8
+  type(ncvalues) ::&
+    value
 
 end type ncattributes
 
 type ncxtypes
+
   character(nf90_max_name) ::&
     name
   integer ::&
-    size,&
-    nfields
+    type,&
+    size
+
 end type ncxtypes
 
 type ncvariables
@@ -54,16 +58,18 @@ type ncvariables
     natts
   integer, dimension(:), allocatable ::&
     dimids
-  !character(nf90_max_name) ::&
-    !type_name
   type(ncattributes), dimension(:), allocatable :: attribute
-  type(ncxtypes) :: type
 
 end type ncvariables
 
 type ncfile
+
   character(1000) :: path
-  !character(nf90_max_name) ::& !
+  character(nf90_max_name) ::& !
+    name,&
+    title,&
+    history,&
+    conventions
     !newname,& !
     !curname !
   integer ::& !
@@ -82,36 +88,136 @@ type ncfile
     nattributes,& !
     unlimiteddimid,& !
     formatnum!,& !
-    !dimid,& !
-    !xtype,& !
-    !size,& !
-    !nfields,& !
-    !ncid_in,& !
-    !varid_in,& !
-    !ncid_out,& !
-    !varid_out !
 
   type(ncdimensions), dimension(:), allocatable :: dimension
 
   type(ncvariables), dimension(:), allocatable :: variable
 
-  !integer, dimension(:), allocatable ::& !
-    !dimids,& !
-    !int_values,& !
-    !start,& !
-    !count,& !
-    !stride,& !
-    !map !
-
-  !real(8), dimension(:), allocatable ::& !
-    !real_values !
-
-  !logical, dimension(:), allocatable ::& !
-    !logical_values !
+  type(ncattributes), dimension(:), allocatable :: attribute
 
 end type ncfile
 
 contains
+
+subroutine select_xtype(ncid, varid, xtype, name, len, value )
+
+  use netcdf
+
+  implicit none
+
+  integer :: ncid, varid, xtype, len
+  character(*) :: name
+  type(ncvalues) :: value
+
+    select case(input_file%variable(i)%attribute(j)%xtype)
+    case(0)
+      ! 0
+    case(nf90_byte)
+      ! NC_BYTE: 8-bit signed integer
+    case(nf90_ubyte)
+      ! NC_UBYTE: 8-bit unsigned integer
+    case(nf90_char)
+      ! NC_CHAR: 8-bit character byte
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%char&
+        )&
+      )
+    case(nf90_short)
+      ! NC_SHORT: 16-bit signed integer
+      allocate(&
+        input_file%variable(i)%attribute(j)%value%short(&
+          input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%short&
+        )&
+      )
+    case(nf90_ushort)
+      ! NC_USHORT: 16-bit unsigned integer
+    case(nf90_int)
+      ! NC_INT: (NC_LONG): 32-bit signed integer
+      allocate(&
+        input_file%variable(i)%attribute(j)%value%int(&
+          input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%int&
+        )&
+      )
+    case(nf90_uint)
+      ! NC_UINT: 32-bit unsigned integer
+    case(nf90_int64)
+      ! NC_INT64: 64-bit signed integer
+      allocate(&
+        input_file%variable(i)%attribute(j)%value%int64(&
+          input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%int64&
+        )&
+      )
+    case(nf90_uint64)
+      ! NC_UINT64: 64-bit unsigned integer
+    case(nf90_float)
+      ! NC_FLOAT: 32-bit floating point
+      allocate(&
+        input_file%variable(i)%attribute(j)%value%float(&
+          input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%float&
+        )&
+      )
+    case(nf90_double)
+      ! NC_DOUBLE: 64-bit floating point
+      allocate(&
+        input_file%variable(i)%attribute(j)%value%double(&
+          input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+      call nc_error_check(&
+        'nc_get_att',&
+        nf90_get_att(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          values = input_file%variable(i)%attribute(j)%value%double&
+        )&
+      )
+    case(nf90_string)
+      ! NC_STRING: variable length character string
+    end select
+
+end subroutine select_xtype
 
 subroutine nc_error_check(check_type, ncstatus)
 
@@ -231,7 +337,7 @@ subroutine print_nc_info(nc_file, type_info)
   character(*), intent(in), optional :: type_info
   integer :: i, j, k
   
-  print '(a)', trim(nf90_inq_libvers())
+  print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
   print '(a)', 'nc file info:'
   print '(2x,a)', 'ncid: '//&
   number_to_string(iv = int(nc_file%ncid, 4),&
@@ -279,33 +385,34 @@ subroutine print_nc_info(nc_file, type_info)
       len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
     
       select case(nc_file%variable(i)%attribute(j)%xtype)
-      case(5)
+      case(nf90_float)
         do k = 1, nc_file%variable(i)%attribute(j)%len
           print '(10x,a)',&
           'value '//&
           number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value_real4(k), 4),&
-          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value_real4(k), 4)))!,&
+          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value%float(k), 4),&
+          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value%float(k), 4)))!,&
           !frmt = '(f10.3)')
         end do
-      case(6)
+      case(nf90_double)
         do k = 1, nc_file%variable(i)%attribute(j)%len
           print '(10x,a)',&
           'value '//&
           number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value_real8(k), 4),&
-          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value_real8(k), 4)))!,&
+          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value%double(k), 4),&
+          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value%double(k), 4)))!,&
           !frmt = '(f100.3)')
         end do
-      case(2)
+      case(nf90_char)
         print '(10x,a)', 'value: '//&
-        trim(nc_file%variable(i)%attribute(j)%value_char)
+        trim(nc_file%variable(i)%attribute(j)%value%char)
       end select
     end do
   end do
   print '(2x,a)', 'nAttributes: '//&
   number_to_string(iv = int(nc_file%nattributes, 4),&
   len = num_len(iv = int(nc_file%nattributes, 4)))
+  print '(4x,a)', 'title: '//trim(nc_file%title)
   print '(2x,a)', 'unlimitedDimid: '//&
   number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
   len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
