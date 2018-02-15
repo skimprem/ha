@@ -93,6 +93,15 @@ use hamodule
       )&
     )
 
+    call get_att_xtype(&
+      ncid = input_file%ncid,&
+      varid = nf90_global,&
+      xtype = input_file%attribute(i)%xtype,&
+      name = input_file%attribute(i)%name,&
+      len = input_file%attribute(i)%len,&
+      value = input_file%attribute(i)%value&
+    )
+
   end do
   
   do i = 1, input_file%ndimensions
@@ -166,134 +175,41 @@ use hamodule
         )&
       )
 
-      !select case(input_file%variable(i)%attribute(j)%xtype)
-      !case(0)
-        !! 0
-      !case(nf90_byte)
-        !! NC_BYTE: 8-bit signed integer
-      !case(nf90_ubyte)
-        !! NC_UBYTE: 8-bit unsigned integer
-      !case(nf90_char)
-        !! NC_CHAR: 8-bit character byte
-        !call nc_error_check(&
-          !'nc_get_att',&
-          !nf90_get_att(&
-            !ncid = input_file%ncid,&
-            !varid = input_file%variable(i)%varid,&
-            !name = input_file%variable(i)%attribute(j)%name,&
-            !values = input_file%variable(i)%attribute(j)%value%char&
-          !)&
-        !)
-      !case(nf90_short)
-        !! NC_SHORT: 16-bit signed integer
-        !allocate(&
-          !input_file%variable(i)%attribute(j)%value%short(&
-            !input_file%variable(i)%attribute(j)%len&
-          !)&
-        !)
-        !call nc_error_check(&
-          !'nc_get_att',&
-          !nf90_get_att(&
-            !ncid = input_file%ncid,&
-            !varid = input_file%variable(i)%varid,&
-            !name = input_file%variable(i)%attribute(j)%name,&
-            !values = input_file%variable(i)%attribute(j)%value%short&
-          !)&
-        !)
-      !case(nf90_ushort)
-        !! NC_USHORT: 16-bit unsigned integer
-      !case(nf90_int)
-        !! NC_INT: (NC_LONG): 32-bit signed integer
-        !allocate(&
-          !input_file%variable(i)%attribute(j)%value%int(&
-            !input_file%variable(i)%attribute(j)%len&
-          !)&
-        !)
-        !call nc_error_check(&
-          !'nc_get_att',&
-          !nf90_get_att(&
-            !ncid = input_file%ncid,&
-            !varid = input_file%variable(i)%varid,&
-            !name = input_file%variable(i)%attribute(j)%name,&
-            !values = input_file%variable(i)%attribute(j)%value%int&
-          !)&
-        !)
-      !case(nf90_uint)
-        !! NC_UINT: 32-bit unsigned integer
-      !case(nf90_int64)
-        !! NC_INT64: 64-bit signed integer
-        !allocate(&
-          !input_file%variable(i)%attribute(j)%value%int64(&
-            !input_file%variable(i)%attribute(j)%len&
-          !)&
-        !)
-        !call nc_error_check(&
-          !'nc_get_att',&
-          !nf90_get_att(&
-            !ncid = input_file%ncid,&
-            !varid = input_file%variable(i)%varid,&
-            !name = input_file%variable(i)%attribute(j)%name,&
-            !values = input_file%variable(i)%attribute(j)%value%int64&
-          !)&
-        !)
-      !case(nf90_uint64)
-        !! NC_UINT64: 64-bit unsigned integer
-      !case(nf90_float)
-        !! NC_FLOAT: 32-bit floating point
-        !allocate(&
-          !input_file%variable(i)%attribute(j)%value%float(&
-            !input_file%variable(i)%attribute(j)%len&
-          !)&
-        !)
-        !call nc_error_check(&
-          !'nc_get_att',&
-          !nf90_get_att(&
-            !ncid = input_file%ncid,&
-            !varid = input_file%variable(i)%varid,&
-            !name = input_file%variable(i)%attribute(j)%name,&
-            !values = input_file%variable(i)%attribute(j)%value%float&
-          !)&
-        !)
-      !!case(nf90_double)
-        !!! NC_DOUBLE: 64-bit floating point
-        !!allocate(&
-          !!input_file%variable(i)%attribute(j)%value%double(&
-            !!input_file%variable(i)%attribute(j)%len&
-          !!)&
-        !!)
-        !!call nc_error_check(&
-          !!'nc_get_att',&
-          !!nf90_get_att(&
-            !!ncid = input_file%ncid,&
-            !!varid = input_file%variable(i)%varid,&
-            !!name = input_file%variable(i)%attribute(j)%name,&
-            !!values = input_file%variable(i)%attribute(j)%value%double&
-          !!)&
-        !!)
-      !case(nf90_string)
-        !! NC_STRING: variable length character string
-      !end select
+      call get_att_xtype(&
+        input_file%ncid,&
+        input_file%variable(i)%varid,&
+        input_file%variable(i)%attribute(j)%xtype,&
+        input_file%variable(i)%attribute(j)%name,&
+        input_file%variable(i)%attribute(j)%len,&
+        input_file%variable(i)%attribute(j)%value&
+      )
+
     end do
 
-    print *, input_file%variable(i)%attribute(j)%xtype
-
-    call select_xtype(&
-      input_file%ncid,&
-      input_file%variable(i)%varid,&
-      input_file%variable(i)%attribute(j)%xtype,&
-      input_file%variable(i)%attribute(j)%name,&
-      input_file%variable(i)%attribute(j)%len,&
-      input_file%variable(i)%attribute(j)%value&
-    )
-
-    !call nc_error_check(&
-      !'nc_get_var',&
-      !nf90_get_var(&
-        !ncid = input_file%ncid,&
-        !varid = input_file%variable(i)%varid,&
-        !values = input_file%
+    !allocate(&
+      !input_file%variable(i)%value(&
+      !input_file%variable(i)%ndims&
       !)&
     !)
+    
+    !do j = 1, input_file%variable(i)%ndims
+
+    if(input_file%variable(i)%ndims == 1) then
+
+      !call get_var_xtype(&
+        !ncid = input_file%ncid,&
+        !varid = input_file%variable(i)%varid,&
+      !)
+
+      call get_var_xtype(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        xtype = input_file%variable(i)%xtype,&
+        len = input_file%dimension(input_file%variable(i)%dimids(j))%len,&
+        value = input_file%variable(i)%value(j)&
+      )
+
+    !end do
 
   end do
  
