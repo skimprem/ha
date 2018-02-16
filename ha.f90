@@ -8,6 +8,7 @@ use hamodule
   character(*), parameter :: version = '1.0'
   character(*) :: arg*500, temp*500 !, ncfile*250
   integer :: k = 0, i, j
+  integer(4), dimension(:), allocatable :: dimslen
   type(ncfile) :: input_file
   integer :: ncstatus
 
@@ -186,30 +187,56 @@ use hamodule
 
     end do
 
-    !allocate(&
-      !input_file%variable(i)%value(&
-      !input_file%variable(i)%ndims&
-      !)&
-    !)
-    
-    !do j = 1, input_file%variable(i)%ndims
+    allocate( dimslen(input_file%variable(i)%ndims) )
 
-    if(input_file%variable(i)%ndims == 1) then
+    select case(input_file%variable(i)%ndims)
+    case(1)
+      call nc_error_check(&
+        'nc_inquire_dimension',&
+        nf90_inquire_dimension(&
+          ncid = input_file%ncid,&
+          dimid = input_file%variable(i)%dimids(1),&
+          len = dimslen(1)&
+        )&
+      )
 
-      !call get_var_xtype(&
-        !ncid = input_file%ncid,&
-        !varid = input_file%variable(i)%varid,&
-      !)
 
       call get_var_xtype(&
         ncid = input_file%ncid,&
         varid = input_file%variable(i)%varid,&
         xtype = input_file%variable(i)%xtype,&
-        len = input_file%dimension(input_file%variable(i)%dimids(j))%len,&
-        value = input_file%variable(i)%value(j)&
+        ndims = input_file%variable(i)%ndims,&
+        len = dimslen&
       )
 
-    !end do
+      !allocate(&
+        !input_file%variable(i)%value(&
+        !input_file%dimension(&
+          !input_file%variable(i)%dimids(1))%len&
+          !)&
+      !)
+      !print *, size(input_file%variable(i)%value)
+      !!call nc_error_check(&
+        !!'nc_get_var',&
+        !!nf90_get_var(&
+          !!ncid = input_file%ncid,&
+          !!varid = input_file%variable(i)%varid,&
+
+        !!)&
+      !!)
+
+    case(2)
+      !allocate(&
+        !input_file%variable(i)%value2(&
+        !input_file%dimension(&
+          !input_file%variable(i)%dimids(1))%len,
+        !input_file%dimension(&
+          !input_file%variable(i)%dimids(2)%len&
+          !)&
+      !)
+
+    end select
+    deallocate(dimslen)
 
   end do
  
