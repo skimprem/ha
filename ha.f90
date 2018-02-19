@@ -187,56 +187,40 @@ use hamodule
 
     end do
 
-    allocate( dimslen(input_file%variable(i)%ndims) )
-
-    select case(input_file%variable(i)%ndims)
-    case(1)
+    allocate( input_file%variable(i)%len(input_file%variable(i)%ndims) )
+    
+    do j = 1, input_file%variable(i)%ndims
       call nc_error_check(&
         'nc_inquire_dimension',&
         nf90_inquire_dimension(&
           ncid = input_file%ncid,&
-          dimid = input_file%variable(i)%dimids(1),&
-          len = dimslen(1)&
+          dimid = input_file%variable(i)%dimids(j),&
+          len = input_file%variable(i)%len(j)&
         )&
       )
+    end do
 
 
+    select case(input_file%variable(i)%ndims)
+    case(1)
       call get_var_xtype(&
         ncid = input_file%ncid,&
         varid = input_file%variable(i)%varid,&
         xtype = input_file%variable(i)%xtype,&
         ndims = input_file%variable(i)%ndims,&
-        len = dimslen&
+        len = input_file%variable(i)%len,&
+        val1 = input_file%variable(i)%val1&
       )
-
-      !allocate(&
-        !input_file%variable(i)%value(&
-        !input_file%dimension(&
-          !input_file%variable(i)%dimids(1))%len&
-          !)&
-      !)
-      !print *, size(input_file%variable(i)%value)
-      !!call nc_error_check(&
-        !!'nc_get_var',&
-        !!nf90_get_var(&
-          !!ncid = input_file%ncid,&
-          !!varid = input_file%variable(i)%varid,&
-
-        !!)&
-      !!)
-
     case(2)
-      !allocate(&
-        !input_file%variable(i)%value2(&
-        !input_file%dimension(&
-          !input_file%variable(i)%dimids(1))%len,
-        !input_file%dimension(&
-          !input_file%variable(i)%dimids(2)%len&
-          !)&
-      !)
-
+      call get_var_xtype(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        xtype = input_file%variable(i)%xtype,&
+        ndims = input_file%variable(i)%ndims,&
+        len = input_file%variable(i)%len,&
+        val2 = input_file%variable(i)%val2&
+      )
     end select
-    deallocate(dimslen)
 
   end do
  

@@ -62,6 +62,8 @@ type ncvariables
     natts
   integer, dimension(:), allocatable ::&
     dimids
+  integer, dimension(:), allocatable ::&
+    len
   type(ncattributes), dimension(:), allocatable :: attribute
   type(ncvalues), dimension(:), allocatable :: val1
   type(ncvalues), dimension(:,:), allocatable :: val2
@@ -425,7 +427,7 @@ subroutine print_nc_info(nc_file, type_info)
   implicit none
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in), optional :: type_info
-  integer :: i, j, k
+  integer :: i, j, k, l, m
   
   print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
   print '(a)', 'nc file info:'
@@ -498,7 +500,7 @@ subroutine print_nc_info(nc_file, type_info)
         trim(nc_file%variable(i)%attribute(j)%value(1)%char)
       end select
     end do
-  end do
+   end do
   print '(2x,a)', 'nAttributes: '//&
   number_to_string(iv = int(nc_file%nattributes, 4),&
   len = num_len(iv = int(nc_file%nattributes, 4)))
@@ -513,19 +515,51 @@ subroutine print_nc_info(nc_file, type_info)
   number_to_string(iv = int(nc_file%formatnum, 4),&
   len = num_len(iv = int(nc_file%formatnum, 4)))
 
+  print *, ''
+  do k = 1, nc_file%nvariables
+    do m = 1, nc_file%variable(k)%ndims
+      do i = 1, nc_file%variable(k)%len(m)
+        do l = 1, nc_file%variable(k+1)%ndims
+          do j = 1, nc_file%variable(k+1)%len(l)
+            print '(a)', &
+            number_to_string(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
+            len = num_len(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
+            frmt = '(f20.2)'),&
+            frmt = '(f20.2)')//' '//&
+            number_to_string(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
+            len = num_len(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
+            frmt = '(f20.2)'),&
+            frmt = '(f20.2)')//' '//& number_to_string(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
+            len = num_len(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
+            frmt = '(f20.4)'),&
+            frmt = '(f20.4)')
+          end do
+        end do
+      end do
+    end do
+  end do
 end subroutine print_nc_info
 
-integer(4) function num_len(iv, rv)
+integer(4) function num_len(iv, rv, frmt)
 
   implicit none
   integer(4), intent(in), optional :: iv
   real, intent(in), optional :: rv
+  character(*), intent(in), optional :: frmt
   character(10000) :: string
 
   if(present(iv)) then
-    write(string, *) iv
+    if(present(frmt)) then
+      write(string, frmt) iv
+    else
+      write(string, *) iv
+    end if
   else if(present(rv)) then
-    write(string, *) rv
+    if(present(frmt)) then
+      write(string, frmt) rv
+    else
+      write(string, *) rv
+    end if
   else
     string = ''
   end if
