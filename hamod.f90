@@ -429,115 +429,128 @@ subroutine print_nc_info(nc_file, type_info)
   character(*), intent(in), optional :: type_info
   integer :: i, j, k, l, m
   
-  print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
-  print '(a)', 'nc file info:'
-  print '(2x,a)', 'ncid: '//&
-  number_to_string(iv = int(nc_file%ncid, 4),&
-  len = num_len(iv = int(nc_file%ncid, 4)))
-  print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
-  print '(2x,a)', 'mode: '//&
-  number_to_string(iv = int(nc_file%cmode, 4),&
-  len = num_len(int(nc_file%cmode, 4)))
-  print '(2x,a)', 'nDimensions: '//&
-  number_to_string(iv = int(nc_file%ndimensions, 4),&
-  len = num_len(int(nc_file%ndimensions, 4)))
-  do i = 1, nc_file%ndimensions
-    print '(4x,a)', 'name: '//trim(nc_file%dimension(i)%name)
-    print '(6x,a)', 'len: '//&
-    number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
-    len = num_len(iv = int(nc_file%dimension(i)%len,4)))
-  end do
-  print '(2x,a)', 'nVariables: '//&
-  number_to_string(iv = int(nc_file%nvariables, 4),&
-  len = num_len(iv = int(nc_file%nvariables, 4)))
-  do i = 1, nc_file%nvariables
-    print '(4x,a)', 'name: '//trim(nc_file%variable(i)%name)
-    print '(6x,a)', 'xtype: '//&
-    number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
-    len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
-    print '(6x,a)', 'ndims: '//&
-    number_to_string(iv = int(nc_file%variable(i)%ndims, 4),&
-    len = num_len(iv = int(nc_file%variable(i)%ndims, 4)))
-    do j = 1, nc_file%variable(i)%ndims
-      print '(8x,a)', 'dimid: '//&
-      number_to_string(iv = int(nc_file%variable(i)%dimids(j), 4),&
-      len = num_len(iv = int(nc_file%variable(i)%dimids(j), 4)))
-    end do
-    print '(6x,a)', 'natts: '//&
-    number_to_string(iv = int(nc_file%variable(i)%natts, 4),&
-    len = num_len(iv = int(nc_file%variable(i)%natts, 4)))
-    do j = 1, nc_file%variable(i)%natts
-      print '(8x,a)', 'name: '//&
-      trim(nc_file%variable(i)%attribute(j)%name)
-      print '(10x,a)', 'xtype: '//&
-      number_to_string(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4),&
-      len = num_len(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4)))
-      print '(10x,a)', 'len: '//&
-      number_to_string(iv = int(nc_file%variable(i)%attribute(j)%len, 4),&
-      len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
-    
-      select case(nc_file%variable(i)%attribute(j)%xtype)
-      case(nf90_float)
-        do k = 1, nc_file%variable(i)%attribute(j)%len
-          print '(10x,a)',&
-          'value '//&
-          number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4),&
-          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4)))!,&
-          !frmt = '(f10.3)')
-        end do
-      case(nf90_double)
-        do k = 1, nc_file%variable(i)%attribute(j)%len
-          print '(10x,a)',&
-          'value '//&
-          number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-          number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4),&
-          len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4)))!,&
-          !frmt = '(f100.3)')
-        end do
-      case(nf90_char)
-        print '(10x,a)', 'value: '//&
-        trim(nc_file%variable(i)%attribute(j)%value(1)%char)
-      end select
-    end do
-   end do
-  print '(2x,a)', 'nAttributes: '//&
-  number_to_string(iv = int(nc_file%nattributes, 4),&
-  len = num_len(iv = int(nc_file%nattributes, 4)))
-  do i = 1, nc_file%nattributes
-    print '(4x,a)', trim(nc_file%attribute(i)%name)//': '//&
-    trim(nc_file%attribute(i)%value(1)%char)
-  end do
-  print '(2x,a)', 'unlimitedDimid: '//&
-  number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
-  len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
-  print '(2x,a)', 'formatNum: '//&
-  number_to_string(iv = int(nc_file%formatnum, 4),&
-  len = num_len(iv = int(nc_file%formatnum, 4)))
+  ! type_info:
+  !   att
+  !   data
+  !   attdata
 
-  print *, ''
-  do k = 1, nc_file%nvariables
-    do m = 1, nc_file%variable(k)%ndims
-      do i = 1, nc_file%variable(k)%len(m)
-        do l = 1, nc_file%variable(k+1)%ndims
-          do j = 1, nc_file%variable(k+1)%len(l)
-            print '(a)', &
-            number_to_string(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
-            len = num_len(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
-            frmt = '(f20.2)'),&
-            frmt = '(f20.2)')//' '//&
-            number_to_string(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
-            len = num_len(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
-            frmt = '(f20.2)'),&
-            frmt = '(f20.2)')//' '//& number_to_string(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
-            len = num_len(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
-            frmt = '(f20.4)'),&
-            frmt = '(f20.4)')
+  if(type_info == 'att' .or. type_info == 'attdata') then
+    print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
+    print '(a)', 'nc file info:'
+    print '(2x,a)', 'ncid: '//&
+    number_to_string(iv = int(nc_file%ncid, 4),&
+    len = num_len(iv = int(nc_file%ncid, 4)))
+    print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
+    print '(2x,a)', 'mode: '//&
+    number_to_string(iv = int(nc_file%cmode, 4),&
+    len = num_len(int(nc_file%cmode, 4)))
+    print '(2x,a)', 'nDimensions: '//&
+    number_to_string(iv = int(nc_file%ndimensions, 4),&
+    len = num_len(int(nc_file%ndimensions, 4)))
+    do i = 1, nc_file%ndimensions
+      print '(4x,a)', 'name: '//trim(nc_file%dimension(i)%name)
+      print '(6x,a)', 'len: '//&
+      number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
+      len = num_len(iv = int(nc_file%dimension(i)%len,4)))
+    end do
+    print '(2x,a)', 'nVariables: '//&
+    number_to_string(iv = int(nc_file%nvariables, 4),&
+    len = num_len(iv = int(nc_file%nvariables, 4)))
+    do i = 1, nc_file%nvariables
+      print '(4x,a)', 'name: '//trim(nc_file%variable(i)%name)
+      print '(6x,a)', 'xtype: '//&
+      number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
+      len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
+      print '(6x,a)', 'ndims: '//&
+      number_to_string(iv = int(nc_file%variable(i)%ndims, 4),&
+      len = num_len(iv = int(nc_file%variable(i)%ndims, 4)))
+      do j = 1, nc_file%variable(i)%ndims
+        print '(8x,a)', 'dimid: '//&
+        number_to_string(iv = int(nc_file%variable(i)%dimids(j), 4),&
+        len = num_len(iv = int(nc_file%variable(i)%dimids(j), 4)))
+      end do
+      print '(6x,a)', 'natts: '//&
+      number_to_string(iv = int(nc_file%variable(i)%natts, 4),&
+      len = num_len(iv = int(nc_file%variable(i)%natts, 4)))
+      do j = 1, nc_file%variable(i)%natts
+        print '(8x,a)', 'name: '//&
+        trim(nc_file%variable(i)%attribute(j)%name)
+        print '(10x,a)', 'xtype: '//&
+        number_to_string(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4),&
+        len = num_len(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4)))
+        print '(10x,a)', 'len: '//&
+        number_to_string(iv = int(nc_file%variable(i)%attribute(j)%len, 4),&
+        len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
+      
+        select case(nc_file%variable(i)%attribute(j)%xtype)
+        case(nf90_float)
+          do k = 1, nc_file%variable(i)%attribute(j)%len
+            print '(10x,a)',&
+            'value '//&
+            number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
+            number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4),&
+            len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4)))!,&
+            !frmt = '(f10.3)')
+          end do
+        case(nf90_double)
+          do k = 1, nc_file%variable(i)%attribute(j)%len
+            print '(10x,a)',&
+            'value '//&
+            number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
+            number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4),&
+            len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4)))!,&
+            !frmt = '(f100.3)')
+          end do
+        case(nf90_char)
+          print '(10x,a)', 'value: '//&
+          trim(nc_file%variable(i)%attribute(j)%value(1)%char)
+        end select
+      end do
+     end do
+    print '(2x,a)', 'nAttributes: '//&
+    number_to_string(iv = int(nc_file%nattributes, 4),&
+    len = num_len(iv = int(nc_file%nattributes, 4)))
+    do i = 1, nc_file%nattributes
+      print '(4x,a)', trim(nc_file%attribute(i)%name)//': '//&
+      trim(nc_file%attribute(i)%value(1)%char)
+    end do
+    print '(2x,a)', 'unlimitedDimid: '//&
+    number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
+    len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
+    print '(2x,a)', 'formatNum: '//&
+    number_to_string(iv = int(nc_file%formatnum, 4),&
+    len = num_len(iv = int(nc_file%formatnum, 4)))
+  end if
+
+  if(type_info == 'data' .or. type_info == 'attdata') then
+    print *, ''
+    do k = 1, nc_file%nvariables
+      do m = 1, nc_file%variable(k)%ndims
+        do i = 1, nc_file%variable(k)%len(m)
+          do l = 1, nc_file%variable(k+1)%ndims
+            do j = 1, nc_file%variable(k+1)%len(l)
+              print '(a)', &
+              number_to_string(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
+              len = num_len(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
+              frmt = '(f20.2)'),&
+              frmt = '(f20.2)')//' '//&
+              number_to_string(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
+              len = num_len(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
+              frmt = '(f20.2)'),&
+              frmt = '(f20.2)')//' '//&
+              number_to_string(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
+              len = num_len(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
+              frmt = '(f20.4)'),&
+              frmt = '(f20.4)')
+            end do
           end do
         end do
       end do
     end do
-  end do
+  end if
+
+  return
+
 end subroutine print_nc_info
 
 integer(4) function num_len(iv, rv, frmt)
@@ -603,6 +616,203 @@ function number_to_string(iv, rv, len, frmt)
   return
 
 end function number_to_string
+
+subroutine nc_reader()
+
+  use netcdf
+
+  implicit none
+  type(ncfile) :: input_file
+  integer :: k = 0, i, j, ncstatus
+
+  input_file%cmode = nf90_nowrite
+
+  call nc_error_check(&
+    'nc_open',&
+    nf90_open(&
+      path = input_file%path,&
+      mode = input_file%cmode,&
+      ncid = input_file%ncid&
+    )&
+  )
+
+  call nc_error_check(&
+    'nc_inquire',&
+    nf90_inquire(&
+      ncid = input_file%ncid,&
+      ndimensions = input_file%ndimensions,&
+      nvariables = input_file%nvariables,&
+      nattributes = input_file%nattributes,&
+      unlimiteddimid = input_file%unlimiteddimid,&
+      formatnum = input_file%formatnum&
+    )&
+  )
+
+  allocate(&
+    input_file%dimension(input_file%ndimensions),&
+    input_file%variable(input_file%nvariables),&
+    input_file%attribute(input_file%nattributes)&
+  )
+
+  do i = 1, input_file%nattributes
+    
+    input_file%attribute(i)%attnum = i
+
+    call nc_error_check(&
+      'nc_inq_attname',&
+      nf90_inq_attname(&
+        ncid = input_file%ncid,&
+        varid = nf90_global,&
+        attnum = input_file%attribute(i)%attnum,&
+        name = input_file%attribute(i)%name&
+      )&
+    )
+
+    call nc_error_check(&
+      'nc_inquire_attribute',&
+      nf90_inquire_attribute(&
+        ncid = input_file%ncid,&
+        varid = nf90_global,&
+        name = input_file%attribute(i)%name,&
+        xtype = input_file%attribute(i)%xtype,&
+        len = input_file%attribute(i)%len&
+      )&
+    )
+
+    call get_att_xtype(&
+      ncid = input_file%ncid,&
+      varid = nf90_global,&
+      xtype = input_file%attribute(i)%xtype,&
+      name = input_file%attribute(i)%name,&
+      len = input_file%attribute(i)%len,&
+      value = input_file%attribute(i)%value&
+    )
+
+  end do
+  
+  do i = 1, input_file%ndimensions
+
+    input_file%dimension(i)%dimid = i
+
+    call nc_error_check(&
+      'nc_inquire_dimension',&
+      nf90_inquire_dimension(&
+        ncid = input_file%ncid,&
+        dimid = input_file%dimension(i)%dimid,&
+        name = input_file%dimension(i)%name,&
+        len = input_file%dimension(i)%len&
+      )&
+    )
+
+  end do
+
+  do i = 1, input_file%nvariables
+    
+    input_file%variable(i)%varid = i
+
+    call nc_error_check(&
+      'nc_inquire_variable',&
+      nf90_inquire_variable(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        name = input_file%variable(i)%name,&
+        xtype = input_file%variable(i)%xtype,&
+        ndims = input_file%variable(i)%ndims,&
+        natts = input_file%variable(i)%natts&
+      )&
+    )
+    
+    allocate(&
+      input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
+      input_file%variable(i)%attribute(input_file%variable(i)%natts)&
+    )
+
+    call nc_error_check(&
+      'nc_inquire_variable',&
+      nf90_inquire_variable(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        dimids = input_file%variable(i)%dimids&
+      )&
+    )
+
+    do j = 1, input_file%variable(i)%natts
+      
+      input_file%variable(i)%attribute(j)%attnum = j
+
+      call nc_error_check(&
+        'nc_inq_attname',&
+        nf90_inq_attname(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          attnum = input_file%variable(i)%attribute(j)%attnum,&
+          name = input_file%variable(i)%attribute(j)%name&
+        )&
+      )
+      
+      call nc_error_check(&
+        'nc_inquire_attribute',&
+        nf90_inquire_attribute(&
+          ncid = input_file%ncid,&
+          varid = input_file%variable(i)%varid,&
+          name = input_file%variable(i)%attribute(j)%name,&
+          xtype = input_file%variable(i)%attribute(j)%xtype,&
+          len = input_file%variable(i)%attribute(j)%len&
+        )&
+      )
+
+      call get_att_xtype(&
+        input_file%ncid,&
+        input_file%variable(i)%varid,&
+        input_file%variable(i)%attribute(j)%xtype,&
+        input_file%variable(i)%attribute(j)%name,&
+        input_file%variable(i)%attribute(j)%len,&
+        input_file%variable(i)%attribute(j)%value&
+      )
+
+    end do
+
+    allocate( input_file%variable(i)%len(input_file%variable(i)%ndims) )
+    
+    do j = 1, input_file%variable(i)%ndims
+      call nc_error_check(&
+        'nc_inquire_dimension',&
+        nf90_inquire_dimension(&
+          ncid = input_file%ncid,&
+          dimid = input_file%variable(i)%dimids(j),&
+          len = input_file%variable(i)%len(j)&
+        )&
+      )
+    end do
+
+
+    select case(input_file%variable(i)%ndims)
+    case(1)
+      call get_var_xtype(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        xtype = input_file%variable(i)%xtype,&
+        ndims = input_file%variable(i)%ndims,&
+        len = input_file%variable(i)%len,&
+        val1 = input_file%variable(i)%val1&
+      )
+    case(2)
+      call get_var_xtype(&
+        ncid = input_file%ncid,&
+        varid = input_file%variable(i)%varid,&
+        xtype = input_file%variable(i)%xtype,&
+        ndims = input_file%variable(i)%ndims,&
+        len = input_file%variable(i)%len,&
+        val2 = input_file%variable(i)%val2&
+      )
+    end select
+
+  end do
+ 
+  call print_nc_info(input_file)
+
+
+end subroutine nc_reader
 
 end module hamodule
 
