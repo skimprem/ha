@@ -379,12 +379,13 @@ subroutine input_check(check_type, arg, string)
   character(*), intent(in) :: check_type
   character(*), intent(in) :: arg
   character(*), intent(in), optional :: string
-  logical :: file_exist = .false.
+  logical :: file_exist = .false., arg_true = .false.
+  integer(4) :: i, k = 1
 
   ! check types:
   !   'noarg' - parameter existence
   !   'nofile' - file existence
-  !   
+  !   'checkarg' - argument is true
 
   select case(check_type)
   case('noarg')
@@ -401,6 +402,18 @@ subroutine input_check(check_type, arg, string)
   case('noopt')
     print '(a)', 'ERROR: Option "'//trim(adjustl(arg))//'" unrecognized!'
     call print_help('stop')
+  case('checkarg')
+    do i = 1, len_trim(string)
+      if(string(i:i) == ',') then
+        if( trim(adjustl(arg)) == trim(adjustl(string(k:i-1))) ) arg_true = .true.
+        k = i + 1
+      end if
+    end do
+    if(trim(adjustl(string(k:))) == trim(adjustl(arg))) arg_true = .true.
+    if(arg_true .eqv. .false.) then
+      print '(a)', 'ERROR: The parameter '//trim(adjustl(arg))//' is incorrect!'
+      call print_help('stop')
+    end if
   end select
 
   return
@@ -411,12 +424,13 @@ subroutine print_help(type_help)
   implicit none
   character(*), intent(in), optional :: type_help
 
-  print '(a)', 'SOS!'
+  print '(a)', 'print help'
 
   if(present(type_help)) then
     select case(type_help)
     case('stop')
-      stop 'Stopped!'
+      !stop 'Stopped!'
+      stop
     end select
   end if
 
@@ -430,11 +444,11 @@ subroutine print_nc_info(nc_file, type_info)
   integer :: i, j, k, l, m
   
   ! type_info:
-  !   att
-  !   data
-  !   attdata
+  !   view
+  !   viewdata
+  !   viewinfo
 
-  if(type_info == 'att' .or. type_info == 'attdata') then
+  if(type_info == 'viewinfo' .or. type_info == 'view') then
     print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
     print '(a)', 'nc file info:'
     print '(2x,a)', 'ncid: '//&
@@ -522,7 +536,7 @@ subroutine print_nc_info(nc_file, type_info)
     len = num_len(iv = int(nc_file%formatnum, 4)))
   end if
 
-  if(type_info == 'data' .or. type_info == 'attdata') then
+  if(type_info == 'viewdata' .or. type_info == 'view') then
     print *, ''
     do k = 1, nc_file%nvariables
       do m = 1, nc_file%variable(k)%ndims
@@ -617,12 +631,13 @@ function number_to_string(iv, rv, len, frmt)
 
 end function number_to_string
 
-subroutine nc_reader()
+subroutine nc_reader(input_file, mode)
 
   use netcdf
 
   implicit none
-  type(ncfile) :: input_file
+  type(ncfile), intent(inout) :: input_file
+  character(*), intent(in), optional :: mode
   integer :: k = 0, i, j, ncstatus
 
   input_file%cmode = nf90_nowrite
@@ -809,8 +824,7 @@ subroutine nc_reader()
 
   end do
  
-  call print_nc_info(input_file)
-
+  if(present(mode)) call print_nc_info(input_file, mode)
 
 end subroutine nc_reader
 

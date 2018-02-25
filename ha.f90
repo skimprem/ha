@@ -1,16 +1,14 @@
 program ha
 
-use netcdf
 use hamodule
 
   implicit none
 
   character(*), parameter :: version = '1.0'
-  character(*) :: arg*500, temp*500 !, ncfile*250
-  integer :: k = 0, i, j
-  integer(4), dimension(:), allocatable :: dimslen
-  type(ncfile) :: input_file
-  integer :: ncstatus
+  character(1000) :: arg
+  character(8) :: ncmode
+  integer :: k = 0
+  type(ncfile) :: nc_file
 
   arg = ''
 
@@ -34,12 +32,18 @@ use hamodule
       call get_command_argument(k, arg)
       call input_check('noarg', arg, '--ncfile')
       call input_check('nofile', arg)
-      input_file%path = adjustl(arg)
+      nc_file%path = adjustl(arg)
+    case('--ncmode')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noarg', arg, '--ncmode')
+      call input_check('checkarg', arg, 'view,viewdata, viewinfo')
+      ncmode = adjustl(arg)
     case default
       call input_check('noopt', arg)
     end select
   end do
 
-  call nc_reader()
+  call nc_reader(nc_file, trim(ncmode))
 
 end program ha
