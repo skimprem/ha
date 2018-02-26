@@ -1,6 +1,7 @@
 program ha
 
 use hamodule
+use ncmodule
 
   implicit none
 
@@ -13,34 +14,34 @@ use hamodule
   arg = ''
 
   if (command_argument_count() == 0) then
-    call print_help()
-    stop
+    call input_check('noarg', arg)
+    !print '(a)', 'ERROR: Do not set any option!'
+    !call print_help('stop')
   end if
 
   do while(k < command_argument_count())
     k = k + 1
     call get_command_argument(k, arg)
 
-    if(trim(adjustl(arg)) == '') then
-      print '(a)', 'ERROR: Do not set any option!'
-      call print_help('stop')
-    end if
-
     select case(arg)
     case('--ncfile')
       k = k + 1
       call get_command_argument(k, arg)
-      call input_check('noarg', arg, '--ncfile')
+      call input_check('noopt', arg, '--ncfile')
       call input_check('nofile', arg)
       nc_file%path = adjustl(arg)
     case('--ncmode')
       k = k + 1
       call get_command_argument(k, arg)
-      call input_check('noarg', arg, '--ncmode')
-      call input_check('checkarg', arg, 'view,viewdata, viewinfo')
+      call input_check('noopt', arg, '--ncmode')
+      call input_check('charg', arg, 'view,viewdata, viewinfo')
       ncmode = adjustl(arg)
+    case('--help')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call print_help('stop')
     case default
-      call input_check('noopt', arg)
+      call input_check('unopt', arg)
     end select
   end do
 
