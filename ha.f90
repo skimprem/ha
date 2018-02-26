@@ -4,7 +4,7 @@ use hamodule
 
   implicit none
 
-  character(*), parameter :: version = '1.0'
+  character(*), parameter :: version = '1.1'
   character(1000) :: arg
   character(8) :: ncmode
   integer :: k = 0
