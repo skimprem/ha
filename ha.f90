@@ -24,19 +24,19 @@ use ncmodule
     call get_command_argument(k, arg)
 
     select case(arg)
-    case('--ncfile')
+    case('-nf', '--ncfile')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncfile')
       call input_check('nofile', arg)
       nc_file%path = adjustl(arg)
-    case('--ncmode')
+    case('nm', '--ncmode')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncmode')
-      call input_check('charg', arg, 'view,viewdata, viewinfo')
+      call input_check('charg', arg, 'view, viewdata, viewinfo')
       ncmode = adjustl(arg)
-    case('--help')
+    case('-h', '--help')
       k = k + 1
       call get_command_argument(k, arg)
       call print_help('stop')
