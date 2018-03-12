@@ -36,6 +36,11 @@ use ncmodule
       call input_check('noopt', arg, '--ncmode')
       call input_check('charg', arg, 'view, viewdata, viewinfo')
       ncmode = adjustl(arg)
+    case('hm', '--hamode')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noarg', arg, '--hamode')
+      call input_check('charg', arg, 'ni, ai, ls, st')
     case('-h', '--help')
       k = k + 1
       call get_command_argument(k, arg)
