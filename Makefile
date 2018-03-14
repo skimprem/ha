@@ -3,12 +3,13 @@ comp = gfortran
 outdir = ~/bin/
 NFDIR = /usr
 exec = ha.exe
+SHDIR = /usr/local/
 
 ha: $(objects)
-	$(comp) -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff
+	$(comp) -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff -L$(SHDIR)/lib/ -lSHTOOLS -lfftw3
 
 ha.o: ha.f90
-	$(comp) -c -I$(NFDIR)/include/ ha.f90
+	$(comp) -c -I$(NFDIR)/include/ -I$(SHDIR)/include/ ha.f90
 
 hamod.o: hamod.f90
 	$(comp) -c -I$(NFDIR)/include/ hamod.f90

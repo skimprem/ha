@@ -1,5 +1,6 @@
 program ha
 
+use SHTOOLS
 use hamodule
 use ncmodule
 
@@ -51,5 +52,17 @@ use ncmodule
   end do
 
   call nc_reader(nc_file, trim(ncmode))
+
+  call shexpanddh(&
+    griddh = ,&! input, real*8, dimension (n, n) or (n, 2*n)
+    n = ,&! input, integer
+    cilm = ,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
+    lmax = ,&! output, integer
+    norm = ,&! input, optional, integer, default = 1
+    sampling = ,&! input, optional, integer, default = 1
+    csphase = ,&! input, optional, integer, default = 1
+    lmax_calc = ,&! input, optional, integer, default = lmax
+    exitstatus = &! output, optional, integer
+  )
 
 end program ha
