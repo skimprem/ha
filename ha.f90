@@ -37,10 +37,15 @@ use ncmodule
       call input_check('noopt', arg, '--ncmode')
       call input_check('charg', arg, 'view, viewdata, viewinfo')
       ncmode = adjustl(arg)
+    case('lm', '--lmax')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noopt', arg, '--lmax')
+      call input_check('noint', arg)
     case('hm', '--hamode')
       k = k + 1
       call get_command_argument(k, arg)
-      call input_check('noarg', arg, '--hamode')
+      call input_check('noopt', arg, '--hamode')
       call input_check('charg', arg, 'ni, ai, ls, st')
     case('-h', '--help')
       k = k + 1
@@ -53,16 +58,16 @@ use ncmodule
 
   call nc_reader(nc_file, trim(ncmode))
 
-  call shexpanddh(&
-    griddh = ,&! input, real*8, dimension (n, n) or (n, 2*n)
-    n = ,&! input, integer
-    cilm = ,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
-    lmax = ,&! output, integer
-    norm = ,&! input, optional, integer, default = 1
-    sampling = ,&! input, optional, integer, default = 1
-    csphase = ,&! input, optional, integer, default = 1
-    lmax_calc = ,&! input, optional, integer, default = lmax
-    exitstatus = &! output, optional, integer
-  )
+  !call shexpanddh(&
+    !griddh = ,&! input, real*8, dimension (n, n) or (n, 2*n)
+    !n = ,&! input, integer
+    !cilm = ,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
+    !lmax = &! output, integer
+    !norm = ,&! input, optional, integer, default = 1
+    !sampling = ,&! input, optional, integer, default = 1
+    !csphase = ,&! input, optional, integer, default = 1
+    !lmax_calc = 360,&! input, optional, integer, default = lmax
+    !exitstatus = &! output, optional, integer
+  !)
 
 end program ha
