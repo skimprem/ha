@@ -1,5 +1,9 @@
 module hamodule
 
+  !type hacoeff
+    
+  !end type hacoeff
+
 contains
 
 subroutine input_check(check_type, arg, string)
