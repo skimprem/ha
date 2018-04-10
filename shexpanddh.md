@@ -23,7 +23,7 @@ call SHExpandDH(griddh, n, cilm, imax, norm, sampling, csphase, lmax_calc, exits
 
 **`n`**: input, integer
 > Число элементов в широте массива `griddh`. Если `sampling` равно 1 (по
->> умолчанию), то число элементов в долготе равно `n`. Если `sampling` равно 2,
+> умолчанию), то число элементов в долготе равно `n`. Если `sampling` равно 2,
 > то число долготных элементов равно `2n`. `n` должно быть целым числом.
 
 **`cilm`**: output, real\*8, dimension (2, `n`/2, `n`/2) или (2, `lmax_calc`+1,
@@ -41,7 +41,7 @@ call SHExpandDH(griddh, n, cilm, imax, norm, sampling, csphase, lmax_calc, exits
 > `cilm`.
 
 **`norm`**: input, optional, integer, default = 1
-> 1 (по умолчанию) = 4-pi (геодезия) нормализованные гармоники; 2 =
+> 1 (по умолчанию) = 4-$\pi$ (геодезия) нормализованные гармоники; 2 =
 > полунормализованные гармоники Шмидта; 3 = ненормализованные гармоники; 4 =
 > ортонормальные гармоники.
 
@@ -52,7 +52,7 @@ call SHExpandDH(griddh, n, cilm, imax, norm, sampling, csphase, lmax_calc, exits
 **`csphase`**: input, optional, integer, default = 1
 > 1 (по умолчанию) = фазовый коэффициент Кондона-Шортли не применяется к
 > присоединённым функциям Лежандра; -1 = добавляет фазовый коэффициент
-> Кондона-Шортли (-1)^m к присоединённым функциям Лежандра.
+> Кондона-Шортли $(-1)^m$ к присоединённым функциям Лежандра.
 
 **`lmax_calc`**: input, optional, integer, default = `lmax`
 > Максимальная степень сферических гармоник, вычисленная в разложении по
@@ -88,7 +88,7 @@ call SHExpandDH(griddh, n, cilm, imax, norm, sampling, csphase, lmax_calc, exits
 С помощью дополнительных аргументов `norm` и `csphase` может быть задано 
 применение нормализации сферических гармоник и фазовое условие Кондона-Шортли;
 если ничего не задано, то по умолчанию используется геодезическая 4-$\pi$
-нормализация гармоник, исключающая фазу Кондона-Шортли (-1)^m. Нормированные
+нормализация гармоник, исключающая фазу Кондона-Шортли $(-1)^m$. Нормированные
 функции Лежандра вычисляются в этой программе с использованием алгоритма
 масштабирования [Холмса-Фезерстоуна (2002)][2], который является точным примерно
 до степени 2800. Ненормированные функции являются точными примерно до степени
@@ -105,7 +105,10 @@ associated Legendre functions, J. Geodesy, 76, 279-299, 2002.][2]
 
 Смотрите также
 --------------
-[makegriddh]{}
+[makegriddh](makegriddh.md), [makegriddhc](makegriddhc.md),
+[shexpanddhc](shexpanddhc.md), [makegridglq](makegridglq.md),
+[shexpandglq](shexpandglq.md), [makegridglqc](makegridglqc.md),
+[shexpandglqc](shexpandglqc.md)
 
 [1]: https://doi.org/10.1006/aama.1994.1008
 [2]: https://doi.org/10.1007/s00190-002-0216-2
