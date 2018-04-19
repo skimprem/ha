@@ -1,681 +1,699 @@
-module ncmodule
+MODULE ncmodule
 
-  use netcdf
+  USE netcdf
 
-  type ncdimensions
-    character(nf90_max_name) ::&
-      name
-    integer ::&
-      dimid,&
-      len
-  end type ncdimensions
+  TYPE ncdimensions
+     CHARACTER(nf90_max_name) ::&
+          name
+     INTEGER ::&
+          dimid,&
+          len
+  END TYPE ncdimensions
 
-  type ncvalues
-    integer(2) :: short
-    integer(4) :: int
-    integer(8) :: int64
-    real(4) :: float
-    real(8) :: double
-    character(nf90_max_name) :: char
-  end type ncvalues
+  TYPE ncvalues
+     INTEGER(2) :: short
+     INTEGER(4) :: int
+     INTEGER(8) :: int64
+     REAL(4) :: float
+     REAL(8) :: DOUBLE
+     CHARACTER(nf90_max_name) :: char
+  END TYPE ncvalues
 
-  type ncattributes
-    character(nf90_max_name) ::&
-      name
-    integer ::&
-      xtype,&
-      len,&
-      attnum 
-    type(ncvalues), dimension(:), allocatable ::&
-      value
-  end type ncattributes
+  TYPE ncattributes
+     CHARACTER(nf90_max_name) ::&
+          name
+     INTEGER ::&
+          xtype,&
+          len,&
+          attnum 
+     TYPE(ncvalues), DIMENSION(:), ALLOCATABLE ::&
+          VALUE
+  END TYPE ncattributes
 
-  type ncxtypes
-    character(nf90_max_name) ::&
-      name
-    integer ::&
-      type,&
-      size
-  end type ncxtypes
+  TYPE ncxtypes
+     CHARACTER(nf90_max_name) ::&
+          name
+     INTEGER ::&
+          TYPE,&
+          size
+  END TYPE ncxtypes
 
-  type ncvariables
-    character(nf90_max_name) ::&
-      name
-    integer ::&
-      varid,&
-      xtype,&
-      ndims,&
-      natts
-    integer, dimension(:), allocatable ::&
-      dimids
-    integer, dimension(:), allocatable ::&
-      len
-    type(ncattributes), dimension(:), allocatable :: attribute
-    type(ncvalues), dimension(:), allocatable :: val1
-    type(ncvalues), dimension(:,:), allocatable :: val2
-    type(ncvalues), dimension(:,:,:), allocatable :: val3
-  end type ncvariables
+  TYPE ncvariables
+     CHARACTER(nf90_max_name) ::&
+          name
+     INTEGER ::&
+          varid,&
+          xtype,&
+          ndims,&
+          natts
+     INTEGER, DIMENSION(:), ALLOCATABLE ::&
+          dimids
+     INTEGER, DIMENSION(:), ALLOCATABLE ::&
+          len
+     TYPE(ncattributes), DIMENSION(:), ALLOCATABLE :: attribute
+     TYPE(ncvalues), DIMENSION(:), ALLOCATABLE :: val1
+     TYPE(ncvalues), DIMENSION(:,:), ALLOCATABLE :: val2
+     TYPE(ncvalues), DIMENSION(:,:,:), ALLOCATABLE :: val3
+  END TYPE ncvariables
 
-  type ncfile
-    character(1000) :: path
-    character(nf90_max_name) ::& !
-      name,&
-      title,&
-      history,&
-      conventions
-    integer ::& !
-      cmode,& !
-      ncid,& !
-      ndimensions,& !
-      nvariables,& !
-      nattributes,& !
-      unlimiteddimid,& !
-      formatnum !
-    type(ncdimensions), dimension(:), allocatable :: dimension
-    type(ncvariables), dimension(:), allocatable :: variable
-    type(ncattributes), dimension(:), allocatable :: attribute
-  end type ncfile
+  TYPE ncfile
+     CHARACTER(1000) :: path
+     CHARACTER(nf90_max_name) ::& !
+          name,&
+          title,&
+          history,&
+          conventions
+     INTEGER ::& !
+          cmode,& !
+          ncid,& !
+          ndimensions,& !
+          nvariables,& !
+          nattributes,& !
+          unlimiteddimid,& !
+          formatnum !
+     TYPE(ncdimensions), DIMENSION(:), ALLOCATABLE :: DIMENSION
+     TYPE(ncvariables), DIMENSION(:), ALLOCATABLE :: variable
+     TYPE(ncattributes), DIMENSION(:), ALLOCATABLE :: attribute
+  END TYPE ncfile
 
-contains
+CONTAINS
 
-  subroutine get_att_xtype(&
-    ncid,& !
-    varid,& !
-    xtype,& !
-    name,& !
-    len,& !
-    value) !
+  SUBROUTINE get_att_xtype(&
+       ncid,& !
+       varid,& !
+       xtype,& !
+       name,& !
+       len,& !
+       VALUE) !
 
-    use netcdf
+    USE netcdf
 
-    implicit none
+    IMPLICIT NONE
 
-    integer, intent(in) :: ncid, varid, xtype, len
-    character(*), intent(in) :: name
-    type(ncvalues), intent(out), dimension(:), allocatable :: value
+    INTEGER, INTENT(in) :: ncid, varid, xtype, len
+    CHARACTER(*), INTENT(in) :: name
+    TYPE(ncvalues), INTENT(out), DIMENSION(:), ALLOCATABLE :: VALUE
 
-    allocate( value(len) )
+    ALLOCATE( VALUE(len) )
 
-    select case(xtype)
-    case(0)
-      ! 0
-    case(nf90_byte)
-      ! NC_BYTE: 8-bit signed integer
-    case(nf90_ubyte)
-      ! NC_UBYTE: 8-bit unsigned integer
-    case(nf90_char)
-      ! NC_CHAR: 8-bit character byte
-      deallocate( value )
-      allocate( value(1) )
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value(1)%char&
-        )&
-      )
-    case(nf90_short)
-      ! NC_SHORT: 16-bit signed integer
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value%short&
-        )&
-      )
-    case(nf90_ushort)
-      ! NC_USHORT: 16-bit unsigned integer
-    case(nf90_int)
-      ! NC_INT: (NC_LONG): 32-bit signed integer
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value%int&
-        )&
-      )
-    case(nf90_uint)
-      ! NC_UINT: 32-bit unsigned integer
-    case(nf90_int64)
-      ! NC_INT64: 64-bit signed integer
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value%int64&
-        )&
-      )
-    case(nf90_uint64)
-      ! NC_UINT64: 64-bit unsigned integer
-    case(nf90_float)
-      ! NC_FLOAT: 32-bit floating point
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value%float&
-        )&
-      )
-    case(nf90_double)
-      ! NC_DOUBLE: 64-bit floating point
-      call nc_error_check(&
-        'nc_get_att',&
-        nf90_get_att(&
-          ncid = ncid,&
-          varid = varid,&
-          name = name,&
-          values = value%double&
-        )&
-      )
-    case(nf90_string)
-      ! NC_STRING: variable length character string
-    end select
-
-  end subroutine get_att_xtype
-
-  subroutine get_var_xtype(&
-    ncid,& !
-    varid,& !
-    xtype,& !
-    ndims,& !
-    len,& !
-    val1,& !
-    val2,& !
-    val3) !
-
-    implicit none
-    integer, intent(in) :: ncid, varid, xtype, ndims
-    integer, intent(in), dimension(ndims) :: len
-    type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
-    type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
-    type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
-
-    select case(ndims)
-    case(1)
-      allocate( val1(len(1)) )
-    case(2)
-      allocate( val2(len(1), len(2)) )
-    case(3)
-      allocate( val3(len(1), len(2), len(3)) )
-    end select
-
-    select case(xtype)
-    case(nf90_byte)
-    case(nf90_ubyte)
-    case(nf90_char)
-    case(nf90_short)
-    case(nf90_ushort)
-    case(nf90_int)
-    case(nf90_uint)
-    case(nf90_int64)
-    case(nf90_uint64)
-    case(nf90_float)
-      select case(ndims)
-      case(1)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+    SELECT CASE(xtype)
+    CASE(0)
+       ! 0
+    CASE(nf90_byte)
+       ! NC_BYTE: 8-bit signed integer
+    CASE(nf90_ubyte)
+       ! NC_UBYTE: 8-bit unsigned integer
+    CASE(nf90_char)
+       ! NC_CHAR: 8-bit character byte
+       DEALLOCATE( VALUE )
+       ALLOCATE( VALUE(1) )
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val1%float&
-          )&
-        )
-      case(2)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+            name = name,&
+            values = VALUE(1)%char&
+            )&
+            )
+    CASE(nf90_short)
+       ! NC_SHORT: 16-bit signed integer
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val2%float&
-          )&
-        )
-      case(3)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+            name = name,&
+            values = VALUE%short&
+            )&
+            )
+    CASE(nf90_ushort)
+       ! NC_USHORT: 16-bit unsigned integer
+    CASE(nf90_int)
+       ! NC_INT: (NC_LONG): 32-bit signed integer
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val3%float&
-          )&
-        )
-
-      end select
-    case(nf90_double)
-      select case(ndims)
-      case(1)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+            name = name,&
+            values = VALUE%int&
+            )&
+            )
+    CASE(nf90_uint)
+       ! NC_UINT: 32-bit unsigned integer
+    CASE(nf90_int64)
+       ! NC_INT64: 64-bit signed integer
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val1%double&
-          )&
-        )
-      case(2)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+            name = name,&
+            values = VALUE%int64&
+            )&
+            )
+    CASE(nf90_uint64)
+       ! NC_UINT64: 64-bit unsigned integer
+    CASE(nf90_float)
+       ! NC_FLOAT: 32-bit floating point
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val2%double&
-          )&
-        )
-      case(3)
-        call nc_error_check(&
-          'nc_get_var',&
-          nf90_get_var(&
+            name = name,&
+            values = VALUE%float&
+            )&
+            )
+    CASE(nf90_double)
+       ! NC_DOUBLE: 64-bit floating point
+       CALL nc_error_check(&
+            'nc_get_att',&
+            nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
-            values = val3%double&
-          )&
-        )
-      end select
-    case(nf90_string)
-    end select
+            name = name,&
+            values = VALUE%double&
+            )&
+            )
+    CASE(nf90_string)
+       ! NC_STRING: variable length character string
+    END SELECT
 
-  end subroutine get_var_xtype
+  END SUBROUTINE get_att_xtype
 
-  subroutine nc_error_check(check_type, ncstatus)
+  SUBROUTINE get_var_xtype(&
+       ncid,& !
+       varid,& !
+       xtype,& !
+       ndims,& !
+       len,& !
+       val1,& !
+       val2,& !
+       val3) !
 
-    use netcdf
-    use hamodule
+    IMPLICIT NONE
+    INTEGER, INTENT(in) :: ncid, varid, xtype, ndims
+    INTEGER, INTENT(in), DIMENSION(ndims) :: len
+    TYPE(ncvalues), INTENT(out), DIMENSION(:), ALLOCATABLE, OPTIONAL :: val1
+    TYPE(ncvalues), INTENT(out), DIMENSION(:,:), ALLOCATABLE, OPTIONAL :: val2
+    TYPE(ncvalues), INTENT(out), DIMENSION(:,:,:), ALLOCATABLE, OPTIONAL :: val3
 
-    implicit none
-    
-    character(*), intent(in) :: check_type
-    integer, intent(in) :: ncstatus
+    SELECT CASE(ndims)
+    CASE(1)
+       ALLOCATE( val1(LEN(1)) )
+    CASE(2)
+       ALLOCATE( val2(LEN(1), LEN(2)) )
+    CASE(3)
+       ALLOCATE( val3(LEN(1), LEN(2), LEN(3)) )
+    END SELECT
 
-    if(ncstatus /= nf90_noerr) then
-      select case(check_type)
-      case('nc_open')
-        print '(a)',&
-        'Error in nc_open: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inquire')
-        print '(a)',&
-        'Error in nc_inquire: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inq_dimid')
-        print '(a)',&
-        'Error in nc_inq_dimid: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inquire_dimension')
-        print '(a)',&
-        'Error in nc_inquire_dimension: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inq_varid')
-        print '(a)',&
-        'Error in nc_inq_varid: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_variable')
-        print '(a)',&
-        'Error in nc_variable: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inq_attname')
-        print '(a)',&
-        'Error in nc_inq_attname: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_inquire_attribute')
-        print '(a)',&
-        'Error in nc_inquire_attribute: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_get_att')
-        print '(a)',&
-        'Error in nc_get_att: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
-      case('nc_')
-        print '(a)',&
-        'Error in nc_: '//&
-        number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
+    SELECT CASE(xtype)
+    CASE(nf90_byte)
+    CASE(nf90_ubyte)
+    CASE(nf90_char)
+    CASE(nf90_short)
+    CASE(nf90_ushort)
+    CASE(nf90_int)
+    CASE(nf90_uint)
+    CASE(nf90_int64)
+    CASE(nf90_uint64)
+    CASE(nf90_float)
+       SELECT CASE(ndims)
+       CASE(1)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val1%float&
+               )&
+               )
+       CASE(2)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val2%float&
+               )&
+               )
+       CASE(3)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val3%float&
+               )&
+               )
 
-      end select
-      print '(a)', trim(nf90_strerror(ncstatus))
-      stop 'Stopped!'
-    end if
+       END SELECT
+    CASE(nf90_double)
+       SELECT CASE(ndims)
+       CASE(1)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val1%double&
+               )&
+               )
+       CASE(2)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val2%double&
+               )&
+               )
+       CASE(3)
+          CALL nc_error_check(&
+               'nc_get_var',&
+               nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val3%double&
+               )&
+               )
+       END SELECT
+    CASE(nf90_string)
+    END SELECT
 
-    return
+  END SUBROUTINE get_var_xtype
 
-  end subroutine nc_error_check
+  SUBROUTINE nc_error_check(check_type, ncstatus)
 
-  subroutine print_nc_info(nc_file, type_info)
+    USE netcdf
+    USE hamodule
 
-    use hamodule
+    IMPLICIT NONE
 
-    implicit none
-    type(ncfile), intent(in) :: nc_file
-    character(*), intent(in), optional :: type_info
-    integer :: i, j, k, l, m
-    
+    CHARACTER(*), INTENT(in) :: check_type
+    INTEGER, INTENT(in) :: ncstatus
+
+    IF(ncstatus /= nf90_noerr) THEN
+       SELECT CASE(check_type)
+       CASE('nc_open')
+          PRINT '(a)',&
+               'Error in nc_open: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inquire')
+          PRINT '(a)',&
+               'Error in nc_inquire: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inq_dimid')
+          PRINT '(a)',&
+               'Error in nc_inq_dimid: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inquire_dimension')
+          PRINT '(a)',&
+               'Error in nc_inquire_dimension: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inq_varid')
+          PRINT '(a)',&
+               'Error in nc_inq_varid: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_variable')
+          PRINT '(a)',&
+               'Error in nc_variable: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inq_attname')
+          PRINT '(a)',&
+               'Error in nc_inq_attname: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_inquire_attribute')
+          PRINT '(a)',&
+               'Error in nc_inquire_attribute: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_get_att')
+          PRINT '(a)',&
+               'Error in nc_get_att: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+       CASE('nc_')
+          PRINT '(a)',&
+               'Error in nc_: '//&
+               number_to_string(iv = INT(ncstatus, 4), len = num_len(iv = INT(ncstatus, 4)))
+
+       END SELECT
+       PRINT '(a)', TRIM(nf90_strerror(ncstatus))
+       STOP 'Stopped!'
+    END IF
+
+    RETURN
+
+  END SUBROUTINE nc_error_check
+
+  SUBROUTINE print_nc_info(nc_file, type_info)
+
+    USE hamodule
+
+    IMPLICIT NONE
+    TYPE(ncfile), INTENT(in) :: nc_file
+    CHARACTER(*), INTENT(in), OPTIONAL :: type_info
+    INTEGER :: i, j, k, l, m
+
     ! type_info:
     !   view
     !   viewdata
     !   viewinfo
 
-    if(type_info == 'viewinfo' .or. type_info == 'view') then
-      print '(a)', 'NetCDF version: '//trim(nf90_inq_libvers())
-      print '(a)', 'nc file info:'
-      print '(2x,a)', 'ncid: '//&
-      number_to_string(iv = int(nc_file%ncid, 4),&
-      len = num_len(iv = int(nc_file%ncid, 4)))
-      print '(2x,a)', 'path: '//trim(adjustl(nc_file%path))
-      print '(2x,a)', 'mode: '//&
-      number_to_string(iv = int(nc_file%cmode, 4),&
-      len = num_len(int(nc_file%cmode, 4)))
-      print '(2x,a)', 'nDimensions: '//&
-      number_to_string(iv = int(nc_file%ndimensions, 4),&
-      len = num_len(int(nc_file%ndimensions, 4)))
-      do i = 1, nc_file%ndimensions
-        print '(4x,a)', 'name: '//trim(nc_file%dimension(i)%name)
-        print '(6x,a)', 'len: '//&
-        number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
-        len = num_len(iv = int(nc_file%dimension(i)%len,4)))
-      end do
-      print '(2x,a)', 'nVariables: '//&
-      number_to_string(iv = int(nc_file%nvariables, 4),&
-      len = num_len(iv = int(nc_file%nvariables, 4)))
-      do i = 1, nc_file%nvariables
-        print '(4x,a)', 'name: '//trim(nc_file%variable(i)%name)
-        print '(6x,a)', 'xtype: '//&
-        number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
-        len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
-        print '(6x,a)', 'ndims: '//&
-        number_to_string(iv = int(nc_file%variable(i)%ndims, 4),&
-        len = num_len(iv = int(nc_file%variable(i)%ndims, 4)))
-        do j = 1, nc_file%variable(i)%ndims
-          print '(8x,a)', 'dimid: '//&
-          number_to_string(iv = int(nc_file%variable(i)%dimids(j), 4),&
-          len = num_len(iv = int(nc_file%variable(i)%dimids(j), 4)))
-        end do
-        print '(6x,a)', 'natts: '//&
-        number_to_string(iv = int(nc_file%variable(i)%natts, 4),&
-        len = num_len(iv = int(nc_file%variable(i)%natts, 4)))
-        do j = 1, nc_file%variable(i)%natts
-          print '(8x,a)', 'name: '//&
-          trim(nc_file%variable(i)%attribute(j)%name)
-          print '(10x,a)', 'xtype: '//&
-          number_to_string(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4),&
-          len = num_len(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4)))
-          print '(10x,a)', 'len: '//&
-          number_to_string(iv = int(nc_file%variable(i)%attribute(j)%len, 4),&
-          len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
-        
-          select case(nc_file%variable(i)%attribute(j)%xtype)
-          case(nf90_float)
-            do k = 1, nc_file%variable(i)%attribute(j)%len
-              print '(10x,a)',&
-              'value '//&
-              number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-              number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4),&
-              len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4)))!,&
-              !frmt = '(f10.3)')
-            end do
-          case(nf90_double)
-            do k = 1, nc_file%variable(i)%attribute(j)%len
-              print '(10x,a)',&
-              'value '//&
-              number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-              number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4),&
-              len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4)))!,&
-              !frmt = '(f100.3)')
-            end do
-          case(nf90_char)
-            print '(10x,a)', 'value: '//&
-            trim(nc_file%variable(i)%attribute(j)%value(1)%char)
-          end select
-        end do
-       end do
-      print '(2x,a)', 'nAttributes: '//&
-      number_to_string(iv = int(nc_file%nattributes, 4),&
-      len = num_len(iv = int(nc_file%nattributes, 4)))
-      do i = 1, nc_file%nattributes
-        print '(4x,a)', trim(nc_file%attribute(i)%name)//': '//&
-        trim(nc_file%attribute(i)%value(1)%char)
-      end do
-      print '(2x,a)', 'unlimitedDimid: '//&
-      number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
-      len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
-      print '(2x,a)', 'formatNum: '//&
-      number_to_string(iv = int(nc_file%formatnum, 4),&
-      len = num_len(iv = int(nc_file%formatnum, 4)))
-    end if
+    IF(type_info == 'viewinfo' .OR. type_info == 'view') THEN
+       PRINT '(a)', 'NetCDF version: '//TRIM(nf90_inq_libvers())
+       PRINT '(a)', 'nc file info:'
+       PRINT '(2x,a)', 'ncid: '//&
+            number_to_string(iv = INT(nc_file%ncid, 4),&
+            len = num_len(iv = INT(nc_file%ncid, 4)))
+       PRINT '(2x,a)', 'path: '//TRIM(ADJUSTL(nc_file%path))
+       PRINT '(2x,a)', 'mode: '//&
+            number_to_string(iv = INT(nc_file%cmode, 4),&
+            len = num_len(INT(nc_file%cmode, 4)))
+       PRINT '(2x,a)', 'nDimensions: '//&
+            number_to_string(iv = INT(nc_file%ndimensions, 4),&
+            len = num_len(INT(nc_file%ndimensions, 4)))
+       DO i = 1, nc_file%ndimensions
+          PRINT '(4x,a)', 'name: '//TRIM(nc_file%DIMENSION(i)%name)
+          PRINT '(6x,a)', 'len: '//&
+               number_to_string(iv = INT(nc_file%DIMENSION(i)%len, 4),&
+               len = num_len(iv = INT(nc_file%DIMENSION(i)%len,4)))
+       END DO
+       PRINT '(2x,a)', 'nVariables: '//&
+            number_to_string(iv = INT(nc_file%nvariables, 4),&
+            len = num_len(iv = INT(nc_file%nvariables, 4)))
+       DO i = 1, nc_file%nvariables
+          PRINT '(4x,a)', 'name: '//TRIM(nc_file%variable(i)%name)
+          PRINT '(6x,a)', 'xtype: '//&
+               number_to_string(iv = INT(nc_file%variable(i)%xtype, 4),&
+               len = num_len(iv = INT(nc_file%variable(i)%xtype, 4)))
+          PRINT '(6x,a)', 'ndims: '//&
+               number_to_string(iv = INT(nc_file%variable(i)%ndims, 4),&
+               len = num_len(iv = INT(nc_file%variable(i)%ndims, 4)))
+          DO j = 1, nc_file%variable(i)%ndims
+             PRINT '(8x,a)', 'dimid: '//&
+                  number_to_string(iv = INT(nc_file%variable(i)%dimids(j), 4),&
+                  len = num_len(iv = INT(nc_file%variable(i)%dimids(j), 4)))
+          END DO
+          PRINT '(6x,a)', 'natts: '//&
+               number_to_string(iv = INT(nc_file%variable(i)%natts, 4),&
+               len = num_len(iv = INT(nc_file%variable(i)%natts, 4)))
+          DO j = 1, nc_file%variable(i)%natts
+             PRINT '(8x,a)', 'name: '//&
+                  TRIM(nc_file%variable(i)%attribute(j)%name)
+             PRINT '(10x,a)', 'xtype: '//&
+                  number_to_string(iv = INT(nc_file%variable(i)%attribute(j)%xtype, 4),&
+                  len = num_len(iv = INT(nc_file%variable(i)%attribute(j)%xtype, 4)))
+             PRINT '(10x,a)', 'len: '//&
+                  number_to_string(iv = INT(nc_file%variable(i)%attribute(j)%len, 4),&
+                  len = num_len(iv = INT(nc_file%variable(i)%attribute(j)%len, 4)))
 
-    if(type_info == 'viewdata' .or. type_info == 'view') then
-      print *, ''
-      do k = 1, nc_file%nvariables
-        do m = 1, nc_file%variable(k)%ndims
-          do i = 1, nc_file%variable(k)%len(m)
-            do l = 1, nc_file%variable(k+1)%ndims
-              do j = 1, nc_file%variable(k+1)%len(l)
-                print '(a)', &
-                number_to_string(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
-                len = num_len(rv = real(nc_file%variable(k)%val1(j)%double, 4),&
-                frmt = '(f20.2)'),&
-                frmt = '(f20.2)')//' '//&
-                number_to_string(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
-                len = num_len(rv = real(nc_file%variable(k+1)%val1(i)%double, 4),&
-                frmt = '(f20.2)'),&
-                frmt = '(f20.2)')//' '//&
-                number_to_string(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
-                len = num_len(rv = real(nc_file%variable(k+2)%val2(j,i)%float, 4),&
-                frmt = '(f20.4)'),&
-                frmt = '(f20.4)')
-              end do
-            end do
-          end do
-        end do
-      end do
-    end if
+             SELECT CASE(nc_file%variable(i)%attribute(j)%xtype)
+             CASE(nf90_float)
+                DO k = 1, nc_file%variable(i)%attribute(j)%len
+                   PRINT '(10x,a)',&
+                        'value '//&
+                        number_to_string(iv = INT(k, 4), len = num_len(iv = INT(k, 4)))//': '//&
+                        number_to_string(rv = REAL(nc_file%variable(i)%attribute(j)%VALUE(k)%float, 4),&
+                        len = num_len(rv = REAL(nc_file%variable(i)%attribute(j)%VALUE(k)%float, 4)))!,&
+                   !frmt = '(f10.3)')
+                END DO
+             CASE(nf90_double)
+                DO k = 1, nc_file%variable(i)%attribute(j)%len
+                   PRINT '(10x,a)',&
+                        'value '//&
+                        number_to_string(iv = INT(k, 4), len = num_len(iv = INT(k, 4)))//': '//&
+                        number_to_string(rv = REAL(nc_file%variable(i)%attribute(j)%VALUE(k)%DOUBLE, 4),&
+                        len = num_len(rv = REAL(nc_file%variable(i)%attribute(j)%VALUE(k)%DOUBLE, 4)))!,&
+                   !frmt = '(f100.3)')
+                END DO
+             CASE(nf90_char)
+                PRINT '(10x,a)', 'value: '//&
+                     TRIM(nc_file%variable(i)%attribute(j)%VALUE(1)%char)
+             END SELECT
+          END DO
+       END DO
+       PRINT '(2x,a)', 'nAttributes: '//&
+            number_to_string(iv = INT(nc_file%nattributes, 4),&
+            len = num_len(iv = INT(nc_file%nattributes, 4)))
+       DO i = 1, nc_file%nattributes
+          PRINT '(4x,a)', TRIM(nc_file%attribute(i)%name)//': '//&
+               TRIM(nc_file%attribute(i)%VALUE(1)%char)
+       END DO
+       PRINT '(2x,a)', 'unlimitedDimid: '//&
+            number_to_string(iv = INT(nc_file%unlimiteddimid, 4),&
+            len = num_len(iv = INT(nc_file%unlimiteddimid, 4)))
+       PRINT '(2x,a)', 'formatNum: '//&
+            number_to_string(iv = INT(nc_file%formatnum, 4),&
+            len = num_len(iv = INT(nc_file%formatnum, 4)))
+    END IF
 
-    return
+    IF(type_info == 'viewdata' .OR. type_info == 'view') THEN
+       !print '(a)', ''
+       k = 1 
+       DO m = 1, nc_file%variable(k)%ndims
+          DO i = 1, nc_file%variable(k)%LEN(m)
+             DO l = 1, nc_file%variable(k+1)%ndims
+                DO j = 1, nc_file%variable(k+1)%LEN(l)
+                   !print *, &
+                   !number_to_string(iv = i, len = num_len(iv = i)), &
+                   !' = ', &
+                   !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4), &
+                   !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4))), &
+                   !' ; ', &
+                   !number_to_string(iv = j, len = num_len(iv = j)), &
+                   !' = ', &
+                   !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4), &
+                   !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4))), &
+                   !' ; ', &
+                   !'(', &
+                   !number_to_string(iv = i, len = num_len(iv = i)), &
+                   !',', &
+                   !number_to_string(iv = j, len = num_len(iv = j)), &
+                   !')', &
+                   !' = ', &
+                   !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
+                   !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
+                   PRINT '(a)', &
+                        number_to_string(rv = REAL(nc_file%variable(k)%val1(i)%DOUBLE, 4),&
+                        len = num_len(rv = REAL(nc_file%variable(k)%val1(i)%DOUBLE, 4),&
+                        frmt = '(f20.2)'),&
+                        frmt = '(f20.2)')//' '//&
+                        number_to_string(rv = REAL(nc_file%variable(k+1)%val1(j)%DOUBLE, 4),&
+                        len = num_len(rv = REAL(nc_file%variable(k+1)%val1(j)%DOUBLE, 4),&
+                        frmt = '(f20.2)'),&
+                        frmt = '(f20.2)')//' '//&
+                        number_to_string(rv = REAL(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                        len = num_len(rv = REAL(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                        frmt = '(f20.4)'),&
+                        frmt = '(f20.4)')
+                END DO
+             END DO
+          END DO
+       END DO
+    END IF
 
-  end subroutine print_nc_info
+    RETURN
 
-  subroutine nc_reader(input_file, mode)
+  END SUBROUTINE print_nc_info
 
-    use netcdf
+  SUBROUTINE nc_reader(input_file, mode)
 
-    implicit none
-    type(ncfile), intent(inout) :: input_file
-    character(*), intent(in), optional :: mode
-    integer :: k = 0, i, j, ncstatus
+    USE netcdf
+
+    IMPLICIT NONE
+    TYPE(ncfile), INTENT(inout) :: input_file
+    CHARACTER(*), INTENT(in), OPTIONAL :: mode
+    INTEGER :: k = 0, i, j, ncstatus
 
     input_file%cmode = nf90_nowrite
 
-    call nc_error_check(&
-      'nc_open',&
-      nf90_open(&
-        path = input_file%path,&
-        mode = input_file%cmode,&
-        ncid = input_file%ncid&
-      )&
-    )
+    CALL nc_error_check(&
+         'nc_open',&
+         nf90_open(&
+         path = input_file%path,&
+         mode = input_file%cmode,&
+         ncid = input_file%ncid&
+         )&
+         )
 
-    call nc_error_check(&
-      'nc_inquire',&
-      nf90_inquire(&
-        ncid = input_file%ncid,&
-        ndimensions = input_file%ndimensions,&
-        nvariables = input_file%nvariables,&
-        nattributes = input_file%nattributes,&
-        unlimiteddimid = input_file%unlimiteddimid,&
-        formatnum = input_file%formatnum&
-      )&
-    )
+    CALL nc_error_check(&
+         'nc_inquire',&
+         nf90_inquire(&
+         ncid = input_file%ncid,&
+         ndimensions = input_file%ndimensions,&
+         nvariables = input_file%nvariables,&
+         nattributes = input_file%nattributes,&
+         unlimiteddimid = input_file%unlimiteddimid,&
+         formatnum = input_file%formatnum&
+         )&
+         )
 
-    allocate(&
-      input_file%dimension(input_file%ndimensions),&
-      input_file%variable(input_file%nvariables),&
-      input_file%attribute(input_file%nattributes)&
-    )
+    ALLOCATE(&
+         input_file%DIMENSION(input_file%ndimensions),&
+         input_file%variable(input_file%nvariables),&
+         input_file%attribute(input_file%nattributes)&
+         )
 
-    do i = 1, input_file%nattributes
-      
-      input_file%attribute(i)%attnum = i
+    DO i = 1, input_file%nattributes
 
-      call nc_error_check(&
-        'nc_inq_attname',&
-        nf90_inq_attname(&
-          ncid = input_file%ncid,&
-          varid = nf90_global,&
-          attnum = input_file%attribute(i)%attnum,&
-          name = input_file%attribute(i)%name&
-        )&
-      )
+       input_file%attribute(i)%attnum = i
 
-      call nc_error_check(&
-        'nc_inquire_attribute',&
-        nf90_inquire_attribute(&
-          ncid = input_file%ncid,&
-          varid = nf90_global,&
-          name = input_file%attribute(i)%name,&
-          xtype = input_file%attribute(i)%xtype,&
-          len = input_file%attribute(i)%len&
-        )&
-      )
+       CALL nc_error_check(&
+            'nc_inq_attname',&
+            nf90_inq_attname(&
+            ncid = input_file%ncid,&
+            varid = nf90_global,&
+            attnum = input_file%attribute(i)%attnum,&
+            name = input_file%attribute(i)%name&
+            )&
+            )
 
-      call get_att_xtype(&
-        ncid = input_file%ncid,&
-        varid = nf90_global,&
-        xtype = input_file%attribute(i)%xtype,&
-        name = input_file%attribute(i)%name,&
-        len = input_file%attribute(i)%len,&
-        value = input_file%attribute(i)%value&
-      )
+       CALL nc_error_check(&
+            'nc_inquire_attribute',&
+            nf90_inquire_attribute(&
+            ncid = input_file%ncid,&
+            varid = nf90_global,&
+            name = input_file%attribute(i)%name,&
+            xtype = input_file%attribute(i)%xtype,&
+            len = input_file%attribute(i)%len&
+            )&
+            )
 
-    end do
-    
-    do i = 1, input_file%ndimensions
+       CALL get_att_xtype(&
+            ncid = input_file%ncid,&
+            varid = nf90_global,&
+            xtype = input_file%attribute(i)%xtype,&
+            name = input_file%attribute(i)%name,&
+            len = input_file%attribute(i)%len,&
+            VALUE = input_file%attribute(i)%value&
+            )
 
-      input_file%dimension(i)%dimid = i
+    END DO
 
-      call nc_error_check(&
-        'nc_inquire_dimension',&
-        nf90_inquire_dimension(&
-          ncid = input_file%ncid,&
-          dimid = input_file%dimension(i)%dimid,&
-          name = input_file%dimension(i)%name,&
-          len = input_file%dimension(i)%len&
-        )&
-      )
+    DO i = 1, input_file%ndimensions
 
-    end do
+       input_file%DIMENSION(i)%dimid = i
 
-    do i = 1, input_file%nvariables
-      
-      input_file%variable(i)%varid = i
+       CALL nc_error_check(&
+            'nc_inquire_dimension',&
+            nf90_inquire_dimension(&
+            ncid = input_file%ncid,&
+            dimid = input_file%DIMENSION(i)%dimid,&
+            name = input_file%DIMENSION(i)%name,&
+            len = input_file%DIMENSION(i)%len&
+            )&
+            )
 
-      call nc_error_check(&
-        'nc_inquire_variable',&
-        nf90_inquire_variable(&
-          ncid = input_file%ncid,&
-          varid = input_file%variable(i)%varid,&
-          name = input_file%variable(i)%name,&
-          xtype = input_file%variable(i)%xtype,&
-          ndims = input_file%variable(i)%ndims,&
-          natts = input_file%variable(i)%natts&
-        )&
-      )
-      
-      allocate(&
-        input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
-        input_file%variable(i)%attribute(input_file%variable(i)%natts)&
-      )
+    END DO
 
-      call nc_error_check(&
-        'nc_inquire_variable',&
-        nf90_inquire_variable(&
-          ncid = input_file%ncid,&
-          varid = input_file%variable(i)%varid,&
-          dimids = input_file%variable(i)%dimids&
-        )&
-      )
+    DO i = 1, input_file%nvariables
 
-      do j = 1, input_file%variable(i)%natts
-        
-        input_file%variable(i)%attribute(j)%attnum = j
+       input_file%variable(i)%varid = i
 
-        call nc_error_check(&
-          'nc_inq_attname',&
-          nf90_inq_attname(&
+       CALL nc_error_check(&
+            'nc_inquire_variable',&
+            nf90_inquire_variable(&
             ncid = input_file%ncid,&
             varid = input_file%variable(i)%varid,&
-            attnum = input_file%variable(i)%attribute(j)%attnum,&
-            name = input_file%variable(i)%attribute(j)%name&
-          )&
-        )
-        
-        call nc_error_check(&
-          'nc_inquire_attribute',&
-          nf90_inquire_attribute(&
+            name = input_file%variable(i)%name,&
+            xtype = input_file%variable(i)%xtype,&
+            ndims = input_file%variable(i)%ndims,&
+            natts = input_file%variable(i)%natts&
+            )&
+            )
+
+       ALLOCATE(&
+            input_file%variable(i)%dimids(input_file%variable(i)%ndims),&
+            input_file%variable(i)%attribute(input_file%variable(i)%natts)&
+            )
+
+       CALL nc_error_check(&
+            'nc_inquire_variable',&
+            nf90_inquire_variable(&
             ncid = input_file%ncid,&
             varid = input_file%variable(i)%varid,&
-            name = input_file%variable(i)%attribute(j)%name,&
-            xtype = input_file%variable(i)%attribute(j)%xtype,&
-            len = input_file%variable(i)%attribute(j)%len&
-          )&
-        )
+            dimids = input_file%variable(i)%dimids&
+            )&
+            )
 
-        call get_att_xtype(&
-          input_file%ncid,&
-          input_file%variable(i)%varid,&
-          input_file%variable(i)%attribute(j)%xtype,&
-          input_file%variable(i)%attribute(j)%name,&
-          input_file%variable(i)%attribute(j)%len,&
-          input_file%variable(i)%attribute(j)%value&
-        )
+       DO j = 1, input_file%variable(i)%natts
 
-      end do
+          input_file%variable(i)%attribute(j)%attnum = j
 
-      allocate( input_file%variable(i)%len(input_file%variable(i)%ndims) )
-      
-      do j = 1, input_file%variable(i)%ndims
-        call nc_error_check(&
-          'nc_inquire_dimension',&
-          nf90_inquire_dimension(&
-            ncid = input_file%ncid,&
-            dimid = input_file%variable(i)%dimids(j),&
-            len = input_file%variable(i)%len(j)&
-          )&
-        )
-      end do
+          CALL nc_error_check(&
+               'nc_inq_attname',&
+               nf90_inq_attname(&
+               ncid = input_file%ncid,&
+               varid = input_file%variable(i)%varid,&
+               attnum = input_file%variable(i)%attribute(j)%attnum,&
+               name = input_file%variable(i)%attribute(j)%name&
+               )&
+               )
+
+          CALL nc_error_check(&
+               'nc_inquire_attribute',&
+               nf90_inquire_attribute(&
+               ncid = input_file%ncid,&
+               varid = input_file%variable(i)%varid,&
+               name = input_file%variable(i)%attribute(j)%name,&
+               xtype = input_file%variable(i)%attribute(j)%xtype,&
+               len = input_file%variable(i)%attribute(j)%len&
+               )&
+               )
+
+          CALL get_att_xtype(&
+               input_file%ncid,&
+               input_file%variable(i)%varid,&
+               input_file%variable(i)%attribute(j)%xtype,&
+               input_file%variable(i)%attribute(j)%name,&
+               input_file%variable(i)%attribute(j)%len,&
+               input_file%variable(i)%attribute(j)%value&
+               )
+
+       END DO
+
+       ALLOCATE( input_file%variable(i)%LEN(input_file%variable(i)%ndims) )
+
+       DO j = 1, input_file%variable(i)%ndims
+          CALL nc_error_check(&
+               'nc_inquire_dimension',&
+               nf90_inquire_dimension(&
+               ncid = input_file%ncid,&
+               dimid = input_file%variable(i)%dimids(j),&
+               len = input_file%variable(i)%LEN(j)&
+               )&
+               )
+       END DO
 
 
-      select case(input_file%variable(i)%ndims)
-      case(1)
-        call get_var_xtype(&
-          ncid = input_file%ncid,&
-          varid = input_file%variable(i)%varid,&
-          xtype = input_file%variable(i)%xtype,&
-          ndims = input_file%variable(i)%ndims,&
-          len = input_file%variable(i)%len,&
-          val1 = input_file%variable(i)%val1&
-        )
-      case(2)
-        call get_var_xtype(&
-          ncid = input_file%ncid,&
-          varid = input_file%variable(i)%varid,&
-          xtype = input_file%variable(i)%xtype,&
-          ndims = input_file%variable(i)%ndims,&
-          len = input_file%variable(i)%len,&
-          val2 = input_file%variable(i)%val2&
-        )
-      end select
+       SELECT CASE(input_file%variable(i)%ndims)
+       CASE(1)
+          CALL get_var_xtype(&
+               ncid = input_file%ncid,&
+               varid = input_file%variable(i)%varid,&
+               xtype = input_file%variable(i)%xtype,&
+               ndims = input_file%variable(i)%ndims,&
+               len = input_file%variable(i)%len,&
+               val1 = input_file%variable(i)%val1&
+               )
+       CASE(2)
+          CALL get_var_xtype(&
+               ncid = input_file%ncid,&
+               varid = input_file%variable(i)%varid,&
+               xtype = input_file%variable(i)%xtype,&
+               ndims = input_file%variable(i)%ndims,&
+               len = input_file%variable(i)%len,&
+               val2 = input_file%variable(i)%val2&
+               )
+       END SELECT
 
-    end do
-   
-    if(present(mode)) call print_nc_info(input_file, mode)
+    END DO
 
-  end subroutine nc_reader
+    IF(PRESENT(mode)) CALL print_nc_info(input_file, mode)
 
-end module ncmodule
+  END SUBROUTINE nc_reader
+
+END MODULE ncmodule
 
