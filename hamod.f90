@@ -1,146 +1,146 @@
-MODULE hamodule
+module hamodule
 
   !type hacoeff
 
   !end type hacoeff
 
-CONTAINS
+contains
 
-  SUBROUTINE input_check(check_type, arg, string)
+  subroutine input_check(check_type, arg, string)
 
-    IMPLICIT NONE
+    implicit none
 
-    CHARACTER(*), INTENT(in) :: check_type
-    CHARACTER(*), INTENT(in) :: arg
-    CHARACTER(*), INTENT(in), OPTIONAL :: string
-    LOGICAL :: file_exist = .FALSE., arg_true = .FALSE.
-    INTEGER(4) :: i, k = 1
+    character(*), intent(in) :: check_type
+    character(*), intent(in) :: arg
+    character(*), intent(in), optional :: string
+    logical :: file_exist = .false., arg_true = .false.
+    integer(4) :: i, k = 1
 
     ! check types:
     !   'noarg' - parameter existence
     !   'nofile' - file existence
     !   'checkarg' - argument is true
 
-    SELECT CASE(check_type)
-    CASE('noarg')
-       IF(TRIM(ADJUSTL(arg)) == '') THEN
-          PRINT '(a)', 'ERROR: Do not set any option!'
-          CALL print_help('stop')
-       END IF
-    CASE('noopt')
-       IF(TRIM(ADJUSTL(arg)) == '') THEN
-          PRINT '(a)', 'ERROR: Do not define parameter of option "'//TRIM(ADJUSTL(string))//'"'
-          CALL print_help('stop')
-       END IF
-    CASE('nofile')
-       INQUIRE(file=TRIM(ADJUSTL(arg)), exist=file_exist)
-       IF(file_exist .EQV. .FALSE.) THEN
-          PRINT '(a)', 'ERROR: No such file "'//TRIM(ADJUSTL(arg))//'"'
-          CALL print_help('stop')
-       END IF
-    CASE('unopt')
-       PRINT '(a)', 'ERROR: Option "'//TRIM(ADJUSTL(arg))//'" unrecognized!'
-       CALL print_help('stop')
-    CASE('charg')
-       DO i = 1, len_TRIM(string)
-          IF(string(i:i) == ',') THEN
-             IF( TRIM(ADJUSTL(arg)) == TRIM(ADJUSTL(string(k:i-1))) ) arg_true = .TRUE.
-             k = i + 1
-          END IF
-       END DO
-       IF(TRIM(ADJUSTL(string(k:))) == TRIM(ADJUSTL(arg))) arg_true = .TRUE.
-       IF(arg_true .EQV. .FALSE.) THEN
-          PRINT '(a)', 'ERROR: The parameter '//TRIM(ADJUSTL(arg))//' is incorrect!'
-          CALL print_help('stop')
-       END IF
-    END SELECT
+    select case(check_type)
+    case('noarg')
+      if(trim(adjustl(arg)) == '') then
+        print '(a)', 'ERROR: Do not set any option!'
+        call print_help('stop')
+      end if
+    case('noopt')
+      if(trim(adjustl(arg)) == '') then
+        print '(a)', 'ERROR: Do not define parameter of option "'//trim(adjustl(string))//'"'
+        call print_help('stop')
+      end if
+    case('nofile')
+      inquire(file=trim(adjustl(arg)), exist=file_exist)
+      if(file_exist .eqv. .false.) then
+        print '(a)', 'ERROR: No such file "'//trim(adjustl(arg))//'"'
+        call print_help('stop')
+      end if
+    case('unopt')
+      print '(a)', 'ERROR: Option "'//trim(adjustl(arg))//'" unrecognized!'
+      call print_help('stop')
+    case('charg')
+      do i = 1, len_trim(string)
+        if(string(i:i) == ',') then
+          if( trim(adjustl(arg)) == trim(adjustl(string(k:i-1))) ) arg_true = .true.
+            k = i + 1
+        end if
+      end do
+        if(trim(adjustl(string(k:))) == trim(adjustl(arg))) arg_true = .true.
+        if(arg_true .eqv. .false.) then
+          print '(a)', 'ERROR: The parameter '//trim(adjustl(arg))//' is incorrect!'
+          call print_help('stop')
+        end if
+    end select
 
-    RETURN
+    return
 
-  END SUBROUTINE input_check
+  end subroutine input_check
 
-  SUBROUTINE print_help(type_help)
-    IMPLICIT NONE
-    CHARACTER(*), INTENT(in), OPTIONAL :: type_help
+  subroutine print_help(type_help)
+    implicit none
+    character(*), intent(in), optional :: type_help
 
-    PRINT '(a)', 'Usage: ha [OPTION]... [FILE]...'
-    PRINT '(a)', ''
-    PRINT '(a)', 'Calculates the coefficients of spherical harmonics over a regular grid' 
-    PRINT '(a)', 'using various algorithms'
+    print '(a)', 'Usage: ha [OPTION]... [FILE]...'
+    print '(a)', ''
+    print '(a)', 'Calculates the coefficients of spherical harmonics over a regular grid' 
+    print '(a)', 'using various algorithms'
 
-    IF(PRESENT(type_help)) THEN
-       SELECT CASE(type_help)
-       CASE('stop')
-          !stop 'Stopped!'
-          STOP
-       END SELECT
-    END IF
+    if(present(type_help)) then
+      select case(type_help)
+      case('stop')
+        !stop 'Stopped!'
+        stop
+      end select
+    end if
 
-    RETURN
-  END SUBROUTINE print_help
+    return
+  end subroutine print_help
 
-  INTEGER(4) FUNCTION num_len(iv, rv, frmt)
+  integer(4) function num_len(iv, rv, frmt)
 
-    IMPLICIT NONE
-    INTEGER(4), INTENT(in), OPTIONAL :: iv
-    REAL, INTENT(in), OPTIONAL :: rv
-    CHARACTER(*), INTENT(in), OPTIONAL :: frmt
-    CHARACTER(10000) :: string
+    implicit none
+    integer(4), intent(in), optional :: iv
+    real, intent(in), optional :: rv
+    character(*), intent(in), optional :: frmt
+    character(10000) :: string
 
-    IF(PRESENT(iv)) THEN
-       IF(PRESENT(frmt)) THEN
-          WRITE(string, frmt) iv
-       ELSE
-          WRITE(string, *) iv
-       END IF
-    ELSE IF(PRESENT(rv)) THEN
-       IF(PRESENT(frmt)) THEN
-          WRITE(string, frmt) rv
-       ELSE
-          WRITE(string, *) rv
-       END IF
-    ELSE
-       string = ''
-    END IF
+    if(present(iv)) then
+      if(present(frmt)) then
+        write(string, frmt) iv
+      else
+        write(string, *) iv
+      end if
+    else if(present(rv)) then
+      if(present(frmt)) then
+        write(string, frmt) rv
+      else
+        write(string, *) rv
+      end if
+    else
+      string = ''
+    end if
 
-    num_len = len_TRIM(ADJUSTL(string))
+    num_len = len_trim(adjustl(string))
 
-    RETURN
+    return
 
-  END FUNCTION num_len
+  end function num_len
 
-  FUNCTION number_to_string(iv, rv, len, frmt)
+  function number_to_string(iv, rv, len, frmt)
 
-    IMPLICIT NONE
-    INTEGER(4), INTENT(in), OPTIONAL :: iv
-    REAL, INTENT(in), OPTIONAL :: rv
-    INTEGER(4), INTENT(in) :: len
-    CHARACTER(*), INTENT(in), OPTIONAL :: frmt
-    CHARACTER(10000) :: string
-    CHARACTER(len=len) :: number_to_string
+    implicit none
+    integer(4), intent(in), optional :: iv
+    real, intent(in), optional :: rv
+    integer(4), intent(in) :: len
+    character(*), intent(in), optional :: frmt
+    character(10000) :: string
+    character(len=len) :: number_to_string
 
-    IF(PRESENT(frmt)) THEN
-       IF(PRESENT(iv)) THEN
-          WRITE(string, frmt) iv
-       ELSE IF(PRESENT(rv)) THEN
-          WRITE(string, frmt) rv
-       ELSE
+    if(present(frmt)) then
+      if(present(iv)) then
+        write(string, frmt) iv
+      else if(present(rv)) then
+        write(string, frmt) rv
+      else
+        string = ''
+      end if
+    else
+      if(present(iv)) then
+        write(string, *) iv
+      else if(present(rv)) then
+        write(string, *) rv
+      else
           string = ''
-       END IF
-    ELSE
-       IF(PRESENT(iv)) THEN
-          WRITE(string, *) iv
-       ELSE IF(PRESENT(rv)) THEN
-          WRITE(string, *) rv
-       ELSE
-          string = ''
-       END IF
-    END IF
+      end if
+    end if
 
-    number_to_string = TRIM(ADJUSTL(string))
+    number_to_string = trim(adjustl(string))
 
-    RETURN
+    return
 
-  END FUNCTION number_to_string
+  end function number_to_string
 
-END MODULE hamodule
+end module hamodule
