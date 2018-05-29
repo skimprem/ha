@@ -3,7 +3,7 @@ comp = gfortran
 outdir = ~/bin/
 NFDIR = /usr
 exec = ha.exe
-SHDIR = /usr/local/
+SHDIR = /usr/local
 
 ha: $(objects)
 	$(comp) -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff -L$(SHDIR)/lib/ -lSHTOOLS -lfftw3

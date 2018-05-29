@@ -47,7 +47,12 @@ program ha
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--hamode')
+      ! ni - 
+      ! ai - 
+      ! ls - 
+      ! st - 
       call input_check('charg', arg, 'ni, ai, ls, st')
+      hamode = adjustl(arg)
     case('-h', '--help')
       k = k + 1
       call get_command_argument(k, arg)
@@ -80,6 +85,7 @@ program ha
   !print *, 'lmax_calc = ', lmax_calc
 
 
+  if()
   call shexpanddh(&
     griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
     n = n,&! input, integer
