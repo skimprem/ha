@@ -1,8 +1,15 @@
 module hamodule
 
+  integer, parameter :: max_name_value = 1000
   !type hacoeff
 
   !end type hacoeff
+
+  type haoptions
+    logical :: definition
+    character(8) :: option_name
+    character(max_name_value) :: value
+  end type
 
 contains
 
@@ -24,28 +31,36 @@ contains
     select case(check_type)
     case('noarg')
       if(trim(adjustl(arg)) == '') then
+        print '(a)', ''
         print '(a)', 'ERROR: Do not set any option!'
+        print '(a)', ''
         call print_help('stop')
       end if
     case('noopt')
       if(trim(adjustl(arg)) == '') then
+        print '(a)', ''
         print '(a)', 'ERROR: Do not define parameter of option "'//trim(adjustl(string))//'"'
+        print '(a)', ''
         call print_help('stop')
       end if
     case('nofile')
       inquire(file=trim(adjustl(arg)), exist=file_exist)
       if(file_exist .eqv. .false.) then
+        print '(a)', ''
         print '(a)', 'ERROR: No such file "'//trim(adjustl(arg))//'"'
+        print '(a)', ''
         call print_help('stop')
       end if
     case('unopt')
+      print '(a)', ''
       print '(a)', 'ERROR: Option "'//trim(adjustl(arg))//'" unrecognized!'
+      print '(a)', ''
       call print_help('stop')
     case('charg')
       do i = 1, len_trim(string)
         if(string(i:i) == ',') then
           if( trim(adjustl(arg)) == trim(adjustl(string(k:i-1))) ) arg_true = .true.
-            k = i + 1
+          k = i + 1
         end if
       end do
         if(trim(adjustl(string(k:))) == trim(adjustl(arg))) arg_true = .true.
@@ -75,6 +90,10 @@ contains
     print '(a)', "                 'view' - print the information about the grid file along with the data"
     print '(a)', "                 'viewdata' - print only data"
     print '(a)', "                 'viewinfo' - print only information about the grid file"
+    print '(a)', ''
+    print '(a)', '  -hm, --hamode  set expand method using the following parameters:'
+    print '(a)', "                 'dh' - Driscoll and Healy sampling theorem"
+    print '(a)', "                 'ls' - Least squares inversion"
     print '(a)', ''
     print '(a)', '  -h, --help     print help'
     print '(a)', ''
