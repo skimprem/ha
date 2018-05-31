@@ -6,7 +6,7 @@ exec = ha.exe
 SHDIR = /usr/local
 
 ha: $(objects)
-	$(comp) -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff -L$(SHDIR)/lib/ -lSHTOOLS -lfftw3
+	$(comp) -static -o $(exec) $(objects) -L$(NFDIR)/lib/x86_64-linux-gnu/ -lnetcdff -L$(SHDIR)/lib/ -lSHTOOLS -lfftw3
 
 ha.o: ha.f90
 	$(comp) -c -I$(NFDIR)/include/ -I$(SHDIR)/include/ ha.f90
