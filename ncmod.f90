@@ -110,22 +110,22 @@ contains
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value(1)%char&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value(1)%char&
+              )&
             )
     case(nf90_short)
        ! NC_SHORT: 16-bit signed integer
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value%short&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value%short&
+              )&
             )
     case(nf90_ushort)
        ! NC_USHORT: 16-bit unsigned integer
@@ -134,11 +134,11 @@ contains
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value%int&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value%int&
+              )&
             )
     case(nf90_uint)
        ! NC_Uint: 32-bit unsigned integer
@@ -147,11 +147,11 @@ contains
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value%int64&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value%int64&
+              )&
             )
     case(nf90_uint64)
        ! NC_Uint64: 64-bit unsigned integer
@@ -160,22 +160,22 @@ contains
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value%float&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value%float&
+              )&
             )
     case(nf90_double)
        ! NC_double: 64-bit floating point
        call nc_error_check(&
             'nc_get_att',&
             nf90_get_att(&
-            ncid = ncid,&
-            varid = varid,&
-            name = name,&
-            values = value%double&
-            )&
+              ncid = ncid,&
+              varid = varid,&
+              name = name,&
+              values = value%double&
+              )&
             )
     case(nf90_string)
        ! NC_STRING: variable length character string
@@ -196,18 +196,12 @@ contains
     implicit none
     integer, intent(in) :: ncid, varid, xtype, ndims
     integer, intent(in), dimension(ndims) :: len
+    integer :: allocate_status 
     type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
     type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
     type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
 
-    select case(ndims)
-    case(1)
-       allocate( val1(len(1)) )
-    case(2)
-       allocate( val2(len(1), len(2)) )
-    case(3)
-       allocate( val3(len(1), len(2), len(3)) )
-    end select
+    allocate_status = nc_allocate(ndims, len, val1, val2, val3)
 
     select case(xtype)
     case(nf90_byte)
@@ -225,28 +219,28 @@ contains
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val1%float&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val1%float&
+                 )&
                )
        case(2)
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val2%float&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val2%float&
+                 )&
                )
        case(3)
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val3%float&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val3%float&
+                 )&
                )
 
        end select
@@ -256,28 +250,28 @@ contains
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val1%double&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val1%double&
+                 )&
                )
        case(2)
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val2%double&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val2%double&
+                 )&
                )
        case(3)
           call nc_error_check(&
                'nc_get_var',&
                nf90_get_var(&
-               ncid = ncid,&
-               varid = varid,&
-               values = val3%double&
-               )&
+                 ncid = ncid,&
+                 varid = varid,&
+                 values = val3%double&
+                 )&
                )
        end select
     case(nf90_string)
@@ -512,22 +506,22 @@ contains
     call nc_error_check(&
          'nc_open',&
          nf90_open(&
-         path = input_file%path,&
-         mode = input_file%cmode,&
-         ncid = input_file%ncid&
-         )&
+           path = input_file%path,&
+           mode = input_file%cmode,&
+           ncid = input_file%ncid&
+           )&
          )
 
     call nc_error_check(&
          'nc_inquire',&
          nf90_inquire(&
-         ncid = input_file%ncid,&
-         ndimensions = input_file%ndimensions,&
-         nvariables = input_file%nvariables,&
-         nattributes = input_file%nattributes,&
-         unlimiteddimid = input_file%unlimiteddimid,&
-         formatnum = input_file%formatnum&
-         )&
+           ncid = input_file%ncid,&
+           ndimensions = input_file%ndimensions,&
+           nvariables = input_file%nvariables,&
+           nattributes = input_file%nattributes,&
+           unlimiteddimid = input_file%unlimiteddimid,&
+           formatnum = input_file%formatnum&
+           )&
          )
 
     allocate(&
@@ -543,22 +537,22 @@ contains
        call nc_error_check(&
             'nc_inq_attname',&
             nf90_inq_attname(&
-            ncid = input_file%ncid,&
-            varid = nf90_global,&
-            attnum = input_file%attribute(i)%attnum,&
-            name = input_file%attribute(i)%name&
-            )&
+              ncid = input_file%ncid,&
+              varid = nf90_global,&
+              attnum = input_file%attribute(i)%attnum,&
+              name = input_file%attribute(i)%name&
+              )&
             )
 
        call nc_error_check(&
             'nc_inquire_attribute',&
             nf90_inquire_attribute(&
-            ncid = input_file%ncid,&
-            varid = nf90_global,&
-            name = input_file%attribute(i)%name,&
-            xtype = input_file%attribute(i)%xtype,&
-            len = input_file%attribute(i)%len&
-            )&
+              ncid = input_file%ncid,&
+              varid = nf90_global,&
+              name = input_file%attribute(i)%name,&
+              xtype = input_file%attribute(i)%xtype,&
+              len = input_file%attribute(i)%len&
+              )&
             )
 
        call get_att_xtype(&
@@ -579,11 +573,11 @@ contains
        call nc_error_check(&
             'nc_inquire_dimension',&
             nf90_inquire_dimension(&
-            ncid = input_file%ncid,&
-            dimid = input_file%dimension(i)%dimid,&
-            name = input_file%dimension(i)%name,&
-            len = input_file%dimension(i)%len&
-            )&
+              ncid = input_file%ncid,&
+              dimid = input_file%dimension(i)%dimid,&
+              name = input_file%dimension(i)%name,&
+              len = input_file%dimension(i)%len&
+              )&
             )
 
     end do
@@ -595,13 +589,13 @@ contains
        call nc_error_check(&
             'nc_inquire_variable',&
             nf90_inquire_variable(&
-            ncid = input_file%ncid,&
-            varid = input_file%variable(i)%varid,&
-            name = input_file%variable(i)%name,&
-            xtype = input_file%variable(i)%xtype,&
-            ndims = input_file%variable(i)%ndims,&
-            natts = input_file%variable(i)%natts&
-            )&
+              ncid = input_file%ncid,&
+              varid = input_file%variable(i)%varid,&
+              name = input_file%variable(i)%name,&
+              xtype = input_file%variable(i)%xtype,&
+              ndims = input_file%variable(i)%ndims,&
+              natts = input_file%variable(i)%natts&
+              )&
             )
 
        allocate(&
@@ -612,10 +606,10 @@ contains
        call nc_error_check(&
             'nc_inquire_variable',&
             nf90_inquire_variable(&
-            ncid = input_file%ncid,&
-            varid = input_file%variable(i)%varid,&
-            dimids = input_file%variable(i)%dimids&
-            )&
+              ncid = input_file%ncid,&
+              varid = input_file%variable(i)%varid,&
+              dimids = input_file%variable(i)%dimids&
+              )&
             )
 
        do j = 1, input_file%variable(i)%natts
@@ -625,22 +619,22 @@ contains
           call nc_error_check(&
                'nc_inq_attname',&
                nf90_inq_attname(&
-               ncid = input_file%ncid,&
-               varid = input_file%variable(i)%varid,&
-               attnum = input_file%variable(i)%attribute(j)%attnum,&
-               name = input_file%variable(i)%attribute(j)%name&
-               )&
+                 ncid = input_file%ncid,&
+                 varid = input_file%variable(i)%varid,&
+                 attnum = input_file%variable(i)%attribute(j)%attnum,&
+                 name = input_file%variable(i)%attribute(j)%name&
+                 )&
                )
 
           call nc_error_check(&
                'nc_inquire_attribute',&
                nf90_inquire_attribute(&
-               ncid = input_file%ncid,&
-               varid = input_file%variable(i)%varid,&
-               name = input_file%variable(i)%attribute(j)%name,&
-               xtype = input_file%variable(i)%attribute(j)%xtype,&
-               len = input_file%variable(i)%attribute(j)%len&
-               )&
+                 ncid = input_file%ncid,&
+                 varid = input_file%variable(i)%varid,&
+                 name = input_file%variable(i)%attribute(j)%name,&
+                 xtype = input_file%variable(i)%attribute(j)%xtype,&
+                 len = input_file%variable(i)%attribute(j)%len&
+                 )&
                )
 
           call get_att_xtype(&
@@ -660,13 +654,12 @@ contains
           call nc_error_check(&
                'nc_inquire_dimension',&
                nf90_inquire_dimension(&
-               ncid = input_file%ncid,&
-               dimid = input_file%variable(i)%dimids(j),&
-               len = input_file%variable(i)%len(j)&
-               )&
+                 ncid = input_file%ncid,&
+                 dimid = input_file%variable(i)%dimids(j),&
+                 len = input_file%variable(i)%len(j)&
+                 )&
                )
        end do
-
 
        select case(input_file%variable(i)%ndims)
        case(1)
@@ -694,6 +687,63 @@ contains
     if(present(mode)) call print_nc_info(input_file, mode)
 
   end subroutine nc_reader
+
+  function nc_allocate(n, len, val1, val2, val3)
+
+    use hamodule
+
+    implicit none
+
+    integer, intent(in) :: n
+    integer, intent(in), dimension(n) :: len
+    type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
+    type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
+    type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
+    integer :: allocate_error_status
+    character(nf90_max_name) :: allocate_error_message
+
+    integer :: nc_allocate
+
+    select case(n)
+    case(1)
+      allocate( & !
+        val1(len(1)), & !
+        stat = allocate_error_status, & !
+        errmsg = allocate_error_message & !
+        )
+    case(2)
+       allocate( & !
+         val2(len(1), len(2)), & !
+         stat = allocate_error_status, & !
+         errmsg = allocate_error_message & !
+         )
+    case(3)
+       allocate( val3(len(1), len(2), len(3)), & !
+         stat = allocate_error_status, & !
+         errmsg = allocate_error_message & !
+         )
+    end select
+
+    nc_allocate = allocate_error_status
+    
+    if(allocate_error_status /= 0) then
+      print '(a)', ''
+      print '(a)', 'WARNING: Failed to allocate val' // &
+      number_to_string( &
+        iv = int(n, 4), &
+        len = num_len(iv = int(n, 4)) &
+        ) // &
+      ' with error status ' // &
+      number_to_string( &
+        iv = int(allocate_error_status, 4), &
+        len = num_len(iv = int(allocate_error_status, 4)) &
+        )
+      print '(a)', ''
+    end if
+
+    return
+
+  end function nc_allocate
 
 end module ncmodule
 
