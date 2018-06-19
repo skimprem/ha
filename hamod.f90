@@ -1,9 +1,6 @@
 module hamodule
 
   integer, parameter :: max_name_value = 1000
-  !type hacoeff
-
-  !end type hacoeff
 
   type haoptions
     logical :: definition
@@ -174,9 +171,5 @@ contains
     return
 
   end function number_to_string
-
-  subroutine dh_info()
-    implicit none
-  end subroutine dh_info
 
 end module hamodule

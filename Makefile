@@ -1,4 +1,4 @@
-objects = hamod.o ncmod.o ha.o
+objects = hamod.o ncmod.o shmod.o ha.o
 comp = gfortran
 outdir = ~/bin/
 NFDIR = /usr
@@ -16,6 +16,9 @@ hamod.o: hamod.f90
 
 ncmod.o: ncmod.f90
 	$(comp) -c -I$(NFDIR)/include/ ncmod.f90
+
+shmod.o: shmod.f90
+	$(comp) -c -I$(NFDIR)/include/ shmod.f90
 
 install: ha
 	cp ./$(exec) $(outdir)
