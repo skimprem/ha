@@ -85,15 +85,15 @@ program ha
   case('dh')
     print '(a)', 'Using expand method: Driscoll and Healy sampling theorem'
     n = nc_file%variable(3)%len(2)
-    !print *, 'n = ', n
+    print *, 'n = ', n
     norm = 1
-    !print *, 'norm = ', norm
+    print *, 'norm = ', norm
     sampling = 2
-    !print *, 'sampling = ', sampling
+    print *, 'sampling = ', sampling
     csphase = 1
-    !print *, 'csphase = ', csphase
-    !lmax_calc = nc_file%variable(3)%len(2)/2-1
-    !print *, 'lmax_calc = ', lmax_calc
+    print *, 'csphase = ', csphase
+    lmax_calc = nc_file%variable(3)%len(2)/2-1
+    print *, 'lmax_calc = ', lmax_calc
 
     call shexpanddh(&
       griddh,&! input, real*8, dimension (n, n) or (n, 2*n)

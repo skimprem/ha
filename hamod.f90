@@ -175,4 +175,8 @@ contains
 
   end function number_to_string
 
+  subroutine dh_info()
+    implicit none
+  end subroutine dh_info
+
 end module hamodule
