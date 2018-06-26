@@ -1,7 +1,14 @@
 module shmodule
 
   type shinit
-
+    real(8), dimension(:,:), allocatable :: griddh
+    real(8), dimension(:,:,:), allocatable :: cilm
+    integer :: n,&
+               lmax,&
+               norm,&
+               sampling,&
+               csphase,&
+               exitstatus
   end type shinit
 
   contains

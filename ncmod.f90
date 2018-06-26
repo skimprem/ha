@@ -288,52 +288,53 @@ contains
 
     character(*), intent(in) :: check_type
     integer, intent(in) :: ncstatus
+    integer :: un = 6
 
     if(ncstatus /= nf90_noerr) then
        select case(check_type)
        case('nc_open')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_open: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inquire')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inquire: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inq_dimid')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inq_dimid: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inquire_dimension')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inquire_dimension: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inq_varid')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inq_varid: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_variable')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_variable: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inq_attname')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inq_attname: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_inquire_attribute')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_inquire_attribute: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_get_att')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_get_att: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
        case('nc_')
-          print '(a)',&
+          write(un, '(a)')&
                'Error in nc_: '//&
                number_to_string(iv = int(ncstatus, 4), len = num_len(iv = int(ncstatus, 4)))
 
        end select
-       print '(a)', TRIM(nf90_strerror(ncstatus))
+       write(un, '(a)') trim(nf90_strerror(ncstatus))
        STOP 'Stopped!'
     end if
 
@@ -348,7 +349,7 @@ contains
     implicit none
     type(ncfile), intent(in) :: nc_file
     character(*), intent(in), optional :: type_info
-    integer :: i, j, k, l, m
+    integer :: i, j, k, l, m, un = 6
 
     ! type_info:
     !   view
@@ -356,57 +357,57 @@ contains
     !   viewinfo
 
     if(type_info == 'viewinfo' .OR. type_info == 'view') then
-       print '(a)', 'NetCDF version: '//TRIM(nf90_inq_libvers())
-       print '(a)', 'nc file info:'
-       print '(2x,a)', 'ncid: '//&
+       write(un, '(a)') 'NetCDF version: '//TRIM(nf90_inq_libvers())
+       write(un, '(a)') 'nc file info:'
+       write(un, '(2x,a)') 'ncid: '//&
             number_to_string(iv = int(nc_file%ncid, 4),&
             len = num_len(iv = int(nc_file%ncid, 4)))
-       print '(2x,a)', 'path: '//TRIM(ADJUSTL(nc_file%path))
-       print '(2x,a)', 'mode: '//&
+       write(un, '(2x,a)') 'path: '//TRIM(ADJUSTL(nc_file%path))
+       write(un, '(2x,a)') 'mode: '//&
             number_to_string(iv = int(nc_file%cmode, 4),&
             len = num_len(int(nc_file%cmode, 4)))
-       print '(2x,a)', 'ndimensions: '//&
+       write(un, '(2x,a)') 'ndimensions: '//&
             number_to_string(iv = int(nc_file%ndimensions, 4),&
             len = num_len(int(nc_file%ndimensions, 4)))
        do i = 1, nc_file%ndimensions
-          print '(4x,a)', 'name: '//TRIM(nc_file%dimension(i)%name)
-          print '(6x,a)', 'len: '//&
+          write(un, '(4x,a)') 'name: '//TRIM(nc_file%dimension(i)%name)
+          write(un, '(6x,a)') 'len: '//&
                number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
                len = num_len(iv = int(nc_file%dimension(i)%len,4)))
        end do
-       print '(2x,a)', 'nVariables: '//&
+       write(un, '(2x,a)') 'nVariables: '//&
             number_to_string(iv = int(nc_file%nvariables, 4),&
             len = num_len(iv = int(nc_file%nvariables, 4)))
        do i = 1, nc_file%nvariables
-          print '(4x,a)', 'name: '//TRIM(nc_file%variable(i)%name)
-          print '(6x,a)', 'xtype: '//&
+          write(un, '(4x,a)') 'name: '//TRIM(nc_file%variable(i)%name)
+          write(un, '(6x,a)') 'xtype: '//&
                number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
                len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
-          print '(6x,a)', 'ndims: '//&
+          write(un, '(6x,a)') 'ndims: '//&
                number_to_string(iv = int(nc_file%variable(i)%ndims, 4),&
                len = num_len(iv = int(nc_file%variable(i)%ndims, 4)))
           do j = 1, nc_file%variable(i)%ndims
-             print '(8x,a)', 'dimid: '//&
+             write(un, '(8x,a)') 'dimid: '//&
                   number_to_string(iv = int(nc_file%variable(i)%dimids(j), 4),&
                   len = num_len(iv = int(nc_file%variable(i)%dimids(j), 4)))
           end do
-          print '(6x,a)', 'natts: '//&
+          write(un, '(6x,a)') 'natts: '//&
                number_to_string(iv = int(nc_file%variable(i)%natts, 4),&
                len = num_len(iv = int(nc_file%variable(i)%natts, 4)))
           do j = 1, nc_file%variable(i)%natts
-             print '(8x,a)', 'name: '//&
-                  TRIM(nc_file%variable(i)%attribute(j)%name)
-             print '(10x,a)', 'xtype: '//&
+             write(un, '(8x,a)') 'name: '//&
+                  trim(nc_file%variable(i)%attribute(j)%name)
+             write(un, '(10x,a)') 'xtype: '//&
                   number_to_string(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4),&
                   len = num_len(iv = int(nc_file%variable(i)%attribute(j)%xtype, 4)))
-             print '(10x,a)', 'len: '//&
+             write(un, '(10x,a)') 'len: '//&
                   number_to_string(iv = int(nc_file%variable(i)%attribute(j)%len, 4),&
                   len = num_len(iv = int(nc_file%variable(i)%attribute(j)%len, 4)))
 
              select case(nc_file%variable(i)%attribute(j)%xtype)
              case(nf90_float)
                 do k = 1, nc_file%variable(i)%attribute(j)%len
-                   print '(10x,a)',&
+                   write(un, '(10x,a)')&
                         'value '//&
                         number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
                         number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4),&
@@ -415,7 +416,7 @@ contains
                 end do
              case(nf90_double)
                 do k = 1, nc_file%variable(i)%attribute(j)%len
-                   print '(10x,a)',&
+                   write(un, '(10x,a)')&
                         'value '//&
                         number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
                         number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4),&
@@ -423,28 +424,28 @@ contains
                    !frmt = '(f100.3)')
                 end do
              case(nf90_char)
-                print '(10x,a)', 'value: '//&
-                     TRIM(nc_file%variable(i)%attribute(j)%value(1)%char)
+                write(un, '(10x,a)') 'value: '//&
+                     trim(nc_file%variable(i)%attribute(j)%value(1)%char)
              end select
           end do
        end do
-       print '(2x,a)', 'nAttributes: '//&
+       write(un, '(2x,a)') 'nAttributes: '//&
             number_to_string(iv = int(nc_file%nattributes, 4),&
             len = num_len(iv = int(nc_file%nattributes, 4)))
        do i = 1, nc_file%nattributes
-          print '(4x,a)', TRIM(nc_file%attribute(i)%name)//': '//&
-               TRIM(nc_file%attribute(i)%value(1)%char)
+          write(un, '(4x,a)') trim(nc_file%attribute(i)%name)//': '//&
+               trim(nc_file%attribute(i)%value(1)%char)
        end do
-       print '(2x,a)', 'unlimitedDimid: '//&
+       write(un, '(2x,a)') 'unlimitedDimid: '//&
             number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
             len = num_len(iv = int(nc_file%unlimiteddimid, 4)))
-       print '(2x,a)', 'formatNum: '//&
+       write(un, '(2x,a)') 'formatNum: '//&
             number_to_string(iv = int(nc_file%formatnum, 4),&
             len = num_len(iv = int(nc_file%formatnum, 4)))
     end if
 
     if(type_info == 'viewdata' .OR. type_info == 'view') then
-       !print '(a)', ''
+       !write(un, '(a)') ''
        k = 1 
        do m = 1, nc_file%variable(k)%ndims
           do i = 1, nc_file%variable(k)%len(m)
@@ -469,7 +470,7 @@ contains
                    !' = ', &
                    !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
                    !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
-                   print '(a)', &
+                   write(un, '(a)') &
                         number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
                         len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
                         frmt = '(f20.2)'),&
@@ -702,7 +703,7 @@ contains
     integer :: allocate_error_status
     character(nf90_max_name) :: allocate_error_message
 
-    integer :: nc_allocate
+    integer :: nc_allocate, un = 6
 
     select case(n)
     case(1)
@@ -727,8 +728,8 @@ contains
     nc_allocate = allocate_error_status
     
     if(allocate_error_status /= 0) then
-      print '(a)', ''
-      print '(a)', 'WARNING: Failed to allocate val' // &
+      write(un, '(a)') ''
+      write(un, '(a)') 'WARNING: Failed to allocate val' // &
       number_to_string( &
         iv = int(n, 4), &
         len = num_len(iv = int(n, 4)) &
@@ -738,7 +739,7 @@ contains
         iv = int(allocate_error_status, 4), &
         len = num_len(iv = int(allocate_error_status, 4)) &
         )
-      print '(a)', ''
+      write(un, '(a)') ''
     end if
 
     return

@@ -18,7 +18,7 @@ contains
     character(*), intent(in) :: arg
     character(*), intent(in), optional :: string
     logical :: file_exist = .false., arg_true = .false.
-    integer(4) :: i, k = 1
+    integer(4) :: i, k = 1, un = 6
 
     ! check types:
     !   'noarg' - parameter existence
@@ -28,30 +28,30 @@ contains
     select case(check_type)
     case('noarg')
       if(trim(adjustl(arg)) == '') then
-        print '(a)', ''
-        print '(a)', 'ERROR: Do not set any option!'
-        print '(a)', ''
+        write(un, '(a)') ''
+        write(un, '(a)') 'ERROR: Do not set any option!'
+        write(un, '(a)') ''
         call print_help('stop')
       end if
     case('noopt')
       if(trim(adjustl(arg)) == '') then
-        print '(a)', ''
-        print '(a)', 'ERROR: Do not define parameter of option "'//trim(adjustl(string))//'"'
-        print '(a)', ''
+        write(un, '(a)') ''
+        write(un, '(a)') 'ERROR: Do not define parameter of option "'//trim(adjustl(string))//'"'
+        write(un, '(a)') ''
         call print_help('stop')
       end if
     case('nofile')
       inquire(file=trim(adjustl(arg)), exist=file_exist)
       if(file_exist .eqv. .false.) then
-        print '(a)', ''
-        print '(a)', 'ERROR: No such file "'//trim(adjustl(arg))//'"'
-        print '(a)', ''
+        write(un, '(a)') ''
+        write(un, '(h)') 'ERROR: No such file "'//trim(adjustl(arg))//'"'
+        write(un, '(h)') ''
         call print_help('stop')
       end if
     case('unopt')
-      print '(a)', ''
-      print '(a)', 'ERROR: Option "'//trim(adjustl(arg))//'" unrecognized!'
-      print '(a)', ''
+      write(un, '(a)') ''
+      write(un, '(a)') 'ERROR: Option "'//trim(adjustl(arg))//'" unrecognized!'
+      write(un, '(a)') ''
       call print_help('stop')
     case('charg')
       do i = 1, len_trim(string)
@@ -62,7 +62,7 @@ contains
       end do
         if(trim(adjustl(string(k:))) == trim(adjustl(arg))) arg_true = .true.
         if(arg_true .eqv. .false.) then
-          print '(a)', 'ERROR: The parameter '//trim(adjustl(arg))//' is incorrect!'
+          write(un, '(a)') 'ERROR: The parameter '//trim(adjustl(arg))//' is incorrect!'
           call print_help('stop')
         end if
     end select
