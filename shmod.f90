@@ -1,6 +1,6 @@
 module shmodule
 
-  type shinit
+  type shfile
     real(8), dimension(:,:), allocatable :: griddh
     real(8), dimension(:,:,:), allocatable :: cilm
     integer :: n,&
@@ -9,12 +9,13 @@ module shmodule
                sampling,&
                csphase,&
                exitstatus
-  end type shinit
+  end type shfile
 
   contains
 
-  subroutine print_sh_info()
+  subroutine print_sh_info(sh_file)
     implicit none
+    type(shfile), intent(in) :: sh_file
   end subroutine print_sh_info
 
 

@@ -3,6 +3,7 @@ program ha
   use shtools
   use hamodule
   use ncmodule
+  use shmodule
 
   implicit none
   
@@ -13,6 +14,7 @@ program ha
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
     un = 6
   type(ncfile) :: nc_file
+  type(shfile) :: sh_file
   type(haoptions) :: gridfile, ncmode, hamode
 
   gridfile%definition = .false.
