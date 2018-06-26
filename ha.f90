@@ -76,60 +76,44 @@ program ha
 
   call nc_reader(nc_file, trim(ncmode%value))
 
-  allocate( cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2), &
-       griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+  allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2), &
+       sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
   do i = 1, nc_file%variable(3)%len(2)
     do j = 1, nc_file%variable(3)%len(1)
-      griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
+      sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
     end do
   end do
 
+  deallocate(nc_file%variable(3)%val2)
+
   if(hamode%definition .eqv. .true.) then
+    sh_file%method = trim(hamode%value)
     write(un, '(a)', advance = 'no') 'Expand method: '
     select case(trim(hamode%value))
     case('dh')
-      write(un, '(a)') 'Driscoll and Healy sampling theorem'
-      n = nc_file%variable(3)%len(2)
-      write(un, '(2x, a)') 'n: '//&
-        number_to_string(iv = int(n, 4), len = num_len(iv = int(n, 4)))
-      norm = 1
-      write(un, '(2x, a)') 'norm: '//&
-        number_to_string(iv = int(norm, 4), len = num_len(iv = int(norm, 4)))
-      sampling = 2
-      write(un, '(2x, a)') 'sampling: '//&
-        number_to_string(iv = int(sampling, 4), len = num_len(iv = int(sampling, 4)))
-      csphase = 1
-      write(un, '(2x, a)') 'csphase: '//&
-        number_to_string(iv = int(csphase, 4), len = num_len(iv = int(csphase, 4)))
-      lmax_calc = nc_file%variable(3)%len(2)/2-1
-      write(un, '(2x, a)') 'lmax_calc: '//&
-        number_to_string(iv = int(lmax_calc, 4), len = num_len(iv = int(lmax_calc, 4)))
+      sh_file%n = nc_file%variable(3)%len(2)
+      sh_file%norm = 1
+      sh_file%sampling = 2
+      sh_file%csphase = 1
+      sh_file%lmax_calc = nc_file%variable(3)%len(2)/2-1
 
       call shexpanddh(&
-        griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
-        n = n,&! input, integer
-        cilm = cilm,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
-        lmax = lmax,&! output, integer
-        norm = norm,&! input, optional, integer, default = 1
-        sampling = sampling, &! input, optional, integer, default = 1
-        csphase = csphase,&! input, optional, integer, default = 1
-        exitstatus = exitstatus&! output, optional, integer
+        sh_file%griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
+        n = sh_file%n,&! input, integer
+        cilm = sh_file%cilm,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
+        lmax = sh_file%lmax,&! output, integer
+        norm = sh_file%norm,&! input, optional, integer, default = 1
+        sampling = sh_file%sampling, &! input, optional, integer, default = 1
+        csphase = sh_file%csphase,&! input, optional, integer, default = 1
+        exitstatus = sh_file%exitstatus&! output, optional, integer
         )
 
-      write(un, '(2x, a)') 'exitstatus: '//&
-        number_to_string(iv = int(exitstatus, 4), len = num_len(iv = int(exitstatus, 4)))
-
-      do i = 1, lmax
-        do j = 1, i
-          write(un, *) i, j, cilm(1, i, j), cilm(2, i, j)
-        end do
-      end do
-      !print *, cilm
-
     case('ls')
-      print '(a)', 'Using expand method: least squares inversion'
     end select
+
+    call print_sh_info(sh_file)
+
   end if
 
 end program ha
