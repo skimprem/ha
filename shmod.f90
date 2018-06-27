@@ -23,6 +23,8 @@ module shmodule
     type(shfile), intent(in) :: sh_file
     integer :: i, j, un = 6
 
+    write(un, '(2x, a)', advance = 'no') 'Expand method: '
+
     select case(sh_file%method)
     case('dh')
       write(un, '(a)') 'Driscoll and Healy sampling theorem'

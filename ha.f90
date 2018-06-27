@@ -10,6 +10,7 @@ program ha
   character(*), parameter :: version = '1.1'
   character(max_name_value) :: arg
   real(8), allocatable :: cilm(:,:,:), griddh(:,:)
+  real(8) :: cpu_time_1, cpu_time_2, calc_time
   integer :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
     un = 6
@@ -89,7 +90,7 @@ program ha
 
   if(hamode%definition .eqv. .true.) then
     sh_file%method = trim(hamode%value)
-    write(un, '(a)', advance = 'no') 'Expand method: '
+    write(un, '(a)') 'Expand..'
     select case(trim(hamode%value))
     case('dh')
       sh_file%n = nc_file%variable(3)%len(2)
@@ -97,6 +98,8 @@ program ha
       sh_file%sampling = 2
       sh_file%csphase = 1
       sh_file%lmax_calc = nc_file%variable(3)%len(2)/2-1
+
+      call cpu_time(cpu_time_1)
 
       call shexpanddh(&
         sh_file%griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
@@ -108,6 +111,14 @@ program ha
         csphase = sh_file%csphase,&! input, optional, integer, default = 1
         exitstatus = sh_file%exitstatus&! output, optional, integer
         )
+
+      call cpu_time(cpu_time_2)
+
+      calc_time = cpu_time_2 - cpu_time_1
+
+      write(un, '(2x,a)') 'Calculation time: '//&
+        number_to_string(rv = real(calc_time, 4), len = num_len(rv = real(calc_time, 4)))//&
+        ' seconds'
 
     case('ls')
     end select
