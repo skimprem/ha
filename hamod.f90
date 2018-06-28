@@ -44,8 +44,8 @@ contains
       inquire(file=trim(adjustl(arg)), exist=file_exist)
       if(file_exist .eqv. .false.) then
         write(un, '(a)') ''
-        write(un, '(h)') 'ERROR: No such file "'//trim(adjustl(arg))//'"'
-        write(un, '(h)') ''
+        write(un, '(a)') 'ERROR: No such file "'//trim(adjustl(arg))//'"'
+        write(un, '(a)') ''
         call print_help('stop')
       end if
     case('unopt')

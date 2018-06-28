@@ -77,12 +77,12 @@ program ha
 
   call nc_reader(nc_file, trim(ncmode%value))
 
-  allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2), &
-       sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+  allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
+  allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
   do i = 1, nc_file%variable(3)%len(2)
     do j = 1, nc_file%variable(3)%len(1)
-      sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
+      !sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
     end do
   end do
 

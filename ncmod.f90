@@ -105,7 +105,7 @@ contains
        ! NC_UBYTE: 8-bit unsigned integer
     case(nf90_char)
        ! NC_CHAR: 8-bit character byte
-       DEallocate( value )
+       deallocate( value )
        allocate( value(1) )
        call nc_error_check(&
             'nc_get_att',&
@@ -196,23 +196,75 @@ contains
     implicit none
     integer, intent(in) :: ncid, varid, xtype, ndims
     integer, intent(in), dimension(ndims) :: len
-    integer :: allocate_status 
+    integer :: allocate_status, un = 6
     type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
     type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
     type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
 
     allocate_status = nc_allocate(ndims, len, val1, val2, val3)
+    
+    if(allocate_status /= 0) then
+      select case(allocate_status)
+      case(5014)
+        stop 'You do not have free memory?'
+      end select
+    end if
 
     select case(xtype)
     case(nf90_byte)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_ubyte)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_char)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_short)
+      select case(ndims)
+      case(1)
+         call nc_error_check(&
+              'nc_get_var',&
+              nf90_get_var(&
+                ncid = ncid,&
+                varid = varid,&
+                values = val1%short&
+                )&
+              )
+      case(2)
+         call nc_error_check(&
+              'nc_get_var',&
+              nf90_get_var(&
+                ncid = ncid,&
+                varid = varid,&
+                values = val2%short&
+                )&
+               )
+      case(3)
+         call nc_error_check(&
+              'nc_get_var',&
+              nf90_get_var(&
+                ncid = ncid,&
+                varid = varid,&
+                values = val3%short&
+                )&
+              )
+      end select
     case(nf90_ushort)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_int)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_uint)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_int64)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_uint64)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     case(nf90_float)
        select case(ndims)
        case(1)
@@ -275,9 +327,47 @@ contains
                )
        end select
     case(nf90_string)
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop 
     end select
 
   end subroutine get_var_xtype
+
+  function nc_xtype_name(xtype)
+
+    implicit none
+
+    character(nf90_max_name) :: nc_xtype_name
+    integer, intent(in) :: xtype
+
+    select case(xtype)
+    case(nf90_byte)
+      nc_xtype_name = 'byte: 8-bit signed integer'
+    case(nf90_ubyte)
+      nc_xtype_name = 'ubyte: 8-bit unsigned integer' 
+    case(nf90_char)
+      nc_xtype_name = 'char: 8-bit character byte'
+    case(nf90_short)
+      nc_xtype_name = 'short: 16-bit signed integer'
+    case(nf90_ushort)
+      nc_xtype_name = 'ushort: 16-bit unsigned integer'
+    case(nf90_int)
+      nc_xtype_name = 'int: 32-bit signed integer'
+    case(nf90_uint)
+      nc_xtype_name = 'uint: 32-bit unsigned integer'
+    case(nf90_int64)
+      nc_xtype_name = 'int64: 64-bit signed integer'
+    case(nf90_uint64)
+      nc_xtype_name = 'uint64: 64-bit signed integer'
+    case(nf90_float)
+      nc_xtype_name = 'float: 32-bit floating point'
+    case(nf90_double)
+      nc_xtype_name = 'double: 64-bit floating point'
+    case(nf90_string)
+      nc_xtype_name = 'string: variable length character string'
+    end select
+    return
+  end function nc_xtype_name
 
   subroutine nc_error_check(check_type, ncstatus)
 
@@ -445,7 +535,7 @@ contains
     end if
 
     if(type_info == 'viewdata' .OR. type_info == 'view') then
-       !write(un, '(a)') ''
+       write(un, '(a)') 'viewdata'
        k = 1 
        do m = 1, nc_file%variable(k)%ndims
           do i = 1, nc_file%variable(k)%len(m)
@@ -738,7 +828,7 @@ contains
       number_to_string( &
         iv = int(allocate_error_status, 4), &
         len = num_len(iv = int(allocate_error_status, 4)) &
-        )
+        ) // ' (' //  trim(allocate_error_message) // ')'
       write(un, '(a)') ''
     end if
 
