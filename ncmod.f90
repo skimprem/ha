@@ -3,77 +3,78 @@ module ncmodule
   use netcdf
 
   type ncdimensions
-     character(nf90_max_name) ::&
-          name
-     integer ::&
-          dimid,&
-          len
+    character(nf90_max_name) ::&
+        name
+    integer ::&
+        dimid,&
+        len
   end type ncdimensions
 
   type ncvalues
-     integer(2) :: short
-     integer(4) :: int
-     integer(8) :: int64
-     real(4) :: float
-     real(8) :: double
-     character(nf90_max_name) :: char
+    integer(2) :: short
+    integer(4) :: int
+    integer(8) :: int64
+    real(4) :: float
+    real(8) :: double
+    character(nf90_max_name) :: char
+    character(nf90_max_name) :: string
   end type ncvalues
 
   type ncattributes
-     character(nf90_max_name) ::&
-          name
-     integer ::&
-          xtype,&
-          len,&
-          attnum 
-     type(ncvalues), dimension(:), allocatable ::&
-          value
+    character(nf90_max_name) ::&
+        name
+    integer ::&
+        xtype,&
+        len,&
+        attnum 
+    type(ncvalues), dimension(:), allocatable ::&
+        value
   end type ncattributes
 
   type ncxtypes
-     character(nf90_max_name) ::&
-          name
-     integer ::&
-          type,&
-          size
+    character(nf90_max_name) ::&
+        name
+    integer ::&
+        type,&
+        size
   end type ncxtypes
 
   type ncvariables
-     character(nf90_max_name) ::&
-          name
-     integer ::&
-          varid,&
-          xtype,&
-          ndims,&
-          natts
-     integer, dimension(:), allocatable ::&
-          dimids
-     integer, dimension(:), allocatable ::&
-          len
-     type(ncattributes), dimension(:), allocatable :: attribute
-     type(ncvalues), dimension(:), allocatable :: val1
-     type(ncvalues), dimension(:,:), allocatable :: val2
-     type(ncvalues), dimension(:,:,:), allocatable :: val3
+    character(nf90_max_name) ::&
+        name
+    integer ::&
+        varid,&
+        xtype,&
+        ndims,&
+        natts
+    integer, dimension(:), allocatable ::&
+        dimids
+    integer, dimension(:), allocatable ::&
+        len
+    type(ncattributes), dimension(:), allocatable :: attribute
+    type(ncvalues), dimension(:), allocatable :: val1
+    type(ncvalues), dimension(:,:), allocatable :: val2
+    type(ncvalues), dimension(:,:,:), allocatable :: val3
   end type ncvariables
 
   type ncfile
-     character(1000) :: path
-     character(nf90_max_name) ::& !
-          name,&
-          title,&
-          history,&
-          conventions
-     integer ::& !
-          cmode,& !
-          ncid,& !
-          ndimensions,& !
-          nvariables,& !
-          nattributes,& !
-          unlimiteddimid,& !
-          formatnum !
-     type(ncdimensions), dimension(:), allocatable :: dimension
-     type(ncvariables), dimension(:), allocatable :: variable
-     type(ncattributes), dimension(:), allocatable :: attribute
+    character(1000) :: path
+    character(nf90_max_name) ::& !
+        name,&
+        title,&
+        history,&
+        conventions
+    integer ::& !
+        cmode,& !
+        ncid,& !
+        ndimensions,& !
+        nvariables,& !
+        nattributes,& !
+        unlimiteddimid,& !
+        formatnum !
+    type(ncdimensions), dimension(:), allocatable :: dimension
+    type(ncvariables), dimension(:), allocatable :: variable
+    type(ncattributes), dimension(:), allocatable :: attribute
   end type ncfile
 
 contains
@@ -98,48 +99,48 @@ contains
 
     select case(xtype)
     case(0)
-       ! 0
+      ! 0
     case(nf90_byte)
-       ! NC_BYTE: 8-bit signed integer
+      ! NC_BYTE: 8-bit signed integer
     case(nf90_ubyte)
-       ! NC_UBYTE: 8-bit unsigned integer
+      ! NC_UBYTE: 8-bit unsigned integer
     case(nf90_char)
-       ! NC_CHAR: 8-bit character byte
-       deallocate( value )
-       allocate( value(1) )
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value(1)%char&
-              )&
-            )
+      ! NC_CHAR: 8-bit character byte
+      deallocate( value )
+      allocate( value(1) )
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value(1)%char&
+            )&
+          )
     case(nf90_short)
-       ! NC_SHORT: 16-bit signed integer
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value%short&
-              )&
-            )
+      ! NC_SHORT: 16-bit signed integer
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value%short&
+            )&
+          )
     case(nf90_ushort)
-       ! NC_USHORT: 16-bit unsigned integer
+      ! NC_USHORT: 16-bit unsigned integer
     case(nf90_int)
-       ! NC_int: (NC_LONG): 32-bit signed integer
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value%int&
-              )&
-            )
+      ! NC_int: (NC_LONG): 32-bit signed integer
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value%int&
+            )&
+          )
     case(nf90_uint)
        ! NC_Uint: 32-bit unsigned integer
     case(nf90_int64)
@@ -196,7 +197,7 @@ contains
     implicit none
     integer, intent(in) :: ncid, varid, xtype, ndims
     integer, intent(in), dimension(ndims) :: len
-    integer :: allocate_status, un = 6
+    integer :: allocate_status, un = 6, i, j, k
     type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
     type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
     type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
@@ -223,14 +224,14 @@ contains
     case(nf90_short)
       select case(ndims)
       case(1)
-         call nc_error_check(&
-              'nc_get_var',&
-              nf90_get_var(&
-                ncid = ncid,&
-                varid = varid,&
-                values = val1%short&
-                )&
-              )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = val1%short&
+               )&
+             )
       case(2)
          call nc_error_check(&
               'nc_get_var',&
@@ -447,12 +448,12 @@ contains
     !   viewinfo
 
     if(type_info == 'viewinfo' .OR. type_info == 'view') then
-       write(un, '(a)') 'NetCDF version: '//TRIM(nf90_inq_libvers())
+       write(un, '(a)') 'NetCDF version: '//trim(nf90_inq_libvers())
        write(un, '(a)') 'nc file info:'
        write(un, '(2x,a)') 'ncid: '//&
             number_to_string(iv = int(nc_file%ncid, 4),&
             len = num_len(iv = int(nc_file%ncid, 4)))
-       write(un, '(2x,a)') 'path: '//TRIM(ADJUSTL(nc_file%path))
+       write(un, '(2x,a)') 'path: '//trim(adjustl(nc_file%path))
        write(un, '(2x,a)') 'mode: '//&
             number_to_string(iv = int(nc_file%cmode, 4),&
             len = num_len(int(nc_file%cmode, 4)))
@@ -460,7 +461,7 @@ contains
             number_to_string(iv = int(nc_file%ndimensions, 4),&
             len = num_len(int(nc_file%ndimensions, 4)))
        do i = 1, nc_file%ndimensions
-          write(un, '(4x,a)') 'name: '//TRIM(nc_file%dimension(i)%name)
+          write(un, '(4x,a)') 'name: '//trim(nc_file%dimension(i)%name)
           write(un, '(6x,a)') 'len: '//&
                number_to_string(iv = int(nc_file%dimension(i)%len, 4),&
                len = num_len(iv = int(nc_file%dimension(i)%len,4)))
@@ -469,7 +470,7 @@ contains
             number_to_string(iv = int(nc_file%nvariables, 4),&
             len = num_len(iv = int(nc_file%nvariables, 4)))
        do i = 1, nc_file%nvariables
-          write(un, '(4x,a)') 'name: '//TRIM(nc_file%variable(i)%name)
+          write(un, '(4x,a)') 'name: '//trim(nc_file%variable(i)%name)
           write(un, '(6x,a)') 'xtype: '//&
                number_to_string(iv = int(nc_file%variable(i)%xtype, 4),&
                len = num_len(iv = int(nc_file%variable(i)%xtype, 4)))
@@ -534,49 +535,49 @@ contains
             len = num_len(iv = int(nc_file%formatnum, 4)))
     end if
 
-    if(type_info == 'viewdata' .OR. type_info == 'view') then
-       write(un, '(a)') 'viewdata'
-       k = 1 
-       do m = 1, nc_file%variable(k)%ndims
-          do i = 1, nc_file%variable(k)%len(m)
-             do l = 1, nc_file%variable(k+1)%ndims
-                do j = 1, nc_file%variable(k+1)%len(l)
-                   !print *, &
-                   !number_to_string(iv = i, len = num_len(iv = i)), &
-                   !' = ', &
-                   !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4), &
-                   !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4))), &
-                   !' ; ', &
-                   !number_to_string(iv = j, len = num_len(iv = j)), &
-                   !' = ', &
-                   !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4), &
-                   !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4))), &
-                   !' ; ', &
-                   !'(', &
-                   !number_to_string(iv = i, len = num_len(iv = i)), &
-                   !',', &
-                   !number_to_string(iv = j, len = num_len(iv = j)), &
-                   !')', &
-                   !' = ', &
-                   !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
-                   !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
-                   write(un, '(a)') &
-                        number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                        len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                        frmt = '(f20.2)'),&
-                        frmt = '(f20.2)')//' '//&
-                        number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                        len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                        frmt = '(f20.2)'),&
-                        frmt = '(f20.2)')//' '//&
-                        number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                        len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                        frmt = '(f20.4)'),&
-                        frmt = '(f20.4)')
-                end do
-             end do
+    if(type_info == 'viewdata' .or. type_info == 'view') then
+      write(un, '(a)') 'viewdata'
+      k = 1 
+      do m = 1, nc_file%variable(k)%ndims
+        do i = 1, nc_file%variable(k)%len(m)
+          do l = 1, nc_file%variable(k+1)%ndims
+            do j = 1, nc_file%variable(k+1)%len(l)
+              !print *, &
+              !number_to_string(iv = i, len = num_len(iv = i)), &
+              !' = ', &
+              !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4), &
+              !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4))), &
+              !' ; ', &
+              !number_to_string(iv = j, len = num_len(iv = j)), &
+              !' = ', &
+              !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4), &
+              !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4))), &
+              !' ; ', &
+              !'(', &
+              !number_to_string(iv = i, len = num_len(iv = i)), &
+              !',', &
+              !number_to_string(iv = j, len = num_len(iv = j)), &
+              !')', &
+              !' = ', &
+              !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
+              !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
+              write(un, '(a)') &
+                  number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
+                  len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
+                  frmt = '(f20.2)'),&
+                  frmt = '(f20.2)')//' '//&
+                  number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
+                  len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
+                  frmt = '(f20.2)'),&
+                  frmt = '(f20.2)')//' '//&
+                  number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                  len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                  frmt = '(f20.4)'),&
+                  frmt = '(f20.4)')
+            end do
           end do
-       end do
+        end do
+      end do
     end if
 
     return
