@@ -11,11 +11,11 @@ module ncmodule
   end type ncdimensions
 
   type ncvalues
-    integer(2) :: short
-    integer(4) :: int
-    integer(8) :: int64
-    real(4) :: float
-    real(8) :: double
+    integer(2), dimension(:), allocatable :: short
+    integer(4), dimension(:), allocatable :: int
+    integer(8), dimension(:), allocatable :: int64
+    real(4), dimension(:), allocatable :: float
+    real(8), dimension(:), allocatable :: double
     character(nf90_max_name) :: char
     character(nf90_max_name) :: string
   end type ncvalues
@@ -27,7 +27,7 @@ module ncmodule
         xtype,&
         len,&
         attnum 
-    type(ncvalues), dimension(:), allocatable ::&
+    type(ncvalues) ::&
         value
   end type ncattributes
 
@@ -52,9 +52,9 @@ module ncmodule
     integer, dimension(:), allocatable ::&
         len
     type(ncattributes), dimension(:), allocatable :: attribute
-    type(ncvalues), dimension(:), allocatable :: val1
-    type(ncvalues), dimension(:,:), allocatable :: val2
-    type(ncvalues), dimension(:,:,:), allocatable :: val3
+    !type(ncvalues), dimension(:), allocatable :: val1
+    !type(ncvalues), dimension(:,:), allocatable :: val2
+    !type(ncvalues), dimension(:,:,:), allocatable :: val3
   end type ncvariables
 
   type ncfile
@@ -93,32 +93,37 @@ contains
 
     integer, intent(in) :: ncid, varid, xtype, len
     character(*), intent(in) :: name
-    type(ncvalues), intent(out), dimension(:), allocatable :: value
-
-    allocate( value(len) )
+    type(ncvalues), intent(out) :: value
+    integer :: un = 6
 
     select case(xtype)
     case(0)
       ! 0
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_byte)
       ! NC_BYTE: 8-bit signed integer
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_ubyte)
       ! NC_UBYTE: 8-bit unsigned integer
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_char)
       ! NC_CHAR: 8-bit character byte
-      deallocate( value )
-      allocate( value(1) )
+      !allocate( value%char(1) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
             name = name,&
-            values = value(1)%char&
+            values = value%char&
             )&
           )
     case(nf90_short)
       ! NC_SHORT: 16-bit signed integer
+      allocate( value%short(len) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
@@ -130,6 +135,9 @@ contains
           )
     case(nf90_ushort)
       ! NC_USHORT: 16-bit unsigned integer
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
+
     case(nf90_int)
       ! NC_int: (NC_LONG): 32-bit signed integer
       call nc_error_check(&
@@ -142,44 +150,53 @@ contains
             )&
           )
     case(nf90_uint)
-       ! NC_Uint: 32-bit unsigned integer
+      ! NC_Uint: 32-bit unsigned integer
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_int64)
-       ! NC_int64: 64-bit signed integer
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value%int64&
-              )&
-            )
+      ! NC_int64: 64-bit signed integer
+      allocate( value%int64(len) )
+      call nc_error_check(&
+           'nc_get_att',&
+           nf90_get_att(&
+             ncid = ncid,&
+             varid = varid,&
+             name = name,&
+             values = value%int64&
+             )&
+           )
     case(nf90_uint64)
-       ! NC_Uint64: 64-bit unsigned integer
+      ! NC_Uint64: 64-bit unsigned integer
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     case(nf90_float)
-       ! NC_FLOAT: 32-bit floating point
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value%float&
-              )&
-            )
+      ! NC_FLOAT: 32-bit floating point
+      allocate( value%float(len) )
+      call nc_error_check(&
+           'nc_get_att',&
+           nf90_get_att(&
+             ncid = ncid,&
+             varid = varid,&
+             name = name,&
+             values = value%float&
+             )&
+           )
     case(nf90_double)
-       ! NC_double: 64-bit floating point
-       call nc_error_check(&
-            'nc_get_att',&
-            nf90_get_att(&
-              ncid = ncid,&
-              varid = varid,&
-              name = name,&
-              values = value%double&
-              )&
-            )
+      ! NC_double: 64-bit floating point
+      allocate( value%double(len) )
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value%double&
+            )&
+          )
     case(nf90_string)
-       ! NC_STRING: variable length character string
+      ! NC_STRING: variable length character string
+      write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
+      stop
     end select
 
   end subroutine get_att_xtype
@@ -189,27 +206,27 @@ contains
        varid,& !
        xtype,& !
        ndims,& !
-       len,& !
-       val1,& !
-       val2,& !
-       val3) !
+       len) !
 
     implicit none
     integer, intent(in) :: ncid, varid, xtype, ndims
     integer, intent(in), dimension(ndims) :: len
     integer :: allocate_status, un = 6, i, j, k
-    type(ncvalues), intent(out), dimension(:), allocatable, optional :: val1
-    type(ncvalues), intent(out), dimension(:,:), allocatable, optional :: val2
-    type(ncvalues), intent(out), dimension(:,:,:), allocatable, optional :: val3
+    integer(2), allocatable :: values_short_1(:), values_short_2(:,:), values_short_3(:,:,:)
+    integer(4), allocatable :: values_int_1(:), values_int_2(:,:), values_int_3(:,:,:)
+    integer(8), allocatable :: values_int64_1(:), values_int64_2(:,:), values_int64_3(:,:,:)
+    real(4), allocatable :: values_float_1(:), values_float_2(:,:), values_float_3(:,:,:)
+    real(8), allocatable :: values_double_1(:), values_double_2(:,:), values_double_3(:,:,:)
+    character(nf90_max_name), allocatable :: values_char_1(:), values_char_2(:,:), values_char_3(:,:,:)
 
-    allocate_status = nc_allocate(ndims, len, val1, val2, val3)
+    !allocate_status = nc_allocate(ndims, len, val1, val2, val3)
     
-    if(allocate_status /= 0) then
-      select case(allocate_status)
-      case(5014)
-        stop 'You do not have free memory?'
-      end select
-    end if
+    !if(allocate_status /= 0) then
+      !select case(allocate_status)
+      !case(5014)
+        !stop 'You do not have free memory?'
+      !end select
+    !end if
 
     select case(xtype)
     case(nf90_byte)
@@ -224,32 +241,35 @@ contains
     case(nf90_short)
       select case(ndims)
       case(1)
+        allocate( values_short_1(len(1)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = val1%short&
+               values = values_short_1&
                )&
              )
       case(2)
-         call nc_error_check(&
-              'nc_get_var',&
-              nf90_get_var(&
-                ncid = ncid,&
-                varid = varid,&
-                values = val2%short&
-                )&
-               )
-      case(3)
-         call nc_error_check(&
-              'nc_get_var',&
-              nf90_get_var(&
-                ncid = ncid,&
-                varid = varid,&
-                values = val3%short&
-                )&
+        allocate( values_short_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_short_2&
+               )&
               )
+      case(3)
+        allocate( values_short_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_short_2&
+               )&
+             )
       end select
     case(nf90_ushort)
       write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
@@ -267,66 +287,71 @@ contains
       write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
       stop 
     case(nf90_float)
-       select case(ndims)
-       case(1)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val1%float&
-                 )&
-               )
-       case(2)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val2%float&
-                 )&
-               )
-       case(3)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val3%float&
-                 )&
-               )
-
-       end select
+      select case(ndims)
+      case(1)
+        allocate( values_float_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_float_1&
+               )&
+             )
+      case(2)
+        allocate( values_float_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_float_2&
+               )&
+             )
+      case(3)
+        allocate( values_float_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_float_3&
+               )&
+             )
+      end select
     case(nf90_double)
-       select case(ndims)
-       case(1)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val1%double&
-                 )&
-               )
-       case(2)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val2%double&
-                 )&
-               )
-       case(3)
-          call nc_error_check(&
-               'nc_get_var',&
-               nf90_get_var(&
-                 ncid = ncid,&
-                 varid = varid,&
-                 values = val3%double&
-                 )&
-               )
-       end select
+      select case(ndims)
+      case(1)
+        allocate( values_double_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_double_1&
+               )&
+             )
+      case(2)
+        allocate( values_double_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_double_2&
+               )&
+             )
+      case(3)
+        allocate( values_double_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = values_double_3&
+               )&
+             )
+      end select
     case(nf90_string)
       write(un, '(a)') trim(nc_xtype_name(xtype))//' not set'
       stop 
@@ -501,8 +526,8 @@ contains
                    write(un, '(10x,a)')&
                         'value '//&
                         number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-                        number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4),&
-                        len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%float, 4)))!,&
+                        number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value%float(k), 4),&
+                        len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value%float(k), 4)))!,&
                    !frmt = '(f10.3)')
                 end do
              case(nf90_double)
@@ -510,13 +535,13 @@ contains
                    write(un, '(10x,a)')&
                         'value '//&
                         number_to_string(iv = int(k, 4), len = num_len(iv = int(k, 4)))//': '//&
-                        number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4),&
-                        len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value(k)%double, 4)))!,&
+                        number_to_string(rv = real(nc_file%variable(i)%attribute(j)%value%double(k), 4),&
+                        len = num_len(rv = real(nc_file%variable(i)%attribute(j)%value%double(k), 4)))!,&
                    !frmt = '(f100.3)')
                 end do
              case(nf90_char)
                 write(un, '(10x,a)') 'value: '//&
-                     trim(nc_file%variable(i)%attribute(j)%value(1)%char)
+                     trim(nc_file%variable(i)%attribute(j)%value%char)
              end select
           end do
        end do
@@ -525,7 +550,7 @@ contains
             len = num_len(iv = int(nc_file%nattributes, 4)))
        do i = 1, nc_file%nattributes
           write(un, '(4x,a)') trim(nc_file%attribute(i)%name)//': '//&
-               trim(nc_file%attribute(i)%value(1)%char)
+               trim(nc_file%attribute(i)%value%char)
        end do
        write(un, '(2x,a)') 'unlimitedDimid: '//&
             number_to_string(iv = int(nc_file%unlimiteddimid, 4),&
@@ -561,19 +586,19 @@ contains
               !' = ', &
               !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
               !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
-              write(un, '(a)') &
-                  number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                  len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                  frmt = '(f20.2)'),&
-                  frmt = '(f20.2)')//' '//&
-                  number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                  len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                  frmt = '(f20.2)'),&
-                  frmt = '(f20.2)')//' '//&
-                  number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                  len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                  frmt = '(f20.4)'),&
-                  frmt = '(f20.4)')
+              !write(un, '(a)') &
+                  !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
+                  !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
+                  !frmt = '(f20.2)'),&
+                  !frmt = '(f20.2)')//' '//&
+                  !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
+                  !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
+                  !frmt = '(f20.2)'),&
+                  !frmt = '(f20.2)')//' '//&
+                  !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                  !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
+                  !frmt = '(f20.4)'),&
+                  !frmt = '(f20.4)')
             end do
           end do
         end do
@@ -760,18 +785,18 @@ contains
                varid = input_file%variable(i)%varid,&
                xtype = input_file%variable(i)%xtype,&
                ndims = input_file%variable(i)%ndims,&
-               len = input_file%variable(i)%len,&
-               val1 = input_file%variable(i)%val1&
-               )
+               len = input_file%variable(i)%len) !,&
+               !val1 = input_file%variable(i)%val1&
+               !)
        case(2)
           call get_var_xtype(&
                ncid = input_file%ncid,&
                varid = input_file%variable(i)%varid,&
                xtype = input_file%variable(i)%xtype,&
                ndims = input_file%variable(i)%ndims,&
-               len = input_file%variable(i)%len,&
-               val2 = input_file%variable(i)%val2&
-               )
+               len = input_file%variable(i)%len) !,&
+               !val2 = input_file%variable(i)%val2&
+               !)
        end select
 
     end do
