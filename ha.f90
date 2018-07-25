@@ -86,7 +86,7 @@ program ha
     end do
   end do
 
-  deallocate(nc_file%variable(3)%val2)
+  !deallocate(nc_file%variable(3)%val2)
 
   if(hamode%definition .eqv. .true.) then
     sh_file%method = trim(hamode%value)
