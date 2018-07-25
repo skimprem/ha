@@ -3,7 +3,7 @@ program ha
   use shtools
   use hamodule
   use ncmodule
-  !use shmodule
+  use shmodule
 
   implicit none
   
