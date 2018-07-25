@@ -203,7 +203,7 @@ contains
 
   subroutine get_var_xtype(&
        ncid,& !
-       varid,& !
+!       varid,& !
        xtype,& !
        ndims,& !
        len) !
