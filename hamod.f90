@@ -172,4 +172,90 @@ contains
 
   end function number_to_string
 
+  function nc_value_to_string(&!
+      byte,&!
+      ubyte,&!
+      char,&!
+      short,&!
+      ushort,&!
+      int,&!
+      uint,&!
+      int64,&!
+      uint64,&!
+      float,&!
+      double,&!
+      string)!
+      !xtype)
+    
+    implicit none
+
+    integer(kind=1), intent(in), optional :: byte
+    uinteger(kind=1), intent(in), optional :: ubyte
+    character(kind=1, len=1), intent(in), optional :: char
+    integer(kind=2), intent(in), optional :: short
+    uinteger(kind=2), intent(in), optional :: ushort
+    integer(kind=4), intent(in), optional :: int
+    uinteger(kind=4), intent(in), optional :: uint
+    integer(kind=8), intent(in), optional :: int64
+    uinteger(kind=8), intent(in), optional :: uint64
+    real(kind=4), intent(in), optional :: float
+    real(kind=8), intent(in), optional :: double
+    character(kind=1, len=nf90_max_name), intent(in), optional :: string
+    !integer(kind=4), intent(in) :: xtype
+
+    integer(kind=4) :: i,&!
+                       value_len, all_value_number = 12,&!
+                       max_value_number = 1,&!
+                       present_value_number
+
+    character(kind=1, len=nf90_max_name) :: nc_value_to_string
+
+    i = 0
+
+    if(present(byte)) i = i + 1
+    if(present(ubyte)) i = i + 1
+    if(present(char)) i = i + 1
+    if(present(short)) i = i + 1
+    if(present(ushort)) i = i + 1
+    if(present(int)) i = i + 1
+    if(present(uint)) i = i + 1
+    if(present(int64)) i = i + 1
+    if(present(uint64)) i = i + 1
+    if(present(float)) i = i + 1
+    if(present(double)) i = i + 1
+    if(present(string)) i = i + 1
+
+    if(i > 1) stop 'i > 1'
+    if(i < 1) stop 'i < 1'
+
+    select case(xtype)
+    case(nf90_byte)
+      nc_xtype_name = 'byte: 8-bit signed integer'
+    case(nf90_ubyte)
+      nc_xtype_name = 'ubyte: 8-bit unsigned integer' 
+    case(nf90_char)
+      nc_xtype_name = 'char: 8-bit character byte'
+    case(nf90_short)
+      nc_xtype_name = 'short: 16-bit signed integer'
+    case(nf90_ushort)
+      nc_xtype_name = 'ushort: 16-bit unsigned integer'
+    case(nf90_int)
+      nc_xtype_name = 'int: 32-bit signed integer'
+    case(nf90_uint)
+      nc_xtype_name = 'uint: 32-bit unsigned integer'
+    case(nf90_int64)
+      nc_xtype_name = 'int64: 64-bit signed integer'
+    case(nf90_uint64)
+      nc_xtype_name = 'uint64: 64-bit signed integer'
+    case(nf90_float)
+      nc_xtype_name = 'float: 32-bit floating point'
+    case(nf90_double)
+      nc_xtype_name = 'double: 64-bit floating point'
+    case(nf90_string)
+      nc_xtype_name = 'string: variable length character string'
+    end select
+
+    return
+
+  end function nc_value_to_string`
 end module hamodule
