@@ -20,6 +20,7 @@ module shmodule
     use hamodule
 
     implicit none
+
     type(shfile), intent(in) :: sh_file
     integer :: i, j, un = 6
 
@@ -33,22 +34,22 @@ module shmodule
     end select
 
     write(un, '(2x, a)') 'n: '//&
-    number_to_string(iv = int(sh_file%n, 4), len = num_len(iv = int(sh_file%n, 4)))
+    number_to_string(sh_file%n, num_len(sh_file%n))
 
     write(un, '(2x, a)') 'norm: '//&
-    number_to_string(iv = int(sh_file%norm, 4), len = num_len(iv = int(sh_file%norm, 4)))
+    number_to_string(sh_file%norm, num_len(sh_file%norm))
 
     write(un, '(2x, a)') 'sampling: '//&
-    number_to_string(iv = int(sh_file%sampling, 4), len = num_len(iv = int(sh_file%sampling, 4)))
+    number_to_string(sh_file%sampling, num_len(sh_file%sampling))
 
     write(un, '(2x, a)') 'csphase: '//&
-    number_to_string(iv = int(sh_file%csphase, 4), len = num_len(iv = int(sh_file%csphase, 4)))
+    number_to_string(sh_file%csphase, num_len(sh_file%csphase))
 
     write(un, '(2x, a)') 'lmax_calc: '//&
-    number_to_string(iv = int(sh_file%lmax_calc, 4), len = num_len(iv = int(sh_file%lmax_calc, 4)))
+    number_to_string(sh_file%lmax_calc, num_len(sh_file%lmax_calc))
 
     write(un, '(2x, a)') 'exitstatus: '//&
-    number_to_string(iv = int(sh_file%exitstatus, 4), len = num_len(iv = int(sh_file%exitstatus, 4)))
+    number_to_string(sh_file%exitstatus, num_len(sh_file%exitstatus))
 
     do i = 1, sh_file%lmax
       do j = 1, i
@@ -56,9 +57,6 @@ module shmodule
       end do
     end do
 
-
-
   end subroutine print_sh_info
-
 
 end module shmodule

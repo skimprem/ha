@@ -6,7 +6,7 @@ program ha
   use shmodule
 
   implicit none
-  
+
   character(*), parameter :: version = '1.1'
   character(max_name_value) :: arg
   real(8), allocatable :: cilm(:,:,:), griddh(:,:)
@@ -117,7 +117,7 @@ program ha
       calc_time = cpu_time_2 - cpu_time_1
 
       write(un, '(2x,a)') 'Calculation time: '//&
-        number_to_string(rv = real(calc_time, 4), len = num_len(rv = real(calc_time, 4)))//&
+        number_to_string(calc_time, num_len(calc_time))//&
         ' seconds'
 
     case('ls')
