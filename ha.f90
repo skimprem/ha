@@ -77,8 +77,16 @@ program ha
 
   call nc_reader(nc_file, trim(ncmode%value))
 
+
+  print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
+  print *, nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)
+
+  read(*, *) ! pause
+
   allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
   allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+
+  read(*, *) ! pause
 
   do i = 1, nc_file%variable(3)%len(2)
     do j = 1, nc_file%variable(3)%len(1)
@@ -86,7 +94,7 @@ program ha
     end do
   end do
 
-  !deallocate(nc_file%variable(3)%val2)
+  !deallocate(nc_file%variable(3)%value)
 
   if(hamode%definition .eqv. .true.) then
     sh_file%method = trim(hamode%value)

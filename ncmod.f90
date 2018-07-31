@@ -12,13 +12,16 @@ module ncmodule
 
   type ncvalues
 
-    integer(2), allocatable :: values_short_1(:), values_short_2(:,:), values_short_3(:,:,:)
-    integer(4), allocatable :: values_int_1(:), values_int_2(:,:), values_int_3(:,:,:)
-    integer(8), allocatable :: values_int64_1(:), values_int64_2(:,:), values_int64_3(:,:,:)
-    real(4), allocatable :: values_float_1(:), values_float_2(:,:), values_float_3(:,:,:)
-    real(8), allocatable :: values_double_1(:), values_double_2(:,:), values_double_3(:,:,:)
-    character(1), allocatable :: values_char_1(:), values_char_2(:,:), values_char_3(:,:,:)
-    character(nf90_max_name), allocatable :: values_string_1(:), values_string_2(:,:), values_string_3(:,:,:)
+    integer(kind=1), allocatable :: byte_1(:), byte_2(:,:), byte_3(:,:,:)
+    integer(kind=2), allocatable :: short_1(:), short_2(:,:), short_3(:,:,:)
+    integer(kind=4), allocatable :: int_1(:), int_2(:,:), int_3(:,:,:)
+    integer(kind=8), allocatable :: int64_1(:), int64_2(:,:), int64_3(:,:,:)
+    real(kind=4), allocatable :: float_1(:), float_2(:,:), float_3(:,:,:)
+    real(kind=8), allocatable :: double_1(:), double_2(:,:), double_3(:,:,:)
+    character(kind=1, len=1), allocatable ::&
+      char_1(:), char_2(:,:), char_3(:,:,:)
+    character(kind=1, len=nf90_max_name), allocatable ::&
+      string_1(:), string_2(:,:), string_3(:,:,:)
 
   end type ncvalues
 
@@ -78,6 +81,11 @@ module ncmodule
     type(ncattributes), dimension(:), allocatable :: attribute
   end type ncfile
 
+  !interface nc_xtype_select
+    !module procedure nc_xtype_select_byte, nc_xtype_select_short, nc_xtype_select_int,&
+                     !nc_xtype_select_int64, nc_xtype_select_float, nc_xtype_select_double
+  !end interface nc_xtype_select
+
 contains
 
   subroutine get_att_xtype(&
@@ -100,105 +108,120 @@ contains
     select case(xtype)
     case(0)
       ! 0
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop
     case(nf90_byte)
       ! NC_BYTE: 8-bit signed integer
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop
-    case(nf90_ubyte)
-      ! NC_UBYTE: 8-bit unsigned integer
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop
-    case(nf90_char)
-      ! NC_CHAR: 8-bit character byte
-      allocate( value%values_char_1(len) )
+      allocate( value%byte_1(len) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
             name = name,&
-            values = value%values_char_1(1)&
+            values = value%byte_1(1)&
+            )&
+          )
+    case(nf90_ubyte)
+      ! NC_UBYTE: 8-bit unsigned integer
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
+      stop
+    case(nf90_char)
+      ! NC_CHAR: 8-bit character byte
+      allocate( value%char_1(len) )
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value%char_1(1)&
             )&
           )
     case(nf90_short)
       ! NC_SHORT: 16-bit signed integer
-      allocate( value%values_short_1(len) )
+      allocate( value%short_1(len) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
             name = name,&
-            values = value%values_short_1&
+            values = value%short_1&
             )&
           )
     case(nf90_ushort)
       ! NC_USHORT: 16-bit unsigned integer
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop
-
     case(nf90_int)
       ! NC_int: (NC_LONG): 32-bit signed integer
-      allocate( value%values_int_1(len) )
+      allocate( value%int_1(len) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
             name = name,&
-            values = value%values_int_1&
+            values = value%int_1&
             )&
           )
     case(nf90_uint)
       ! NC_Uint: 32-bit unsigned integer
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop
     case(nf90_int64)
       ! NC_int64: 64-bit signed integer
-      allocate( value%values_int64_1(len) )
+      allocate( value%int64_1(len) )
       call nc_error_check(&
            'nc_get_att',&
            nf90_get_att(&
              ncid = ncid,&
              varid = varid,&
              name = name,&
-             values = value%values_int64_1&
+             values = value%int64_1&
              )&
            )
     case(nf90_uint64)
       ! NC_Uint64: 64-bit unsigned integer
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop
     case(nf90_float)
       ! NC_FLOAT: 32-bit floating point
-      allocate( value%values_float_1(len) )
+      allocate( value%float_1(len) )
       call nc_error_check(&
            'nc_get_att',&
            nf90_get_att(&
              ncid = ncid,&
              varid = varid,&
              name = name,&
-             values = value%values_float_1&
+             values = value%float_1&
              )&
            )
     case(nf90_double)
       ! NC_double: 64-bit floating point
-      allocate( value%values_double_1(len) )
+      allocate( value%double_1(len) )
       call nc_error_check(&
           'nc_get_att',&
           nf90_get_att(&
             ncid = ncid,&
             varid = varid,&
             name = name,&
-            values = value%values_double_1&
+            values = value%double_1&
             )&
           )
     case(nf90_string)
       ! NC_STRING: variable length character string
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop
+      allocate( value%string_1(len) )
+      call nc_error_check(&
+          'nc_get_att',&
+          nf90_get_att(&
+            ncid = ncid,&
+            varid = varid,&
+            name = name,&
+            values = value%string_1(1)&
+            )&
+          )
     end select
 
   end subroutine get_att_xtype
@@ -221,178 +244,327 @@ contains
 
     select case(xtype)
     case(nf90_byte)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop
-    case(nf90_ubyte)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop 
-    case(nf90_char)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop 
-    case(nf90_short)
       select case(ndims)
       case(1)
-        allocate( value%values_short_1(len(1)) )
+        allocate( value%byte_1(len(1)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_short_1&
+               values = value%byte_1&
                )&
              )
       case(2)
-        allocate( value%values_short_2(len(1), len(2)) )
+        allocate( value%byte_2(len(1), len(2)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_short_2&
+               values = value%byte_2&
                )&
               )
       case(3)
-        allocate( value%values_short_3(len(1), len(2), len(3)) )
+        allocate( value%byte_3(len(1), len(2), len(3)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_short_2&
+               values = value%byte_3&
+               )&
+             )
+      end select
+    case(nf90_ubyte)
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
+      stop 
+    case(nf90_char)
+      select case(ndims)
+      case(1)
+        allocate( value%char_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%char_1&
+               )&
+             )
+      case(2)
+        allocate( value%char_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%char_2&
+               )&
+              )
+      case(3)
+        allocate( value%char_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%char_3&
+               )&
+             )
+      end select
+    case(nf90_short)
+      select case(ndims)
+      case(1)
+        allocate( value%short_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%short_1&
+               )&
+             )
+      case(2)
+        allocate( value%short_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%short_2&
+               )&
+              )
+      case(3)
+        allocate( value%short_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%short_3&
                )&
              )
       end select
     case(nf90_ushort)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop 
     case(nf90_int)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop 
+      select case(ndims)
+      case(1)
+        allocate( value%int_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int_1&
+               )&
+             )
+      case(2)
+        allocate( value%int_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int_2&
+               )&
+             )
+      case(3)
+        allocate( value%int_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int_3&
+               )&
+             )
+      end select
     case(nf90_uint)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop 
     case(nf90_int64)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop 
+      select case(ndims)
+      case(1)
+        allocate( value%int64_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int64_1&
+               )&
+             )
+      case(2)
+        allocate( value%int64_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int64_2&
+               )&
+             )
+      case(3)
+        allocate( value%int64_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%int64_3&
+               )&
+             )
+      end select
     case(nf90_uint64)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
+      write(un, '(a)') nc_xtype_info(xtype)//' not set'
       stop 
     case(nf90_float)
       select case(ndims)
       case(1)
-        allocate( value%values_float_1(len(1)) )
+        allocate( value%float_1(len(1)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_float_1&
+               values = value%float_1&
                )&
              )
       case(2)
-        allocate( value%values_float_2(len(1), len(2)) )
+        allocate( value%float_2(len(1), len(2)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_float_2&
+               values = value%float_2&
                )&
              )
       case(3)
-        allocate( value%values_float_3(len(1), len(2), len(3)) )
+        allocate( value%float_3(len(1), len(2), len(3)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_float_3&
+               values = value%float_3&
                )&
              )
       end select
     case(nf90_double)
       select case(ndims)
       case(1)
-        allocate( value%values_double_1(len(1)) )
+        allocate( value%double_1(len(1)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_double_1&
+               values = value%double_1&
                )&
              )
       case(2)
-        allocate( value%values_double_2(len(1), len(2)) )
+        allocate( value%double_2(len(1), len(2)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_double_2&
+               values = value%double_2&
                )&
              )
       case(3)
-        allocate( value%values_double_3(len(1), len(2), len(3)) )
+        allocate( value%double_3(len(1), len(2), len(3)) )
         call nc_error_check(&
              'nc_get_var',&
              nf90_get_var(&
                ncid = ncid,&
                varid = varid,&
-               values = value%values_double_3&
+               values = value%double_3&
                )&
              )
       end select
     case(nf90_string)
-      write(un, '(a)') trim(nc_xtype_info(xtype))//' not set'
-      stop 
+      select case(ndims)
+      case(1)
+        allocate( value%string_1(len(1)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%string_1&
+               )&
+             )
+      case(2)
+        allocate( value%string_2(len(1), len(2)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%string_2&
+               )&
+             )
+      case(3)
+        allocate( value%string_3(len(1), len(2), len(3)) )
+        call nc_error_check(&
+             'nc_get_var',&
+             nf90_get_var(&
+               ncid = ncid,&
+               varid = varid,&
+               values = value%string_3&
+               )&
+             )
+      end select
     end select
 
   end subroutine get_var_xtype
 
   function nc_xtype_info(xtype)
 
+    use hamodule
+
     implicit none
 
-    character(nf90_max_name) :: nc_xtype_info
     integer, intent(in) :: xtype
+    character(kind=1, len=:), allocatable :: nc_xtype_info
+    character(kind=1, len=:), allocatable :: xtype_name
 
     select case(xtype)
     case(nf90_byte)
-      nc_xtype_info = 'byte: 8-bit signed integer'
+      xtype_name = 'byte: 8-bit signed integer'
     case(nf90_ubyte)
-      nc_xtype_info = 'ubyte: 8-bit unsigned integer' 
+      xtype_name = 'ubyte: 8-bit unsigned integer' 
     case(nf90_char)
-      nc_xtype_info = 'char: 8-bit character byte'
+      xtype_name = 'char: 8-bit character byte'
     case(nf90_short)
-      nc_xtype_info = 'short: 16-bit signed integer'
+      xtype_name = 'short: 16-bit signed integer'
     case(nf90_ushort)
-      nc_xtype_info = 'ushort: 16-bit unsigned integer'
+      xtype_name = 'ushort: 16-bit unsigned integer'
     case(nf90_int)
-      nc_xtype_info = 'int: 32-bit signed integer'
+      xtype_name = 'int: 32-bit signed integer'
     case(nf90_uint)
-      nc_xtype_info = 'uint: 32-bit unsigned integer'
+      xtype_name = 'uint: 32-bit unsigned integer'
     case(nf90_int64)
-      nc_xtype_info = 'int64: 64-bit signed integer'
+      xtype_name = 'int64: 64-bit signed integer'
     case(nf90_uint64)
-      nc_xtype_info = 'uint64: 64-bit signed integer'
+      xtype_name = 'uint64: 64-bit signed integer'
     case(nf90_float)
-      nc_xtype_info = 'float: 32-bit floating point'
+      xtype_name = 'float: 32-bit floating point'
     case(nf90_double)
-      nc_xtype_info = 'double: 64-bit floating point'
+      xtype_name = 'double: 64-bit floating point'
     case(nf90_string)
-      nc_xtype_info = 'string: variable length character string'
+      xtype_name = 'string: variable length character string'
     end select
+
+    nc_xtype_info = xtype_name
 
     return
 
   end function nc_xtype_info
-
-  !function nc_xtype_info_byte(value)
-    !use hamodule
-    !implicit none
-    !integer(1), intent(in) :: value
-  !end function nc_xtype_info_byte
 
   subroutine nc_error_check(check_type, ncstatus)
 
@@ -504,21 +676,21 @@ contains
                 do k = 1, nc_file%variable(i)%attribute(j)%len
                    write(un, '(10x,a)')&
                         'value '//number_to_string(k, num_len(k))//': '//&
-                        number_to_string(nc_file%variable(i)%attribute(j)%value%values_float_1(k),&
-                        num_len(nc_file%variable(i)%attribute(j)%value%values_float_1(k)))
+                        number_to_string(nc_file%variable(i)%attribute(j)%value%float_1(k),&
+                        num_len(nc_file%variable(i)%attribute(j)%value%float_1(k)))
                 end do
              case(nf90_double)
                 do k = 1, nc_file%variable(i)%attribute(j)%len
                    write(un, '(10x,a)')&
                      'value '//number_to_string(k, num_len(k))//': '//&
-                     number_to_string(nc_file%variable(i)%attribute(j)%value%values_double_1(k),&
-                     num_len(nc_file%variable(i)%attribute(j)%value%values_double_1(k)))
+                     number_to_string(nc_file%variable(i)%attribute(j)%value%double_1(k),&
+                     num_len(nc_file%variable(i)%attribute(j)%value%double_1(k)))
                 end do
              case(nf90_char)
                write(un, '(10x,a)', advance = 'no') 'value: ' 
                do k = 1, nc_file%variable(i)%attribute(j)%len
                  write(un, '(a)', advance = 'no') &
-                   nc_file%variable(i)%attribute(j)%value%values_char_1(k)
+                   nc_file%variable(i)%attribute(j)%value%char_1(k)
                end do
                write(un, '(a)') ''
              end select
@@ -529,7 +701,7 @@ contains
        do i = 1, nc_file%nattributes
           write(un, '(4x,a)', advance = 'no') trim(nc_file%attribute(i)%name)//': '!//&
           do j = 1, nc_file%attribute(i)%len 
-            !write(un, '(a)', advance = 'no') nc_file%attribute(i)%value%values_char_1(j)
+            !write(un, '(a)', advance = 'no') nc_file%attribute(i)%value%char_1(j)
           end do
           write(un, '(a)') ''
        end do
@@ -831,6 +1003,41 @@ contains
     !return
 
   !end function nc_allocate
+
+  !integer(1) function nc_xtype_select_int_1(value)
+    !implicit none
+    !type(ncvalues), intent(in) :: value
+    !!nc_xtype_select_int_1 = value
+    !return
+  !end function nc_xtype_select_int_1
+
+  !integer(2) function nc_xtype_select_int_2(value)
+    !implicit none
+    !type(ncvalues), intent(in) :: value
+    !!nc_xtype_select_int_2 = value
+    !return
+  !end function nc_xtype_select_int_2
+
+  !integer(4) function nc_xtype_select_int_4(value)
+    !implicit none
+    !type(ncvalues), intent(in) :: value
+    !!nc_xtype_select_int_4 = value
+    !return
+  !end function nc_xtype_select_int_4
+
+  !real(4) function nc_xtype_select_real_4(value)
+    !implicit none
+    !type(ncvalues), intent(in) :: value
+    !!nc_xtype_select_real_4 = value
+    !return
+  !end function nc_xtype_select_real_4
+
+  !real(8) function nc_xtype_select_real_8(value)
+    !implicit none
+    !type(ncvalues), intent(in) :: value
+    !!nc_xtype_select_real_8 = value
+    !return
+  !end function nc_xtype_select_real_8
 
 end module ncmodule
 

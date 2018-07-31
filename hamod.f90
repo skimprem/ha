@@ -18,6 +18,11 @@ module hamodule
                      number_to_string_real_4, number_to_string_real_8
   end interface number_to_string
 
+  interface type_select
+    module procedure type_select_int_1, type_select_int_2, type_select_int_4,&
+                     type_select_real_4, type_select_real_8
+  end interface type_select
+
 contains
 
   subroutine input_check(check_type, arg, string)
@@ -317,5 +322,40 @@ contains
     return
 
   end function number_to_string_int_1
+
+  integer(1) function type_select_int_1(value)
+    implicit none
+    integer(1), intent(in) :: value
+    type_select_int_1 = value
+    return
+  end function type_select_int_1
+
+  integer(2) function type_select_int_2(value)
+    implicit none
+    integer(2), intent(in) :: value
+    type_select_int_2 = value
+    return
+  end function type_select_int_2
+
+  integer(4) function type_select_int_4(value)
+    implicit none
+    integer(4), intent(in) :: value
+    type_select_int_4 = value
+    return
+  end function type_select_int_4
+
+  real(4) function type_select_real_4(value)
+    implicit none
+    real(4), intent(in) :: value
+    type_select_real_4 = value
+    return
+  end function type_select_real_4
+
+  real(8) function type_select_real_8(value)
+    implicit none
+    real(8), intent(in) :: value
+    type_select_real_8 = value
+    return
+  end function type_select_real_8
 
 end module hamodule
