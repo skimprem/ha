@@ -10,11 +10,11 @@ module hamodule
   end type
 
   interface num_len
-    module procedure num_len_real_4, num_len_real_8, num_len_int_2, num_len_int_4, num_len_int_1
+    module procedure num_len_real_4, num_len_real_8, num_len_int_2, num_len_int_4, num_len_int_1, num_len_int_8
   end interface num_len
  
   interface number_to_string
-    module procedure number_to_string_int_1, number_to_string_int_2, number_to_string_int_4,&
+    module procedure number_to_string_int_1, number_to_string_int_2, number_to_string_int_4, number_to_string_int_8,&
                      number_to_string_real_4, number_to_string_real_8
   end interface number_to_string
 
@@ -213,6 +213,25 @@ contains
 
   end function num_len_int_4
 
+  integer function num_len_int_8(value, frmt)
+
+    implicit none
+    integer(8), intent(in) :: value
+    character(*), intent(in), optional :: frmt
+    character(max_string_value) :: string
+
+    if(present(frmt)) then
+      write(string, frmt) value
+    else
+      write(string, *) value
+    end if
+
+    num_len_int_8 = len_trim(adjustl(string))
+
+    return
+
+  end function num_len_int_8
+
   function number_to_string_real_8(value, len, frmt)
 
     implicit none
@@ -317,5 +336,26 @@ contains
     return
 
   end function number_to_string_int_1
+
+  function number_to_string_int_8(value, len, frmt)
+
+    implicit none
+    integer(8), intent(in) :: value
+    integer(4), intent(in) :: len
+    character(*), intent(in), optional :: frmt
+    character(max_string_value) :: string
+    character(len=len) :: number_to_string_int_8
+
+    if(present(frmt)) then
+      write(string, frmt) value
+    else
+      write(string, *) value
+    end if
+
+    number_to_string_int_8 = trim(adjustl(string))
+
+    return
+
+  end function number_to_string_int_8
 
 end module hamodule
