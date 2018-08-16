@@ -78,15 +78,15 @@ program ha
   call nc_reader(nc_file, trim(ncmode%value))
 
 
-  print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
-  print *, nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)
+  !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
+  !print *, nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)
 
-  read(*, *) ! pause
+  !read(*, *) ! pause
 
   allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
   allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
-  read(*, *) ! pause
+  !read(*, *) ! pause
 
   do i = 1, nc_file%variable(3)%len(2)
     do j = 1, nc_file%variable(3)%len(1)
@@ -125,7 +125,7 @@ program ha
       calc_time = cpu_time_2 - cpu_time_1
 
       write(un, '(2x,a)') 'Calculation time: '//&
-        number_to_string(calc_time, num_len(calc_time))//&
+        number_to_string(calc_time)//&
         ' seconds'
 
     case('ls')
@@ -136,4 +136,3 @@ program ha
   end if
 
 end program ha
-! test

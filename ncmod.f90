@@ -62,8 +62,8 @@ module ncmodule
   end type ncvariables
 
   type ncfile
-    character(1000) :: path
-    character(nf90_max_name) ::& !
+    character(len=:), allocatable :: path
+    character(len=:), allocatable ::& !
         name,&
         title,&
         history,&
@@ -80,11 +80,6 @@ module ncmodule
     type(ncvariables), dimension(:), allocatable :: variable
     type(ncattributes), dimension(:), allocatable :: attribute
   end type ncfile
-
-  !interface nc_xtype_select
-    !module procedure nc_xtype_select_byte, nc_xtype_select_short, nc_xtype_select_int,&
-                     !nc_xtype_select_int64, nc_xtype_select_float, nc_xtype_select_double
-  !end interface nc_xtype_select
 
 contains
 
@@ -535,29 +530,29 @@ contains
 
     select case(xtype)
     case(nf90_byte)
-      xtype_name = 'byte: 8-bit signed integer'
+      xtype_name = 'byte (8-bit signed integer)'
     case(nf90_ubyte)
-      xtype_name = 'ubyte: 8-bit unsigned integer' 
+      xtype_name = 'ubyte (8-bit unsigned integer)' 
     case(nf90_char)
-      xtype_name = 'char: 8-bit character byte'
+      xtype_name = 'char (8-bit character byte)'
     case(nf90_short)
-      xtype_name = 'short: 16-bit signed integer'
+      xtype_name = 'short (16-bit signed integer)'
     case(nf90_ushort)
-      xtype_name = 'ushort: 16-bit unsigned integer'
+      xtype_name = 'ushort (16-bit unsigned integer)'
     case(nf90_int)
-      xtype_name = 'int: 32-bit signed integer'
+      xtype_name = 'int (32-bit signed integer)'
     case(nf90_uint)
-      xtype_name = 'uint: 32-bit unsigned integer'
+      xtype_name = 'uint (32-bit unsigned integer)'
     case(nf90_int64)
-      xtype_name = 'int64: 64-bit signed integer'
+      xtype_name = 'int64 (64-bit signed integer)'
     case(nf90_uint64)
-      xtype_name = 'uint64: 64-bit signed integer'
+      xtype_name = 'uint64 (64-bit signed integer)'
     case(nf90_float)
-      xtype_name = 'float: 32-bit floating point'
+      xtype_name = 'float (32-bit floating point)'
     case(nf90_double)
-      xtype_name = 'double: 64-bit floating point'
+      xtype_name = 'double (64-bit floating point)'
     case(nf90_string)
-      xtype_name = 'string: variable length character string'
+      xtype_name = 'string (variable length character string)'
     end select
 
     nc_xtype_info = xtype_name
@@ -581,34 +576,34 @@ contains
        select case(check_type)
        case('nc_open')
           write(un, '(a)')&
-               'Error in nc_open: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_open: '//number_to_string(ncstatus)
        case('nc_inquire')
           write(un, '(a)')&
-               'Error in nc_inquire: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inquire: '//number_to_string(ncstatus)
        case('nc_inq_dimid')
           write(un, '(a)')&
-               'Error in nc_inq_dimid: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inq_dimid: '//number_to_string(ncstatus)
        case('nc_inquire_dimension')
           write(un, '(a)')&
-               'Error in nc_inquire_dimension: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inquire_dimension: '//number_to_string(ncstatus)
        case('nc_inq_varid')
           write(un, '(a)')&
-               'Error in nc_inq_varid: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inq_varid: '//number_to_string(ncstatus)
        case('nc_variable')
           write(un, '(a)')&
-               'Error in nc_variable: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_variable: '//number_to_string(ncstatus)
        case('nc_inq_attname')
           write(un, '(a)')&
-               'Error in nc_inq_attname: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inq_attname: '//number_to_string(ncstatus)
        case('nc_inquire_attribute')
           write(un, '(a)')&
-               'Error in nc_inquire_attribute: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_inquire_attribute: '//number_to_string(ncstatus)
        case('nc_get_att')
           write(un, '(a)')&
-               'Error in nc_get_att: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_get_att: '//number_to_string(ncstatus)
        case('nc_')
           write(un, '(a)')&
-               'Error in nc_: '//number_to_string(ncstatus, num_len(ncstatus))
+               'Error in nc_: '//number_to_string(ncstatus)
        end select
        write(un, '(a)') trim(nf90_strerror(ncstatus))
        STOP 'Stopped!'
@@ -636,121 +631,149 @@ contains
     if(type_info == 'viewinfo' .or. type_info == 'view') then
        write(un, '(a)') 'NetCDF version: '//trim(nf90_inq_libvers())
        write(un, '(a)') 'nc file info:'
-       write(un, '(2x,a)') 'ncid: '//&
-            number_to_string(nc_file%ncid, num_len(nc_file%ncid))
-       write(un, '(2x,a)') 'path: '//trim(adjustl(nc_file%path))
-       write(un, '(2x,a)') 'mode: '//&
-            number_to_string(nc_file%cmode, num_len(nc_file%cmode))
-       write(un, '(2x,a)') 'ndimensions: '//&
-            number_to_string(nc_file%ndimensions, num_len(nc_file%ndimensions))
-       do i = 1, nc_file%ndimensions
-          write(un, '(4x,a)') 'name: '//trim(nc_file%dimension(i)%name)
-          write(un, '(6x,a)') 'len: '//&
-               number_to_string(nc_file%dimension(i)%len, num_len(nc_file%dimension(i)%len))
+       write(un, '(2x,a)') '├─ ncid: '//number_to_string(nc_file%ncid)
+       write(un, '(2x,a)') '├─ path: '//trim(adjustl(nc_file%path))
+       write(un, '(2x,a)') '├─ mode: '//number_to_string(nc_file%cmode)
+       write(un, '(2x,a)') '├─ ndimensions: '//number_to_string(nc_file%ndimensions)
+       do i = 1, nc_file%ndimensions - 1
+       write(un, '(2x,a)') '│  ├─ '//trim(nc_file%dimension(i)%name)//' = '//number_to_string(nc_file%dimension(i)%len)
        end do
-       write(un, '(2x,a)') 'nVariables: '//&
-            number_to_string(nc_file%nvariables, num_len(nc_file%nvariables))
-       do i = 1, nc_file%nvariables
-          write(un, '(4x,a)') 'variable '//number_to_string(i, num_len(i))//&
-            ' name: '//trim(nc_file%variable(i)%name)
-          write(un, '(6x,a)') 'xtype: '//&
-               number_to_string(nc_file%variable(i)%xtype, num_len(nc_file%variable(i)%xtype))
-          write(un, '(6x,a)') 'ndims: '//&
-               number_to_string(nc_file%variable(i)%ndims, num_len(nc_file%variable(i)%ndims))
+       write(un, '(2x,a)') '│  └─ '//trim(nc_file%dimension(i)%name)//' = '//number_to_string(nc_file%dimension(i)%len)
+       write(un, '(2x,a)') '├─ nVariables: '//number_to_string(nc_file%nvariables)
+       do i = 1, nc_file%nvariables - 1
+          write(un, '(2x,a)') '│  ├─ '//trim(nc_file%variable(i)%name)//':'
+          write(un, '(2x,a)') '│  │  ├─ '//'xtype: '//nc_xtype_info(nc_file%variable(i)%xtype)
+          write(un, '(2x,a)', advance = 'no') '│  │  ├─ '//'dimid: '
           do j = 1, nc_file%variable(i)%ndims
-             write(un, '(8x,a)') 'dimid: '//&
-                  number_to_string(nc_file%variable(i)%dimids(j), num_len(nc_file%variable(i)%dimids(j)))
+          write(un, '(a)', advance = 'no') number_to_string(nc_file%variable(i)%dimids(j))//'; '
           end do
-          write(un, '(6x,a)') 'natts: '//&
-               number_to_string(nc_file%variable(i)%natts, num_len(nc_file%variable(i)%natts))
-          do j = 1, nc_file%variable(i)%natts
-             write(un, '(8x,a)') 'name: '//&
-                  trim(nc_file%variable(i)%attribute(j)%name)
-             write(un, '(10x,a)') 'xtype: '//&
-                  number_to_string(nc_file%variable(i)%attribute(j)%xtype,&
-                  num_len(nc_file%variable(i)%attribute(j)%xtype))
-             write(un, '(10x,a)') 'len: '//&
-                  number_to_string(nc_file%variable(i)%attribute(j)%len,&
-                  num_len(nc_file%variable(i)%attribute(j)%len))
+          write(un, *)
+          write(un, '(2x,a)') '│  │  └─ '//'natts: '//number_to_string(nc_file%variable(i)%natts)
+          do j = 1, nc_file%variable(i)%natts - 1
              select case(nc_file%variable(i)%attribute(j)%xtype)
              case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
-                do k = 1, nc_file%variable(i)%attribute(j)%len
-                   write(un, '(10x,a)')&
-                        'value '//number_to_string(k, num_len(k))//': '//&
-                        nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-                        xtype = nc_file%variable(i)%attribute(j)%xtype,&
-                        i = k)
-                end do
-             case(nf90_char)
-               write(un, '(10x,a)', advance = 'no') 'value: ' 
-               do k = 1, nc_file%variable(i)%attribute(j)%len
-                 write(un, '(a)', advance = 'no') &
-                   nc_file%variable(i)%attribute(j)%value%char_1(k)
+               write(un, '(2x,a)') '│  │     ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
+               do k = 1, nc_file%variable(i)%attribute(j)%len - 1
+                  write(un, '(2x,a)') '│  │     │  ├─ '//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+                  xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)
                end do
-               write(un, '(a)') ''
+               write(un, '(2x,a)') '│  │     │  └─ '//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+               xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)
+             case(nf90_char)
+               write(un, '(2x,a)', advance = 'no') '│  │     ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = "'
+               do k = 1, nc_file%variable(i)%attribute(j)%len
+                 write(un, '(a)', advance = 'no') nc_file%variable(i)%attribute(j)%value%char_1(k)
+               end do
+               write(un, '(a)') '"'
              end select
           end do
+          select case(nc_file%variable(i)%attribute(j)%xtype)
+          case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
+            write(un, '(2x,a)', advance = 'no') '│  │     └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
+            do k = 1, nc_file%variable(i)%attribute(j)%len
+               write(un, '(a)', advance = 'no') nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+               xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)//'; '
+            end do
+            write(un, *)
+          case(nf90_char)
+            write(un, '(2x,a)', advance = 'no') '│  │     └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = "'
+            do k = 1, nc_file%variable(i)%attribute(j)%len
+              write(un, '(a)', advance = 'no') nc_file%variable(i)%attribute(j)%value%char_1(k)
+            end do
+            write(un, '(a)') '"'
+          end select
        end do
-       write(un, '(2x,a)') 'nAttributes: '//number_to_string(nc_file%nattributes,&
-            num_len(nc_file%nattributes))
-       do i = 1, nc_file%nattributes
-          !write(un, '(4x,a)', advance = 'no') trim(nc_file%attribute(i)%name)//': '//&
-          !nc_value_print(value = nc_file%attribute(i)%value, xtype = nc_file%attribute(i)%xtype,&
-          !ndims = 1, i = 1)
-          !do j = 1, nc_file%attribute(i)%len 
-            !write(un, '(a)', advance = 'no') nc_file%attribute(i)%value%char_1(j)
-          !end do
-          write(un, '(a)') ''
+       write(un, '(2x,a)') '│  └─ '//trim(nc_file%variable(i)%name)//':'
+       write(un, '(2x,a)') '│     ├─ '//'xtype: '//nc_xtype_info(nc_file%variable(i)%xtype)
+       write(un, '(2x,a)', advance = 'no') '│     ├─ '//'dimid: '
+       do j = 1, nc_file%variable(i)%ndims
+         write(un, '(a)', advance = 'no') number_to_string(nc_file%variable(i)%dimids(j))//'; '
        end do
-       write(un, '(2x,a)') 'unlimitedDimid: '//&
-            number_to_string(nc_file%unlimiteddimid, num_len(nc_file%unlimiteddimid))
-       write(un, '(2x,a)') 'formatNum: '//&
-            number_to_string(nc_file%formatnum, num_len(nc_file%formatnum))
+       write(un, *)
+       write(un, '(2x,a)') '│     └─ '//'natts: '//number_to_string(nc_file%variable(i)%natts)
+       do j = 1, nc_file%variable(i)%natts - 1
+          select case(nc_file%variable(i)%attribute(j)%xtype)
+          case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
+            write(un, '(2x,a)', advance = 'no') '│        ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
+            do k = 1, nc_file%variable(i)%attribute(j)%len
+               write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
+               nc_file%variable(i)%attribute(j)%xtype, k)//'; '
+            end do
+            write(un, *)
+          case(nf90_char)
+            write(un, '(2x,a)', advance = 'no') '│        ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = "'
+            do k = 1, nc_file%variable(i)%attribute(j)%len
+              write(un, '(a)', advance = 'no') &
+                nc_file%variable(i)%attribute(j)%value%char_1(k)
+            end do
+            write(un, '(a)') '"'
+          end select
+       end do
+       select case(nc_file%variable(i)%attribute(j)%xtype)
+       case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
+         write(un, '(2x,a)', advance = 'no') '│        └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
+         do k = 1, nc_file%variable(i)%attribute(j)%len
+            write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
+            nc_file%variable(i)%attribute(j)%xtype, k)//'; '
+         end do
+         write(un, *)
+       case(nf90_char)
+         write(un, '(2x,a)', advance = 'no') '│        └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = "'
+         do k = 1, nc_file%variable(i)%attribute(j)%len
+           write(un, '(a)', advance = 'no') &
+             nc_file%variable(i)%attribute(j)%value%char_1(k)
+         end do
+         write(un, '(a)') '"'
+       end select
+
+       write(un, '(2x,a)') '├─ nAttributes: '//number_to_string(nc_file%nattributes)
+       do i = 1, nc_file%nattributes - 1
+         select case(nc_file%attribute(i)%xtype)
+         case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
+           write(un, '(2x,a)') '│  ├─ '//trim(nc_file%attribute(i)%name)//' = '//&
+             nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1)
+         case(nf90_char)
+           write(un, '(2x,a)', advance = 'no') '│  ├─ '//trim(nc_file%attribute(i)%name)//' = "'
+           do j = 1, nc_file%attribute(i)%len 
+             write(un, '(a)', advance = 'no') nc_file%attribute(i)%value%char_1(j)
+           end do
+           write(un, '(a)') '"'
+         end select
+       end do
+       select case(nc_file%attribute(i)%xtype)
+       case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
+         write(un, '(2x,a)') '│  └─ '//trim(nc_file%attribute(i)%name)//' = '//&
+           nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1)
+       case(nf90_char)
+         write(un, '(2x,a)', advance = 'no') '│  └─ '//trim(nc_file%attribute(i)%name)//' = "'
+         do j = 1, nc_file%attribute(i)%len 
+           write(un, '(a)', advance = 'no') nc_file%attribute(i)%value%char_1(j)
+         end do
+         write(un, '(a)') '"'
+       end select
+
+       write(un, '(2x,a)') '├─ unlimitedDimid: '//&
+            number_to_string(nc_file%unlimiteddimid)
+       write(un, '(2x,a)') '└─ formatNum: '//&
+            number_to_string(nc_file%formatnum)
     end if
 
     if(type_info == 'viewdata' .or. type_info == 'view') then
-      write(un, '(a)') 'viewdata'
-      k = 1 
-      do m = 1, nc_file%variable(k)%ndims
-        do i = 1, nc_file%variable(k)%len(m)
-          do l = 1, nc_file%variable(k+1)%ndims
-            do j = 1, nc_file%variable(k+1)%len(l)
-              !print *, &
-              !number_to_string(iv = i, len = num_len(iv = i)), &
-              !' = ', &
-              !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4), &
-              !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4))), &
-              !' ; ', &
-              !number_to_string(iv = j, len = num_len(iv = j)), &
-              !' = ', &
-              !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4), &
-              !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4))), &
-              !' ; ', &
-              !'(', &
-              !number_to_string(iv = i, len = num_len(iv = i)), &
-              !',', &
-              !number_to_string(iv = j, len = num_len(iv = j)), &
-              !')', &
-              !' = ', &
-              !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4), &
-              !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4)))
-              !write(un, '(a)') &
-                  !number_to_string(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                  !len = num_len(rv = real(nc_file%variable(k)%val1(i)%double, 4),&
-                  !frmt = '(f20.2)'),&
-                  !frmt = '(f20.2)')//' '//&
-                  !number_to_string(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                  !len = num_len(rv = real(nc_file%variable(k+1)%val1(j)%double, 4),&
-                  !frmt = '(f20.2)'),&
-                  !frmt = '(f20.2)')//' '//&
-                  !number_to_string(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                  !len = num_len(rv = real(nc_file%variable(k+2)%val2(i,j)%float, 4),&
-                  !frmt = '(f20.4)'),&
-                  !frmt = '(f20.4)')
-            end do
-          end do
-        end do
+      write(un, '(a)') 
+      k = 1
+      do i = 1, nc_file%ndimensions
+        write(un, '(a)', advance = 'no') trim(nc_file%dimension(i)%name)
       end do
+      !do m = 1, nc_file%variable(k)%ndims
+        !do i = 1, nc_file%variable(k)%len(m)
+          !do l = 1, nc_file%variable(k+1)%ndims
+            !do j = 1, nc_file%variable(k+1)%len(l)
+              !write(un, '(a)')&
+
+            !end do
+          !end do
+        !end do
+      !end do
     end if
 
     return
@@ -968,7 +991,7 @@ contains
     case(nf90_byte)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%byte_1(i), num_len(value%byte_1(i)))
+        nc_value_print = number_to_string(value%byte_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%byte_2(i, j), num_len(value%byte_2(i, j)))
       !case(3)
@@ -987,7 +1010,7 @@ contains
     case(nf90_short)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%short_1(i), num_len(value%short_1(i)))
+        nc_value_print = number_to_string(value%short_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%short_2(i, j), num_len(value%short_2(i, j)))
       !case(3)
@@ -997,7 +1020,7 @@ contains
     case(nf90_int)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%int_1(i), num_len(value%int_1(i)))
+        nc_value_print = number_to_string(value%int_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%int_2(i, j), num_len(value%int_2(i, j)))
       !case(3)
@@ -1007,7 +1030,7 @@ contains
     case(nf90_int64)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%int64_1(i), num_len(value%int64_1(i)))
+        nc_value_print = number_to_string(value%int64_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%int64_2(i, j), num_len(value%int64_2(i, j)))
       !case(3)
@@ -1017,7 +1040,7 @@ contains
     case(nf90_float)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%float_1(i), num_len(value%float_1(i)))
+        nc_value_print = number_to_string(value%float_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%float_2(i, j), num_len(value%float_2(i, j)))
       !case(3)
@@ -1026,7 +1049,7 @@ contains
     case(nf90_double)
       !select case(ndims)
       !case(1)
-        nc_value_print = number_to_string(value%double_1(i), num_len(value%double_1(i)))
+        nc_value_print = number_to_string(value%double_1(i))
       !case(2)
         !nc_value_print = number_to_string(value%double_2(i, j), num_len(value%double_2(i, j)))
       !case(3)
