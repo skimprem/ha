@@ -655,10 +655,10 @@ contains
                write(un, '(2x,a)') '│  │     ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
                do k = 1, nc_file%variable(i)%attribute(j)%len - 1
                   write(un, '(2x,a)') '│  │     │  ├─ '//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-                  xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)
+                  xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)
                end do
                write(un, '(2x,a)') '│  │     │  └─ '//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-               xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)
+               xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)
              case(nf90_char)
                write(un, '(2x,a)', advance = 'no') '│  │     ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = "'
                do k = 1, nc_file%variable(i)%attribute(j)%len
@@ -672,7 +672,7 @@ contains
             write(un, '(2x,a)', advance = 'no') '│  │     └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
             do k = 1, nc_file%variable(i)%attribute(j)%len
                write(un, '(a)', advance = 'no') nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-               xtype = nc_file%variable(i)%attribute(j)%xtype, i = k)//'; '
+               xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)//'; '
             end do
             write(un, *)
           case(nf90_char)
@@ -697,7 +697,7 @@ contains
             write(un, '(2x,a)', advance = 'no') '│        ├─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
             do k = 1, nc_file%variable(i)%attribute(j)%len
                write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
-               nc_file%variable(i)%attribute(j)%xtype, k)//'; '
+               nc_file%variable(i)%attribute(j)%xtype, 1, k)//'; '
             end do
             write(un, *)
           case(nf90_char)
@@ -714,7 +714,7 @@ contains
          write(un, '(2x,a)', advance = 'no') '│        └─ '//trim(nc_file%variable(i)%attribute(j)%name)//' = '
          do k = 1, nc_file%variable(i)%attribute(j)%len
             write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
-            nc_file%variable(i)%attribute(j)%xtype, k)//'; '
+            nc_file%variable(i)%attribute(j)%xtype, 1, k)//'; '
          end do
          write(un, *)
        case(nf90_char)
@@ -731,7 +731,7 @@ contains
          select case(nc_file%attribute(i)%xtype)
          case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
            write(un, '(2x,a)') '│  ├─ '//trim(nc_file%attribute(i)%name)//' = '//&
-             nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1)
+             nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1)
          case(nf90_char)
            write(un, '(2x,a)', advance = 'no') '│  ├─ '//trim(nc_file%attribute(i)%name)//' = "'
            do j = 1, nc_file%attribute(i)%len 
@@ -743,7 +743,7 @@ contains
        select case(nc_file%attribute(i)%xtype)
        case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
          write(un, '(2x,a)') '│  └─ '//trim(nc_file%attribute(i)%name)//' = '//&
-           nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1)
+           nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1)
        case(nf90_char)
          write(un, '(2x,a)', advance = 'no') '│  └─ '//trim(nc_file%attribute(i)%name)//' = "'
          do j = 1, nc_file%attribute(i)%len 
@@ -761,19 +761,27 @@ contains
     if(type_info == 'viewdata' .or. type_info == 'view') then
       write(un, '(a)') 
       k = 1
-      do i = 1, nc_file%ndimensions
-        write(un, '(a)', advance = 'no') trim(nc_file%dimension(i)%name)
+      do i = 1, nc_file%nvariables
+        write(un, '(a)', advance = 'no') trim(nc_file%variable(i)%name)//'; '
       end do
-      !do m = 1, nc_file%variable(k)%ndims
-        !do i = 1, nc_file%variable(k)%len(m)
-          !do l = 1, nc_file%variable(k+1)%ndims
-            !do j = 1, nc_file%variable(k+1)%len(l)
-              !write(un, '(a)')&
-
-            !end do
-          !end do
-        !end do
-      !end do
+      write(un, *)
+      do i = 1, nc_file%dimension(1)%len 
+        do j = 1,  nc_file%dimension(2)%len
+          write(un, '(a)')&
+            nc_value_print(value = nc_file%variable(1)%value,&
+                           xtype = nc_file%variable(1)%xtype,&
+                           ndims = nc_file%variable(1)%ndims,&
+                           i = i)//'; '//&
+            nc_value_print(value = nc_file%variable(2)%value,&
+                           xtype = nc_file%variable(2)%xtype,&
+                           ndims = nc_file%variable(2)%ndims,&
+                           i = j)//'; '//&
+            nc_value_print(value = nc_file%variable(3)%value,&
+                           xtype = nc_file%variable(3)%xtype,&
+                           ndims = nc_file%variable(3)%ndims,&
+                           i = i, j = j)
+        end do
+      end do
     end if
 
     return
@@ -963,15 +971,15 @@ contains
 
   end subroutine nc_reader
 
-  function nc_value_print(value, xtype, i) !, j, k)
+  function nc_value_print(value, xtype, ndims, i, j, k)
 
     use hamodule
 
     implicit none
 
     type(ncvalues), intent(in) :: value
-    integer(4), intent(in) :: xtype, i
-    !integer(4), intent(in), optional :: j, k
+    integer(4), intent(in) :: xtype, ndims, i
+    integer(4), intent(in), optional :: j, k
     character(:), allocatable :: nc_value_print
 
     !if(present(j) .eqv. .false. .and. present(k) .eqv. .false.) then
@@ -989,81 +997,81 @@ contains
 
     select case(xtype)
     case(nf90_byte)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%byte_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%byte_2(i, j), num_len(value%byte_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%byte_3(i, j, k), num_len(value%byte_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%byte_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%byte_3(i, j, k))
+      end select
     case(nf90_ubyte)
     case(nf90_char)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = value%char_1(i)
-      !case(2)
-        !nc_value_print = value%char_2(i, j)
-      !case(3)
-        !nc_value_print = value%char_3(i, j, k)
-      !end select
+      case(2)
+        nc_value_print = value%char_2(i, j)
+      case(3)
+        nc_value_print = value%char_3(i, j, k)
+      end select
     case(nf90_short)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%short_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%short_2(i, j), num_len(value%short_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%short_3(i, j, k), num_len(value%short_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%short_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%short_3(i, j, k))
+      end select
     case(nf90_ushort)
     case(nf90_int)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%int_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%int_2(i, j), num_len(value%int_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%int_3(i, j, k), num_len(value%int_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%int_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%int_3(i, j, k))
+      end select
     case(nf90_uint)
     case(nf90_int64)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%int64_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%int64_2(i, j), num_len(value%int64_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%int64_3(i, j, k), num_len(value%int64_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%int64_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%int64_3(i, j, k))
+      end select
     case(nf90_uint64)
     case(nf90_float)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%float_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%float_2(i, j), num_len(value%float_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%float_3(i, j, k), num_len(value%float_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%float_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%float_3(i, j, k))
+      end select
     case(nf90_double)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = number_to_string(value%double_1(i))
-      !case(2)
-        !nc_value_print = number_to_string(value%double_2(i, j), num_len(value%double_2(i, j)))
-      !case(3)
-        !nc_value_print = number_to_string(value%double_3(i, j, k), num_len(value%double_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = number_to_string(value%double_2(i, j))
+      case(3)
+        nc_value_print = number_to_string(value%double_3(i, j, k))
+      end select
     case(nf90_string)
-      !select case(ndims)
-      !case(1)
+      select case(ndims)
+      case(1)
         nc_value_print = trim(adjustl(value%string_1(i)))
-      !case(2)
-        !nc_value_print = trim(adjustl(value%string_2(i, j)))
-      !case(3)
-        !nc_value_print = trim(adjustl(value%string_3(i, j, k)))
-      !end select
+      case(2)
+        nc_value_print = trim(adjustl(value%string_2(i, j)))
+      case(3)
+        nc_value_print = trim(adjustl(value%string_3(i, j, k)))
+      end select
     end select
 
     return
