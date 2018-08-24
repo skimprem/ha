@@ -11,9 +11,10 @@ program ha
   character(max_name_value) :: arg
   real(8), allocatable :: cilm(:,:,:), griddh(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
-  integer :: k = 0, i, j, &
+  integer(4) :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
     un = 6
+  real(8) :: memory_megabytes
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
   type(haoptions) :: gridfile, ncmode, hamode
@@ -79,22 +80,31 @@ program ha
 
 
   !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
-  !print *, nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)
+
+  write(un, *)
+  write(un, '(a)') 'grid info:'
+  write(un, '(2x, a)') 'number of lon sample = '//number_to_string(nc_file%variable(3)%len(1))
+  write(un, '(2x, a)') 'number of lat sample = '//number_to_string(nc_file%variable(3)%len(2))
+  write(un, '(2x, a)') 'kind of value: '//number_to_string(kind(nc_file%variable(3)%value%short_2))
+  i = nc_file%variable(3)%len(1) * nc_file%variable(3)%len(2)
+  write(un, '(2x, a)') 'dimension size = '//number_to_string(i)
+  memory_megabytes = real(nc_file%variable(3)%len(1), 8) * real(nc_file%variable(3)%len(2), 8) * 64 / 8388608
+  write(un, '(2x, a)') 'memory size = '//number_to_string(memory_megabytes)//' megabytes'
 
   read(*, *) ! pause
-
-  allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
+  !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
   allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
+  read(*, *) ! pause
+  deallocate(sh_file%griddh)
+  read(*, *) ! pause
+  stop 'wtf?!'
 
   do i = 1, nc_file%variable(3)%len(2)
     do j = 1, nc_file%variable(3)%len(1)
       !sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
     end do
   end do
-
-  deallocate(nc_file%variable(3)%value%short_2)
-  read(*, *) ! pause
 
   if(hamode%definition .eqv. .true.) then
     sh_file%method = trim(hamode%value)
