@@ -19,12 +19,14 @@ program ha
   type(shfile) :: sh_file
   type(haoptions) :: gridfile, ncmode, hamode
 
+  read(*, *) 
+
   gridfile%definition = .false.
   ncmode%definition = .false.
   hamode%definition = .false.
   arg = ''
 
-  if (command_argument_COUNT() == 0) then
+  if (command_argument_count() == 0) then
   call input_check('noarg', arg)
   !print '(a)', 'ERROR: Do not set any option!'
   !call print_help('stop')
@@ -83,13 +85,14 @@ program ha
 
   write(un, *)
   write(un, '(a)') 'grid info:'
-  write(un, '(2x, a)') 'number of lon sample = '//number_to_string(nc_file%variable(3)%len(1))
-  write(un, '(2x, a)') 'number of lat sample = '//number_to_string(nc_file%variable(3)%len(2))
-  write(un, '(2x, a)') 'kind of value: '//number_to_string(kind(nc_file%variable(3)%value%short_2))
-  i = nc_file%variable(3)%len(1) * nc_file%variable(3)%len(2)
-  write(un, '(2x, a)') 'dimension size = '//number_to_string(i)
-  memory_megabytes = real(nc_file%variable(3)%len(1), 8) * real(nc_file%variable(3)%len(2), 8) * 64 / 8388608
-  write(un, '(2x, a)') 'memory size = '//number_to_string(memory_megabytes)//' megabytes'
+  write(un, '(2x, a)') 'number of lon sample = '//number_to_string(nc_file%variable(1)%len(1))
+  write(un, '(2x, a)') 'memory size of lon = '//&
+  number_to_string(real(nc_file%variable(1)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
+  write(un, '(2x, a)') 'number of lat sample = '//number_to_string(nc_file%variable(2)%len(1))
+  write(un, '(2x, a)') 'memory size of lat = '//&
+  number_to_string(real(nc_file%variable(2)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
+  write(un, '(2x, a)') 'memory size of data = '//&
+  number_to_string(real(nc_file%variable(3)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
 
   read(*, *) ! pause
   !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
