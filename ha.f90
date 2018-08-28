@@ -7,7 +7,7 @@ program ha
 
   implicit none
 
-  character(*), parameter :: version = '1.1'
+  character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
   real(8), allocatable :: cilm(:,:,:), griddh(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
@@ -17,13 +17,12 @@ program ha
   real(8) :: memory_megabytes
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
-  type(haoptions) :: gridfile, ncmode, hamode
-
-  read(*, *) 
+  type(haoptions) :: gridfile, ncmode, hamode, outgridfile
 
   gridfile%definition = .false.
   ncmode%definition = .false.
   hamode%definition = .false.
+  outgridfile%definition = .false.
   arg = ''
 
   if (command_argument_count() == 0) then
@@ -50,10 +49,17 @@ program ha
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncmode')
-      call input_check('charg', arg, 'view, viewdata, viewinfo')
+      call input_check('charg', arg, 'view')
       ncmode%definition = .true.
       ncmode%option_name = 'ncmode'
       ncmode%value = adjustl(arg)
+    case('-og', '--outgrid')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noopt', arg, '--outgrid')
+      outgridfile%definition = .true.
+      outgridfile%option_name = 'outgridfile'
+      outgridfile%value = adjustl(arg)
     case('-lm', '--lmax')
       k = k + 1
       call get_command_argument(k, arg)
@@ -78,29 +84,27 @@ program ha
     end select
   end do
 
-  call nc_reader(nc_file, trim(ncmode%value))
+  call nc_reader(nc_file)
+
+  if(ncmode%definition .eqv. .true.) then
+    call nc_print_info(nc_file, un)
+  end if
+
+  if(outgridfile%definition .eqv. .true.) then
+    open(newunit = un, file = outgridfile%value)
+    !call nc_print_data(nc_file, )
+  end if
 
 
   !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
 
-  write(un, *)
-  write(un, '(a)') 'grid info:'
-  write(un, '(2x, a)') 'number of lon sample = '//number_to_string(nc_file%variable(1)%len(1))
-  write(un, '(2x, a)') 'memory size of lon = '//&
-  number_to_string(real(nc_file%variable(1)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
-  write(un, '(2x, a)') 'number of lat sample = '//number_to_string(nc_file%variable(2)%len(1))
-  write(un, '(2x, a)') 'memory size of lat = '//&
-  number_to_string(real(nc_file%variable(2)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
-  write(un, '(2x, a)') 'memory size of data = '//&
-  number_to_string(real(nc_file%variable(3)%value%mem_bits, 4)/8388608, frmt = '(f10.2)')//' megabytes'
-
-  read(*, *) ! pause
+  !read(*, *) ! pause
   !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
   allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
-  read(*, *) ! pause
-  deallocate(sh_file%griddh)
-  read(*, *) ! pause
+  !read(*, *) ! pause
+  !deallocate(sh_file%griddh)
+  !read(*, *) ! pause
   stop 'wtf?!'
 
   do i = 1, nc_file%variable(3)%len(2)
