@@ -7,6 +7,14 @@ subroutine nc_print_data(nc_file, un)
   type(ncfile), intent(in) :: nc_file
   integer(4), intent(in) :: un
   integer(4) :: i, j, k
+  integer(2) :: progress_step, display_unit = 6
+  real :: progress, progress_coef
+
+  progress = 0.0
+
+  write(display_unit, '(1x, a)', advance = 'no') 'Writing... ['
+  progress_step = 2
+  progress_coef = 100.0 / nc_file%dimension(1)%len
 
   k = 1
   do i = 1, nc_file%nvariables
@@ -29,7 +37,16 @@ subroutine nc_print_data(nc_file, un)
                        ndims = nc_file%variable(3)%ndims,&
                        i = i, j = j)
     end do
+
+    progress = progress + progress_coef
+    if(progress / progress_step > 1) then
+      write(display_unit, '(a)', advance = 'no') '='
+      progress_step = progress_step + 2
+    end if
+
   end do
+
+  write(display_unit, '(a)') '] 100%'
 
   return
 

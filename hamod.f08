@@ -8,5 +8,6 @@ contains
   include "hamod_print_help.f08"
   include "hamod_num_len.f08"
   include "hamod_number_to_string.f08"
+  include "hamod_progress.f08"
 
 end module hamodule

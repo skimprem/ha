@@ -14,7 +14,6 @@ program ha
   integer(4) :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
     un = 6
-  real(8) :: memory_megabytes
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
   type(haoptions) :: gridfile, ncmode, hamode, outgridfile
@@ -92,7 +91,7 @@ program ha
 
   if(outgridfile%definition .eqv. .true.) then
     open(newunit = un, file = outgridfile%value)
-    !call nc_print_data(nc_file, )
+    call nc_print_data(nc_file, un)
   end if
 
 
