@@ -11,13 +11,13 @@ subroutine nc_print_info(nc_file, un)
   character(:), allocatable :: d, dr, r, b, frmt
 
   d = '│  ' ! down
-  !d = 'I  '
+  !d = '|  '
   !d = '  '
   dr = '├─ ' ! down right
-  !dr = 'I- '
+  !dr = '|- '
   !dr = '  '
   r = '└─ ' ! right
-  !r = '+- '
+  !r = '|- '
   !r = '  '
   b = '   ' ! blank
   !b = '  '
@@ -42,7 +42,7 @@ subroutine nc_print_info(nc_file, un)
      write(un, '(2x,a)') d//dr//trim(nc_file%variable(i)%name)//':'
      write(un, '(2x,a)') d//d//dr//'xtype: '//nc_xtype_info(nc_file%variable(i)%xtype)
      write(un, '(2x,a)') d//d//dr//'memory size: '//&
-     number_to_string(real(nc_file%variable(i)%value%mem_bits, 4)/8/10**6,&
+     number_to_string(real(nc_file%variable(i)%value%mem_bits)/8/10**6,&
      frmt = '(f100.2)')//' MB'
      write(un, '(2x,a)', advance = 'no') d//d//dr//'dimid: '
      do j = 1, nc_file%variable(i)%ndims

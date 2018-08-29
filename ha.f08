@@ -90,29 +90,42 @@ program ha
   end if
 
   if(outgridfile%definition .eqv. .true.) then
-    !open(newunit = un, file = outgridfile%value)
     call nc_print_data(nc_file, trim(outgridfile%value))
   end if
-
-
   !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
 
   !read(*, *) ! pause
   !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
-  allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
 
   !read(*, *) ! pause
   !deallocate(sh_file%griddh)
   !read(*, *) ! pause
-  stop 'wtf?!'
+  !stop 'wtf?!'
 
-  do i = 1, nc_file%variable(3)%len(2)
-    do j = 1, nc_file%variable(3)%len(1)
+  !do i = 1, nc_file%variable(3)%len(2)
+    !do j = 1, nc_file%variable(3)%len(1)
       !sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
-    end do
-  end do
+    !end do
+  !end do
 
   if(hamode%definition .eqv. .true.) then
+
+    allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+
+    do k = 1, nc_file%variable(3)%natts
+      select case(nc_file%variable(3)%attribute(k)%name)
+      case('scale_factor')
+        do i = 1, nc_file%variable(3)%len(2)
+          do j = 1, nc_file%variable(3)%len(1)
+            sh_file%griddh(i, j) =&
+            real(nc_file%variable(3)%value%short_2(j, i), 8) *&
+            nc_file%variable(3)%attribute(k)%value%double_1(1)
+          end do
+        end do
+      end select
+    end do
+
+
     sh_file%method = trim(hamode%value)
     write(un, '(a)') 'Expand..'
     select case(trim(hamode%value))
@@ -147,7 +160,7 @@ program ha
     case('ls')
     end select
 
-    call print_sh_info(sh_file)
+    call sh_print_info(sh_file)
 
   end if
 
