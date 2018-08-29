@@ -90,8 +90,8 @@ program ha
   end if
 
   if(outgridfile%definition .eqv. .true.) then
-    open(newunit = un, file = outgridfile%value)
-    call nc_print_data(nc_file, un)
+    !open(newunit = un, file = outgridfile%value)
+    call nc_print_data(nc_file, trim(outgridfile%value))
   end if
 
 

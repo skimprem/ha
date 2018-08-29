@@ -4,3 +4,9 @@
 
 # executable files
 *.exe
+
+# temp
+*.swo
+*.swp
+*.tst
+*.tmp
