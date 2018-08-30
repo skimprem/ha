@@ -1,18 +1,18 @@
-subroutine nc_print_data(nc_file, output_file_name)
+subroutine nc_print_data(nc_file, output_filename)
 
   use hamodule
 
   implicit none
 
   type(ncfile), intent(in) :: nc_file
-  character(*), intent(in) :: output_file_name
+  character(*), intent(in) :: output_filename
   character(:), allocatable :: string
   integer(4) :: i, j, k, un, stdout = 6, string_len
   real(8) :: progress_coef, tarray(2), current
 
-  open(newunit = un, file =  output_file_name)
+  open(newunit = un, file =  output_filename)
 
-  string = 'Writing grid to file "'//output_file_name//'"...: '
+  string = 'Writing grid to file "'//output_filename//'"...: '
   string_len = len_trim(string)
   progress_coef = 100.0 / float(nc_file%dimension(1)%len)
   write(stdout, '(a)')

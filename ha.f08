@@ -9,7 +9,7 @@ program ha
 
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
-  real(8), allocatable :: cilm(:,:,:), griddh(:,:)
+  real(8), allocatable :: cilm(:,:,:), griddh(:,:), temp_1(:), temp_2(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
   integer(4) :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
@@ -42,23 +42,22 @@ program ha
       call input_check('nofile', arg)
       gridfile%definition = .true.
       gridfile%option_name =  'gridfile'
-      gridfile%value = adjustl(arg)
-      nc_file%path = adjustl(arg)
+      gridfile%value = trim(adjustl(arg))
+      nc_file%path = trim(adjustl(arg))
     case('-nm', '--ncmode')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncmode')
-      call input_check('charg', arg, 'view')
       ncmode%definition = .true.
       ncmode%option_name = 'ncmode'
-      ncmode%value = adjustl(arg)
+      ncmode%value = trim(adjustl(arg))
     case('-og', '--outgrid')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--outgrid')
       outgridfile%definition = .true.
       outgridfile%option_name = 'outgridfile'
-      outgridfile%value = adjustl(arg)
+      outgridfile%value = trim(adjustl(arg))
     case('-lm', '--lmax')
       k = k + 1
       call get_command_argument(k, arg)
@@ -86,12 +85,13 @@ program ha
   call nc_reader(nc_file)
 
   if(ncmode%definition .eqv. .true.) then
-    call nc_print_info(nc_file, un)
+    call nc_print_info(nc_file, ncmode%value)
   end if
 
   if(outgridfile%definition .eqv. .true.) then
-    call nc_print_data(nc_file, trim(outgridfile%value))
+    call nc_print_data(nc_file, outgridfile%value)
   end if
+
   !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
 
   !read(*, *) ! pause
@@ -107,6 +107,9 @@ program ha
       !sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
     !end do
   !end do
+
+  !print *, nc_value_conv(nc_file%variable(1)%value%double_1)
+  print *, nc_value_conv(nc_file%variable(3)%value%short_2)
 
   if(hamode%definition .eqv. .true.) then
 

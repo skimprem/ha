@@ -15,5 +15,6 @@ contains
   include "ncmod_nc_print_data.f08"
   include "ncmod_nc_value_print.f08"
   include "ncmod_nc_allocate.f08"
+  include "ncmod_nc_value_conv.f08"
 
 end module ncmodule

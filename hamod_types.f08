@@ -3,7 +3,7 @@
 
   type haoptions
     logical :: definition
-    character(8) :: option_name
+    character(:), allocatable :: option_name
     character(:), allocatable :: value
   end type
 

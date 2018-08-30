@@ -1,14 +1,20 @@
-subroutine nc_print_info(nc_file, un)
+subroutine nc_print_info(nc_file, output_filename)
 
   use hamodule
 
   implicit none
 
   type(ncfile), intent(in) :: nc_file
-  integer(4), intent(in) :: un
-  integer :: i, j, k
+  character(*), intent(in) :: output_filename
+  integer(4) :: un, i, j, k
 
   character(:), allocatable :: d, dr, r, b, frmt
+
+  if(output_filename == 'stdout') then
+    un = 6
+  else
+    open(newunit = un, file = output_filename)
+  end if
 
   d = '│  ' ! down
   !d = '|  '
