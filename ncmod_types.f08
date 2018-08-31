@@ -7,7 +7,6 @@ type ncdimensions
 end type ncdimensions
 
 type ncvalues
-
   integer(kind=1), allocatable :: byte_1(:), byte_2(:,:), byte_3(:,:,:)
   integer(kind=2), allocatable :: short_1(:), short_2(:,:), short_3(:,:,:)
   integer(kind=4), allocatable :: int_1(:), int_2(:,:), int_3(:,:,:)
@@ -19,7 +18,6 @@ type ncvalues
   character(kind=1, len=nf90_max_name), allocatable ::&
     string_1(:), string_2(:,:), string_3(:,:,:)
   integer(kind=8) :: mem_bits
-
 end type ncvalues
 
 type ncattributes
@@ -55,7 +53,6 @@ type ncvariables
       len
   type(ncattributes), dimension(:), allocatable :: attribute
   type(ncvalues) :: value
-
 end type ncvariables
 
 type ncfile
@@ -79,5 +76,22 @@ type ncfile
 end type ncfile
 
 interface nc_value_conv
-  module procedure nc_value_conv_double_one_dim, nc_value_conv_short_two_dim
+  module procedure nc_value_conv_byte_one_dim,&
+                   nc_value_conv_short_one_dim,&
+                   nc_value_conv_int_one_dim,&
+                   nc_value_conv_int64_one_dim,&
+                   nc_value_conv_float_one_dim,&
+                   nc_value_conv_double_one_dim,&
+                   nc_value_conv_byte_two_dim,&
+                   nc_value_conv_short_two_dim,&
+                   nc_value_conv_int_two_dim,&
+                   nc_value_conv_int64_two_dim,&
+                   nc_value_conv_float_two_dim,&
+                   nc_value_conv_double_two_dim,&
+                   nc_value_conv_byte_three_dim,&
+                   nc_value_conv_short_three_dim,&
+                   nc_value_conv_int_three_dim,&
+                   nc_value_conv_int64_three_dim,&
+                   nc_value_conv_float_three_dim,&
+                   nc_value_conv_double_three_dim
 end interface nc_value_conv

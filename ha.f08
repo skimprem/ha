@@ -108,9 +108,6 @@ program ha
     !end do
   !end do
 
-  !print *, nc_value_conv(nc_file%variable(1)%value%double_1)
-  print *, nc_value_conv(nc_file%variable(3)%value%short_2)
-
   if(hamode%definition .eqv. .true.) then
 
     allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
