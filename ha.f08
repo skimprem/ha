@@ -9,7 +9,7 @@ program ha
 
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
-  !real(8), allocatable :: cilm(:,:,:), griddh(:,:)
+  real(8), allocatable :: cilm(:,:,:), griddh(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
   integer(4) :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
@@ -110,9 +110,11 @@ program ha
 
   if(hamode%definition .eqv. .true.) then
 
-    call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
+    call nc_value_conv(nc_file%variable(3)%value, griddh)
 
-    !allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+    allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+
+    sh_file%griddh = transpose(griddh)
 
     !do k = 1, nc_file%variable(3)%natts
       !select case(nc_file%variable(3)%attribute(k)%name)

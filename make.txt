@@ -1,0 +1,3 @@
+gfortran -c -std=f2008 -fbackslash -I/usr/include/ hamod.f08
+gfortran -c -std=f2008 -fbackslash -I/usr/include/ ncmod.f08
+Makefile:20: recipe for target 'ncmod.o' failed
