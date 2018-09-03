@@ -34,10 +34,10 @@ subroutine sh_print_info(sh_file)
   write(un, '(2x, a)') 'exitstatus: '//&
   number_to_string(sh_file%exitstatus)
 
-  do i = 1, sh_file%lmax
-    do j = 1, i
-      write(un, *) i, j, sh_file%cilm(1, i, j), sh_file%cilm(2, i, j)
-    end do
-  end do
+  !do i = 1, sh_file%lmax
+    !do j = 1, i
+      !write(un, *) i, j, sh_file%cilm(1, i, j), sh_file%cilm(2, i, j)
+    !end do
+  !end do
 
 end subroutine sh_print_info

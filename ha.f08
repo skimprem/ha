@@ -9,14 +9,13 @@ program ha
 
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
-  real(8), allocatable :: cilm(:,:,:), griddh(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
   integer(4) :: k = 0, i, j, &
-    n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
+    !n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
     un = 6
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
-  type(haoptions) :: gridfile, ncmode, hamode, outgridfile
+  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, outcoeffile
 
   gridfile%definition = .false.
   ncmode%definition = .false.
@@ -58,6 +57,13 @@ program ha
       outgridfile%definition = .true.
       outgridfile%option_name = 'outgridfile'
       outgridfile%value = trim(adjustl(arg))
+    case('-oc', '--outcoef')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noopt', arg, '--outcoef')
+      outcoeffile%definition = .true.
+      outcoeffile%option_name = 'outcoeffile'
+      outcoeffile%value = trim(adjustl(arg))
     case('-lm', '--lmax')
       k = k + 1
       call get_command_argument(k, arg)
@@ -92,43 +98,13 @@ program ha
     call nc_print_data(nc_file, outgridfile%value)
   end if
 
-  !print *, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2
-
-  !read(*, *) ! pause
-  !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
-
-  !read(*, *) ! pause
-  !deallocate(sh_file%griddh)
-  !read(*, *) ! pause
-  !stop 'wtf?!'
-
-  !do i = 1, nc_file%variable(3)%len(2)
-    !do j = 1, nc_file%variable(3)%len(1)
-      !sh_file%griddh(i,j) = nc_file%variable(3)%val2(j,i)%float
-    !end do
-  !end do
-
   if(hamode%definition .eqv. .true.) then
 
-    call nc_value_conv(nc_file%variable(3)%value, griddh)
+    call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
 
-    allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
-
-    sh_file%griddh = transpose(griddh)
-
-    !do k = 1, nc_file%variable(3)%natts
-      !select case(nc_file%variable(3)%attribute(k)%name)
-      !case('scale_factor')
-        !do i = 1, nc_file%variable(3)%len(2)
-          !do j = 1, nc_file%variable(3)%len(1)
-            !sh_file%griddh(i, j) =&
-            !real(nc_file%variable(3)%value%short_2(j, i), 8) *&
-            !nc_file%variable(3)%attribute(k)%value%double_1(1)
-          !end do
-        !end do
-      !end select
-    !end do
-
+    if(int(nc_file%variable(3)%len(1), 4) / int(nc_file%variable(3)%len(2), 4) == 2) then
+      sh_file%griddh = transpose(sh_file%griddh) 
+    end if
 
     sh_file%method = trim(hamode%value)
     write(un, '(a)') 'Expand..'
@@ -141,6 +117,8 @@ program ha
       sh_file%lmax_calc = nc_file%variable(3)%len(2)/2-1
 
       call cpu_time(cpu_time_1)
+
+      allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
 
       call shexpanddh(&
         sh_file%griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
@@ -158,7 +136,7 @@ program ha
       calc_time = cpu_time_2 - cpu_time_1
 
       write(un, '(2x,a)') 'Calculation time: '//&
-        number_to_string(calc_time)//&
+        number_to_string(calc_time, frmt = '(f100.3)')//&
         ' seconds'
 
     case('ls')

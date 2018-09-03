@@ -24,6 +24,7 @@ subroutine nc_value_conv_byte_one_dim(value, output_value)
     allocate(output_value(size(value%double_1)))
     output_value = int(value%double_1, 1)
   end if
+  return
 end subroutine nc_value_conv_byte_one_dim
 subroutine nc_value_conv_short_one_dim(value, output_value)
   implicit none
