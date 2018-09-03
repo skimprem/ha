@@ -9,5 +9,6 @@ contains
   include "hamod_num_len.f08"
   include "hamod_number_to_string.f08"
   include "hamod_progress.f08"
+  include "hamod_nc_value_conv.f08"
 
 end module hamodule

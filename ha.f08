@@ -9,7 +9,7 @@ program ha
 
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
-  real(8), allocatable :: cilm(:,:,:), griddh(:,:), temp_1(:), temp_2(:,:)
+  !real(8), allocatable :: cilm(:,:,:), griddh(:,:)
   real(8) :: cpu_time_1, cpu_time_2, calc_time
   integer(4) :: k = 0, i, j, &
     n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
@@ -110,20 +110,22 @@ program ha
 
   if(hamode%definition .eqv. .true.) then
 
-    allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+    call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
 
-    do k = 1, nc_file%variable(3)%natts
-      select case(nc_file%variable(3)%attribute(k)%name)
-      case('scale_factor')
-        do i = 1, nc_file%variable(3)%len(2)
-          do j = 1, nc_file%variable(3)%len(1)
-            sh_file%griddh(i, j) =&
-            real(nc_file%variable(3)%value%short_2(j, i), 8) *&
-            nc_file%variable(3)%attribute(k)%value%double_1(1)
-          end do
-        end do
-      end select
-    end do
+    !allocate( sh_file%griddh(nc_file%variable(3)%len(2), nc_file%variable(3)%len(1)) )
+
+    !do k = 1, nc_file%variable(3)%natts
+      !select case(nc_file%variable(3)%attribute(k)%name)
+      !case('scale_factor')
+        !do i = 1, nc_file%variable(3)%len(2)
+          !do j = 1, nc_file%variable(3)%len(1)
+            !sh_file%griddh(i, j) =&
+            !real(nc_file%variable(3)%value%short_2(j, i), 8) *&
+            !nc_file%variable(3)%attribute(k)%value%double_1(1)
+          !end do
+        !end do
+      !end select
+    !end do
 
 
     sh_file%method = trim(hamode%value)

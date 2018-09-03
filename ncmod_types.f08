@@ -75,6 +75,27 @@ type ncfile
   type(ncattributes), dimension(:), allocatable :: attribute
 end type ncfile
 
+!interface nc_variable_conv
+  !module procedure nc_variable_conv_byte_one_dim,&
+                   !nc_variable_conv_short_one_dim,&
+                   !nc_variable_conv_int_one_dim,&
+                   !nc_variable_conv_int64_one_dim,&
+                   !nc_variable_conv_float_one_dim,&
+                   !nc_variable_conv_double_one_dim,&
+                   !nc_variable_conv_byte_two_dim,&
+                   !nc_variable_conv_short_two_dim,&
+                   !nc_variable_conv_int_two_dim,&
+                   !nc_variable_conv_int64_two_dim,&
+                   !nc_variable_conv_float_two_dim,&
+                   !nc_variable_conv_double_two_dim !,&
+                   !nc_variable_conv_byte_three_dim,&
+                   !nc_variable_conv_short_three_dim,&
+                   !nc_variable_conv_int_three_dim,&
+                   !nc_variable_conv_int64_three_dim,&
+                   !nc_variable_conv_float_three_dim,&
+                   !nc_variable_conv_double_three_dim
+!end interface nc_variable_conv
+
 interface nc_value_conv
   module procedure nc_value_conv_byte_one_dim,&
                    nc_value_conv_short_one_dim,&
@@ -87,11 +108,11 @@ interface nc_value_conv
                    nc_value_conv_int_two_dim,&
                    nc_value_conv_int64_two_dim,&
                    nc_value_conv_float_two_dim,&
-                   nc_value_conv_double_two_dim,&
+                   nc_value_conv_double_two_dim !,&
                    nc_value_conv_byte_three_dim,&
                    nc_value_conv_short_three_dim,&
                    nc_value_conv_int_three_dim,&
                    nc_value_conv_int64_three_dim,&
                    nc_value_conv_float_three_dim,&
                    nc_value_conv_double_three_dim
-end interface nc_value_conv
+end interface nc_variable_conv
