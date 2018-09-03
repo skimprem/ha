@@ -1,0 +1,41 @@
+NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $
+nc file info:
+  ├─ ncid: 65536
+  ├─ path: DTU10GRA_1min.nc
+  ├─ mode: 0
+  ├─ ndimensions: 2
+  │  ├─ lon = 21602
+  │  └─ lat = 10800
+  ├─ nVariables: 3
+  │  ├─ lon:
+  │  │  ├─ xtype: double (64-bit floating point)
+  │  │  ├─ memory size: 0.17 MB
+  │  │  ├─ dimid: 1; 
+  │  │  └─ natts: 3
+  │  │     ├─ long_name = "longitude"
+  │  │     ├─ units = "degrees_east"
+  │  │     └─ actual_range = -1.6666666666666666E-002; 360.01666666666665; 
+  │  ├─ lat:
+  │  │  ├─ xtype: double (64-bit floating point)
+  │  │  ├─ memory size: 0.09 MB
+  │  │  ├─ dimid: 2; 
+  │  │  └─ natts: 3
+  │  │     ├─ long_name = "latitude"
+  │  │     ├─ units = "degrees_north"
+  │  │     └─ actual_range = -90.000000000000000; 90.000000000000000; 
+  │  └─ grav:
+  │     ├─ xtype: short (16-bit signed integer)
+  │     ├─ memory size: 466.60 MB
+  │     ├─ dimid: 1; 2; 
+  │     └─ natts: 4
+  │        ├─ long_name = "gravity anomaly"
+  │        ├─ units = "mgal"
+  │        ├─ scale_factor = 5.0000000000000003E-002; 
+  │        └─ actual_range = -364.10000000000002; 938.40000000000009; 
+  ├─ nAttributes: 4
+  │  ├─ Conventions = "COARDS/CF-1.0"
+  │  ├─ title = "DTU10GRA_1min.gra.nc"
+  │  ├─ source = "Danish National Space Center"
+  │  └─ node_offset = 1
+  ├─ unlimitedDimid: -1
+  └─ formatNum: 1
