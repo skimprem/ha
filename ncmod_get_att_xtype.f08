@@ -8,13 +8,14 @@ subroutine get_att_xtype(&
      verbose) !
 
   use netcdf
+  use hamodule
 
   implicit none
 
   integer, intent(in) :: ncid, varid, xtype, len
   character(*), intent(in) :: name
   type(ncvalues), intent(out) :: value
-  integer :: stdout = 6
+  integer :: i, stdout = 6
   logical, intent(in), optional :: verbose
 
   if(verbose) write(stdout, '(a)') 'get_att_xtype: '//trim(adjustl(name))
@@ -35,7 +36,7 @@ subroutine get_att_xtype(&
           ncid = ncid,&
           varid = varid,&
           name = name,&
-          values = value%byte_1(1)&
+          values = value%byte_1&
           )&
         )
     if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
@@ -57,7 +58,13 @@ subroutine get_att_xtype(&
           values = value%char_1(1)&
           )&
         )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) then
+      write(stdout, '(2x,a)', advance = 'no') 'xtype: value = '
+      do i = 1, len
+        write(stdout, '(a)', advance = 'no') value%char_1(i)
+      end do
+      write(stdout, '(a)')
+    end if
   case(nf90_short)
     if(verbose) write(stdout, '(2x,a)') 'xtype: '//nc_xtype_info(xtype)
     ! NC_SHORT: 16-bit signed integer
@@ -72,7 +79,7 @@ subroutine get_att_xtype(&
           values = value%short_1&
           )&
         )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%short_1(1))
   case(nf90_ushort)
     ! NC_USHORT: 16-bit unsigned integer
     if(verbose) write(stdout, '(2x,a)') 'error: '//nc_xtype_info(xtype)//' not set'
@@ -91,7 +98,7 @@ subroutine get_att_xtype(&
           values = value%int_1&
           )&
         )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%int_1(1))
   case(nf90_uint)
     ! NC_Uint: 32-bit unsigned integer
     if(verbose) write(stdout, '(2x,a)') 'error: '//nc_xtype_info(xtype)//' not set'
@@ -110,7 +117,7 @@ subroutine get_att_xtype(&
            values = value%int64_1&
            )&
          )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%int64_1(1))
   case(nf90_uint64)
     ! NC_Uint64: 64-bit unsigned integer
     if(verbose) write(stdout, '(2x,a)') 'error: '//nc_xtype_info(xtype)//' not set'
@@ -129,7 +136,7 @@ subroutine get_att_xtype(&
            values = value%float_1&
            )&
          )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%float_1(1))
   case(nf90_double)
     if(verbose) write(stdout, '(2x,a)') 'xtype: '//nc_xtype_info(xtype)
     ! NC_double: 64-bit floating point
@@ -144,7 +151,7 @@ subroutine get_att_xtype(&
           values = value%double_1&
           )&
         )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%double_1(1))
   case(nf90_string)
     if(verbose) write(stdout, '(2x,a)') 'xtype: '//nc_xtype_info(xtype)
     ! NC_STRING: variable length character string
@@ -159,7 +166,7 @@ subroutine get_att_xtype(&
           values = value%string_1(1)&
           )&
         )
-    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//number_to_string(value%byte_1(1))
+    if(verbose) write(stdout, '(2x,a)') 'xtype: value = '//value%string_1
   end select
 
 end subroutine get_att_xtype
