@@ -68,7 +68,7 @@ subroutine nc_reader(nc_file) !, mode)
           name = nc_file%attribute(i)%name,&
           len = nc_file%attribute(i)%len,&
           value = nc_file%attribute(i)%value&
-          )
+          verbose = .true.`)
 
   end do
 
