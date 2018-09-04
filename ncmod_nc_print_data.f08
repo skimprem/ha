@@ -20,25 +20,25 @@ subroutine nc_print_data(nc_file, output_filename)
   k = 1
 
   write(un, '(a)')&
-  trim(adjustl(nc_file%variable(1)%name))//';'//&
-  trim(adjustl(nc_file%variable(2)%name))//';'//&
+  trim(adjustl(nc_file%variable(1)%name))//' '//&
+  trim(adjustl(nc_file%variable(2)%name))//' '//&
   trim(adjustl(nc_file%variable(3)%name))
 
   do i = 1, nc_file%dimension(1)%len 
     do j = 1,  nc_file%dimension(2)%len
       write(un, '(a)')&
-      nc_value_print(value = nc_file%variable(1)%value,&
+      trim_null(nc_value_print(value = nc_file%variable(1)%value,&
                      xtype = nc_file%variable(1)%xtype,&
                      ndims = nc_file%variable(1)%ndims,&
-                     i = i)//';'//&
-      nc_value_print(value = nc_file%variable(2)%value,&
+                     i = i))//' '//&
+      trim_null(nc_value_print(value = nc_file%variable(2)%value,&
                      xtype = nc_file%variable(2)%xtype,&
                      ndims = nc_file%variable(2)%ndims,&
-                     i = j)//';'//&
-      nc_value_print(value = nc_file%variable(3)%value,&
+                     i = j))//' '//&
+      trim_null(nc_value_print(value = nc_file%variable(3)%value,&
                      xtype = nc_file%variable(3)%xtype,&
                      ndims = nc_file%variable(3)%ndims,&
-                     i = i, j = j)
+                     i = i, j = j))
     end do
 
     do j =  1, string_len + 17 

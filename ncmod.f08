@@ -2,7 +2,7 @@ module ncmodule
 
   use netcdf
 
-  include "ncmod_types.f08"
+  include "ncmod_nc_types.f08"
 
 contains
 

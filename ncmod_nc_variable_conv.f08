@@ -6,13 +6,13 @@ subroutine nc_variable_conv_byte_one_dim(variable, output_value)
   type(ncvariables) :: variable 
   integer(kind=1), dimension(:), allocatable :: output_value
   integer(kind=4) :: i
-  real(8), dimension(:), allocatable :: factor_scale
+  real(8), dimension(:), allocatable :: scale_factor
   call nc_value_conv(variable%value, output_value)
   do i = 1, variable%natts
     select case(trim(adjustl(variable%attribute(i)%name)))
-    case('factor_scale')
-      call nc_value_conv(variable%attribute(i)%value, factor_scale)
-      output_value = output_value * factor_scale(1)
+    case('scale_factor')
+      call nc_value_conv(variable%attribute(i)%value, scale_factor)
+      output_value = output_value * scale_factor(1)
     end select
   end do
   return
@@ -61,13 +61,13 @@ subroutine nc_variable_conv_short_two_dim(variable, output_value)
   type(ncvariables) :: variable 
   integer(kind=2), dimension(:,:), allocatable :: output_value
   integer(kind=4) :: i
-  real(8), dimension(:), allocatable :: factor_scale
+  real(8), dimension(:), allocatable :: scale_factor
   call nc_value_conv(variable%value, output_value)
   do i = 1, variable%natts
     select case(trim(adjustl(variable%attribute(i)%name)))
-    case('factor_scale')
-      call nc_value_conv(variable%attribute(i)%value, factor_scale)
-      output_value = output_value * factor_scale(1)
+    case('scale_factor')
+      call nc_value_conv(variable%attribute(i)%value, scale_factor)
+      output_value = output_value * scale_factor(1)
     end select
   end do
   return
@@ -89,13 +89,13 @@ subroutine nc_variable_conv_float_two_dim(variable, output_value)
   type(ncvariables) :: variable 
   real(kind=4), dimension(:,:), allocatable :: output_value
   integer(kind=4) :: i
-  real(8), dimension(:), allocatable :: factor_scale
+  real(8), dimension(:), allocatable :: scale_factor
   call nc_value_conv(variable%value, output_value)
   do i = 1, variable%natts
     select case(trim(adjustl(variable%attribute(i)%name)))
-    case('factor_scale')
-      call nc_value_conv(variable%attribute(i)%value, factor_scale)
-      output_value = output_value * factor_scale(1)
+    case('scale_factor')
+      call nc_value_conv(variable%attribute(i)%value, scale_factor)
+      output_value = output_value * scale_factor(1)
     end select
   end do
   return
@@ -105,13 +105,13 @@ subroutine nc_variable_conv_double_two_dim(variable, output_value)
   type(ncvariables) :: variable 
   real(kind=8), dimension(:,:), allocatable :: output_value
   integer(kind=4) :: i
-  real(8), dimension(:), allocatable :: factor_scale
+  real(8), dimension(:), allocatable :: scale_factor
   call nc_value_conv(variable%value, output_value)
   do i = 1, variable%natts
     select case(trim(adjustl(variable%attribute(i)%name)))
-    case('factor_scale')
-      call nc_value_conv(variable%attribute(i)%value, factor_scale)
-      output_value = output_value * factor_scale(1)
+    case('scale_factor')
+      call nc_value_conv(variable%attribute(i)%value, scale_factor)
+      output_value = output_value * scale_factor(1)
     end select
   end do
   return

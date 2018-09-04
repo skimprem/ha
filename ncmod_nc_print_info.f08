@@ -65,12 +65,14 @@ subroutine nc_print_info(nc_file, output_filename)
           ! attribute number values 
           do k = 1, nc_file%variable(i)%attribute(j)%len - 1
              write(un, '(2x,a)')&
-             d//d//b//d//dr//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-             xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)
+             d//d//b//d//dr//&
+             trim_null(nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+             xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k))
           end do
           write(un, '(2x,a)')&
-          d//d//b//d//r//nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-          xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)
+          d//d//b//d//r//&
+          trim_null(nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+          xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k))
         ! for strings
         case(nf90_char)
           write(un, '(2x,a)', advance = 'no')&
@@ -90,8 +92,8 @@ subroutine nc_print_info(nc_file, output_filename)
        ! attribute number values
        do k = 1, nc_file%variable(i)%attribute(j)%len
           write(un, '(a)', advance = 'no')&
-          nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
-          xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k)//'; '
+          trim_null(nc_value_print(value = nc_file%variable(i)%attribute(j)%value,&
+          xtype = nc_file%variable(i)%attribute(j)%xtype, ndims = 1, i = k))//'; '
        end do
        write(un, *)
      ! for strings
@@ -125,8 +127,9 @@ subroutine nc_print_info(nc_file, output_filename)
        write(un, '(2x,a)', advance = 'no')&
        d//b//b//dr//trim(nc_file%variable(i)%attribute(j)%name)//' = '
        do k = 1, nc_file%variable(i)%attribute(j)%len
-          write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
-          nc_file%variable(i)%attribute(j)%xtype, 1, k)//'; '
+          write(un, '(a)', advance = 'no')&
+          trim_null(nc_value_print(nc_file%variable(i)%attribute(j)%value,&
+          nc_file%variable(i)%attribute(j)%xtype, 1, k))//'; '
        end do
        write(un, *)
      ! for strings
@@ -145,8 +148,9 @@ subroutine nc_print_info(nc_file, output_filename)
     write(un, '(2x,a)', advance = 'no')&
     d//b//b//r//trim(nc_file%variable(i)%attribute(j)%name)//' = '
     do k = 1, nc_file%variable(i)%attribute(j)%len
-       write(un, '(a)', advance = 'no') nc_value_print(nc_file%variable(i)%attribute(j)%value,&
-       nc_file%variable(i)%attribute(j)%xtype, 1, k)//'; '
+       write(un, '(a)', advance = 'no')&
+       trim_null(nc_value_print(nc_file%variable(i)%attribute(j)%value,&
+       nc_file%variable(i)%attribute(j)%xtype, 1, k))//'; '
     end do
     write(un, *)
   case(nf90_char)
@@ -164,7 +168,7 @@ subroutine nc_print_info(nc_file, output_filename)
     select case(nc_file%attribute(i)%xtype)
     case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
       write(un, '(2x,a)') d//dr//trim(nc_file%attribute(i)%name)//' = '//&
-        nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1)
+      trim_null(nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1))
     case(nf90_char)
       write(un, '(2x,a)', advance = 'no') d//dr//trim(nc_file%attribute(i)%name)//' = "'
       do j = 1, nc_file%attribute(i)%len 
@@ -176,7 +180,7 @@ subroutine nc_print_info(nc_file, output_filename)
   select case(nc_file%attribute(i)%xtype)
   case(nf90_byte, nf90_short, nf90_int, nf90_int64, nf90_float, nf90_double, nf90_string)
     write(un, '(2x,a)') d//r//trim(nc_file%attribute(i)%name)//' = '//&
-      nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1)
+    trim_null(nc_value_print(nc_file%attribute(i)%value, nc_file%attribute(i)%xtype, 1, 1))
   case(nf90_char)
     write(un, '(2x,a)', advance = 'no') d//r//trim(nc_file%attribute(i)%name)//' = "'
     do j = 1, nc_file%attribute(i)%len 

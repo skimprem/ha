@@ -4,7 +4,8 @@ subroutine get_att_xtype(&
      xtype,& !
      name,& !
      len,& !
-     value) !
+     value,& !
+     verbose) !
 
   use netcdf
 
@@ -13,14 +14,18 @@ subroutine get_att_xtype(&
   integer, intent(in) :: ncid, varid, xtype, len
   character(*), intent(in) :: name
   type(ncvalues), intent(out) :: value
-  integer :: un = 6
+  integer :: stdout = 6
+  logical, intent(in), optional :: verbose
+
+  if(verbose) write(stdout, '(a)') 'get_att_xtype: start'
 
   select case(xtype)
   case(0)
     ! 0
-    write(un, '(a)') nc_xtype_info(xtype)//' not set'
+    if(verbose) write(stdout, '(2x,a)') 'error: '//nc_xtype_info(xtype)//' not set'
     stop
   case(nf90_byte)
+    if(verbose) write(stdout, '(2x.a)') 'xtype: '//nc_xtype_info(xtype)
     ! NC_BYTE: 8-bit signed integer
     allocate( value%byte_1(len) )
     call nc_error_check(&
@@ -34,7 +39,7 @@ subroutine get_att_xtype(&
         )
   case(nf90_ubyte)
     ! NC_UBYTE: 8-bit unsigned integer
-    write(un, '(a)') nc_xtype_info(xtype)//' not set'
+    write(stdout, '(a)') nc_xtype_info(xtype)//' not set'
     stop
   case(nf90_char)
     ! NC_CHAR: 8-bit character byte
@@ -62,7 +67,7 @@ subroutine get_att_xtype(&
         )
   case(nf90_ushort)
     ! NC_USHORT: 16-bit unsigned integer
-    write(un, '(a)') nc_xtype_info(xtype)//' not set'
+    write(stdout, '(a)') nc_xtype_info(xtype)//' not set'
     stop
   case(nf90_int)
     ! NC_int: (NC_LONG): 32-bit signed integer
@@ -78,7 +83,7 @@ subroutine get_att_xtype(&
         )
   case(nf90_uint)
     ! NC_Uint: 32-bit unsigned integer
-    write(un, '(a)') nc_xtype_info(xtype)//' not set'
+    write(stdout, '(a)') nc_xtype_info(xtype)//' not set'
     stop
   case(nf90_int64)
     ! NC_int64: 64-bit signed integer

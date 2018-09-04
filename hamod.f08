@@ -1,6 +1,6 @@
 module hamodule
 
-  include "hamod_types.f08"
+  include "hamod_ha_types.f08"
 
 contains
 
@@ -10,5 +10,6 @@ contains
   include "hamod_number_to_string.f08"
   include "hamod_progress.f08"
   include "hamod_value_conv.f08"
+  include "hamod_trim_null.f08"
 
 end module hamodule
