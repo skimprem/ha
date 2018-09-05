@@ -1,4 +1,4 @@
-subroutine nc_print_info(nc_file, output_filename)
+subroutine nc_print_info(nc_file, output_filename, verbose)
 
   use hamodule
 
@@ -6,12 +6,20 @@ subroutine nc_print_info(nc_file, output_filename)
 
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in) :: output_filename
-  integer(4) :: un, i, j, k
+  integer(4) :: stdout, un, i, j, k
 
   character(:), allocatable :: d, dr, r, b, frmt
+  character(*), intent(in), optional :: verbose
+  logical :: verbose_mode
+
+  stdout = 6
+
+  if(present(verbose)) verbose_mode = .true.
+
+  if(verbose_mode) write(stdout, '(a)') verbose//' begin nc_print_info(): '//output_filename
 
   if(output_filename == 'stdout') then
-    un = 6
+    un = stdout
   else
     open(newunit = un, file = output_filename)
   end if
@@ -193,7 +201,11 @@ subroutine nc_print_info(nc_file, output_filename)
        number_to_string(nc_file%unlimiteddimid)
   write(un, '(2x,a)') r//'formatNum: '//&
        number_to_string(nc_file%formatnum)
+  
+  if(verbose_mode) write(stdout, '(a)')&
+  verbose//'   Writing nc info to file "'//output_filename//'" completed'
+  if(verbose_mode) write(stdout, '(a)') verbose//' end'
 
- return
+  return
 
 end subroutine nc_print_info

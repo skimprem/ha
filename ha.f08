@@ -16,12 +16,14 @@ program ha
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
   type(haoptions) :: gridfile, ncmode, hamode, outgridfile, outcoeffile
+  character(:), allocatable :: verbose
 
   gridfile%definition = .false.
   ncmode%definition = .false.
   hamode%definition = .false.
   outgridfile%definition = .false.
   arg = ''
+  verbose = '[verbose]'
 
   if (command_argument_count() == 0) then
   call input_check('noarg', arg)
@@ -88,16 +90,16 @@ program ha
     end select
   end do
 
-  call nc_reader(nc_file)
+  call nc_reader(nc_file, verbose)
 
   if(ncmode%definition .eqv. .true.) then
-    call nc_print_info(nc_file, ncmode%value)
+    call nc_print_info(nc_file, ncmode%value, verbose)
   end if
 
   if(outgridfile%definition .eqv. .true.) then
     call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
     nc_file%variable(3)%xtype = nf90_double
-    call nc_print_data(nc_file, outgridfile%value)
+    call nc_print_data(nc_file, outgridfile%value, verbose)
   end if
 
   if(hamode%definition .eqv. .true.) then

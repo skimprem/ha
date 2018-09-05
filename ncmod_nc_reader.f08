@@ -1,11 +1,20 @@
-subroutine nc_reader(nc_file) !, mode)
+subroutine nc_reader(nc_file, verbose)
 
   use netcdf
+  use hamodule
 
   implicit none
   type(ncfile), intent(inout) :: nc_file
-  !character(*), intent(in), optional :: mode
-  integer :: k = 0, i, j, ncstatus
+  integer :: k = 0, i, j, ncstatus, stdout
+  character(*), intent(in), optional :: verbose
+  logical :: verbose_mode
+
+  stdout = 6
+
+  if(present(verbose)) verbose_mode = .true.
+
+  if(verbose_mode)&
+  write(stdout, '(a)') verbose//' begin nc_reader(): '//trim(adjustl(nc_file%path))
 
   nc_file%cmode = nf90_nowrite
 
@@ -17,6 +26,9 @@ subroutine nc_reader(nc_file) !, mode)
          ncid = nc_file%ncid&
          )&
        )
+
+  if(verbose_mode)&
+  write(stdout, '(a)') verbose//'   nc_open: '//trim(adjustl(nc_file%path))
 
   call nc_error_check(&
        'nc_inquire',&
@@ -30,45 +42,59 @@ subroutine nc_reader(nc_file) !, mode)
          )&
        )
 
+  if(verbose_mode)&
+  write(stdout, '(a)') verbose//'   nc_inquire: '
+
   allocate(&
        nc_file%dimension(nc_file%ndimensions),&
        nc_file%variable(nc_file%nvariables),&
        nc_file%attribute(nc_file%nattributes)&
        )
 
+  if(verbose_mode)&
+  write(stdout, '(a)') verbose//'   allocated: '//number_to_string(nc_file%ndimensions)//&
+  ' dimensions, '//number_to_string(nc_file%nvariables)//' variables, '//&
+  number_to_string(nc_file%nattributes)//' attributes'
+
   do i = 1, nc_file%nattributes
 
-     nc_file%attribute(i)%attnum = i
+    nc_file%attribute(i)%attnum = i
 
-     call nc_error_check(&
-          'nc_inq_attname',&
-          nf90_inq_attname(&
-            ncid = nc_file%ncid,&
-            varid = nf90_global,&
-            attnum = nc_file%attribute(i)%attnum,&
-            name = nc_file%attribute(i)%name&
-            )&
-          )
-
-     call nc_error_check(&
-          'nc_inquire_attribute',&
-          nf90_inquire_attribute(&
-            ncid = nc_file%ncid,&
-            varid = nf90_global,&
-            name = nc_file%attribute(i)%name,&
-            xtype = nc_file%attribute(i)%xtype,&
-            len = nc_file%attribute(i)%len&
-            )&
-          )
-
-     call get_att_xtype(&
+    call nc_error_check(&
+        'nc_inq_attname',&
+        nf90_inq_attname(&
           ncid = nc_file%ncid,&
           varid = nf90_global,&
-          xtype = nc_file%attribute(i)%xtype,&
-          name = nc_file%attribute(i)%name,&
-          len = nc_file%attribute(i)%len,&
-          value = nc_file%attribute(i)%value,&
-          verbose = .true.)
+          attnum = nc_file%attribute(i)%attnum,&
+          name = nc_file%attribute(i)%name&
+          )&
+        )
+
+    if(verbose_mode)&
+    write(stdout, '(a)') verbose//'   nc_inq_attname: '//trim(adjustl(nc_file%attribute(i)%name))
+
+    call nc_error_check(&
+         'nc_inquire_attribute',&
+         nf90_inquire_attribute(&
+           ncid = nc_file%ncid,&
+           varid = nf90_global,&
+           name = nc_file%attribute(i)%name,&
+           xtype = nc_file%attribute(i)%xtype,&
+           len = nc_file%attribute(i)%len&
+           )&
+         )
+
+    if(verbose_mode)&
+    write(stdout, '(a)') verbose//'   inquire_attribute: '
+
+    call get_att_xtype(&
+         ncid = nc_file%ncid,&
+         varid = nf90_global,&
+         xtype = nc_file%attribute(i)%xtype,&
+         name = nc_file%attribute(i)%name,&
+         len = nc_file%attribute(i)%len,&
+         value = nc_file%attribute(i)%value,&
+         verbose = verbose//'  ')
 
   end do
 
@@ -85,7 +111,6 @@ subroutine nc_reader(nc_file) !, mode)
             len = nc_file%dimension(i)%len&
             )&
           )
-
   end do
 
   do i = 1, nc_file%nvariables
@@ -144,12 +169,13 @@ subroutine nc_reader(nc_file) !, mode)
              )
 
         call get_att_xtype(&
-             nc_file%ncid,&
-             nc_file%variable(i)%varid,&
-             nc_file%variable(i)%attribute(j)%xtype,&
-             nc_file%variable(i)%attribute(j)%name,&
-             nc_file%variable(i)%attribute(j)%len,&
-             nc_file%variable(i)%attribute(j)%value&
+             nc_file%ncid&
+             ,nc_file%variable(i)%varid&
+             ,nc_file%variable(i)%attribute(j)%xtype&
+             ,nc_file%variable(i)%attribute(j)%name&
+             ,nc_file%variable(i)%attribute(j)%len&
+             ,nc_file%variable(i)%attribute(j)%value&
+             ,verbose = verbose//'  '&
              )
 
      end do
@@ -173,8 +199,12 @@ subroutine nc_reader(nc_file) !, mode)
          xtype = nc_file%variable(i)%xtype,&
          ndims = nc_file%variable(i)%ndims,&
          len = nc_file%variable(i)%len,&
-         value = nc_file%variable(i)%value&
+         value = nc_file%variable(i)%value,&
+         verbose = verbose//'  '&
          )
   end do
 
+  write(stdout, '(a)') verbose//' end'
+
+  return
 end subroutine nc_reader

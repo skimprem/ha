@@ -1,4 +1,4 @@
-subroutine nc_print_data(nc_file, output_filename)
+subroutine nc_print_data(nc_file, output_filename, verbose)
 
   use hamodule
 
@@ -6,16 +6,21 @@ subroutine nc_print_data(nc_file, output_filename)
 
   type(ncfile), intent(in) :: nc_file
   character(*), intent(in) :: output_filename
-  character(:), allocatable :: string
+  character(:), allocatable :: string, verbose_mode_string
   integer(4) :: i, j, k, un, stdout = 6, string_len
   real(8) :: progress_coef, tarray(2), current
+  character(*), intent(in), optional :: verbose
+  logical :: verbose_mode
+
+  if(present(verbose)) verbose_mode = .true.
+
+  if(verbose_mode) write(stdout, '(a)') verbose//' begin nc_print_data(): '//output_filename
 
   open(newunit = un, file =  output_filename)
 
-  string = 'Writing grid to file "'//output_filename//'"...: '
+  string = verbose//'   '//'Writing grid to file "'//output_filename//'"...: '
   string_len = len_trim(string)
   progress_coef = 100.0 / float(nc_file%dimension(1)%len)
-  write(stdout, '(a)')
 
   k = 1
 
@@ -52,6 +57,8 @@ subroutine nc_print_data(nc_file, output_filename)
   end do
 
   write(stdout, '(a)')
+
+  if(verbose_mode) write(stdout, '(a)') verbose//' end'
 
   return
 
