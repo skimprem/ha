@@ -11,9 +11,15 @@ subroutine nc_reader(nc_file, verbose)
 
   stdout = 6
 
-  if(present(verbose)) verbose_mode = .true.
+  if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) /= '') then
+    verbose_mode = .true.
+  else if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) == '') then
+    verbose_mode = .false.
+  else if(present(verbose) .eqv. .false.) then
+    verbose_mode = .false.
+  end if
 
-  if(verbose_mode)&
+  if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//' begin nc_reader(): '//trim(adjustl(nc_file%path))
 
   nc_file%cmode = nf90_nowrite
@@ -27,7 +33,7 @@ subroutine nc_reader(nc_file, verbose)
          )&
        )
 
-  if(verbose_mode)&
+  if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//'   nc_open: '//trim(adjustl(nc_file%path))
 
   call nc_error_check(&
@@ -42,7 +48,7 @@ subroutine nc_reader(nc_file, verbose)
          )&
        )
 
-  if(verbose_mode)&
+  if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//'   nc_inquire: '
 
   allocate(&
@@ -51,7 +57,7 @@ subroutine nc_reader(nc_file, verbose)
        nc_file%attribute(nc_file%nattributes)&
        )
 
-  if(verbose_mode)&
+  if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//'   allocated: '//number_to_string(nc_file%ndimensions)//&
   ' dimensions, '//number_to_string(nc_file%nvariables)//' variables, '//&
   number_to_string(nc_file%nattributes)//' attributes'
@@ -70,7 +76,7 @@ subroutine nc_reader(nc_file, verbose)
           )&
         )
 
-    if(verbose_mode)&
+    if(verbose_mode .eqv. .true.)&
     write(stdout, '(a)') verbose//'   nc_inq_attname: '//trim(adjustl(nc_file%attribute(i)%name))
 
     call nc_error_check(&
@@ -84,7 +90,7 @@ subroutine nc_reader(nc_file, verbose)
            )&
          )
 
-    if(verbose_mode)&
+    if(verbose_mode .eqv. .true.)&
     write(stdout, '(a)') verbose//'   inquire_attribute: '
 
     call get_att_xtype(&
@@ -204,7 +210,7 @@ subroutine nc_reader(nc_file, verbose)
          )
   end do
 
-  write(stdout, '(a)') verbose//' end'
+  if(verbose_mode .eqv. .true.) write(stdout, '(a)') verbose//' end nc_reader()'
 
   return
 end subroutine nc_reader

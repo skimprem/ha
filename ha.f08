@@ -10,20 +10,17 @@ program ha
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
   real(8) :: cpu_time_1, cpu_time_2, calc_time
-  integer(4) :: k = 0, i, j, &
-    !n, lmax, norm, sampling, csphase, lmax_calc, exitstatus, &
-    un = 6
+  integer(4) :: k = 0, i, j, stdout = 6
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
-  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, outcoeffile
-  character(:), allocatable :: verbose
+  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, outcoeffile, verbosemode
 
   gridfile%definition = .false.
   ncmode%definition = .false.
   hamode%definition = .false.
   outgridfile%definition = .false.
+  verbosemode%definition = .false.
   arg = ''
-  verbose = '[verbose]'
 
   if (command_argument_count() == 0) then
   call input_check('noarg', arg)
@@ -59,6 +56,13 @@ program ha
       outgridfile%definition = .true.
       outgridfile%option_name = 'outgridfile'
       outgridfile%value = trim(adjustl(arg))
+    case('-vm', '--verbose')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noopt', arg, '--verbose')
+      verbosemode%definition = .true.
+      verbosemode%option_name = 'verbosemode'
+      verbosemode%value = trim(adjustl(arg))
     case('-oc', '--outcoef')
       k = k + 1
       call get_command_argument(k, arg)
@@ -90,16 +94,24 @@ program ha
     end select
   end do
 
-  call nc_reader(nc_file, verbose)
+  if(verbosemode%definition .eqv. .true.) then
+    call nc_reader(nc_file, verbosemode%value)
+  else
+    call nc_reader(nc_file)
+  end if
 
   if(ncmode%definition .eqv. .true.) then
-    call nc_print_info(nc_file, ncmode%value, verbose)
+    if(verbosemode%definition .eqv. .true.) then
+      call nc_print_info(nc_file, ncmode%value, verbosemode%value)
+    else
+      call nc_print_info(nc_file, ncmode%value)
+    end if
   end if
 
   if(outgridfile%definition .eqv. .true.) then
     call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
     nc_file%variable(3)%xtype = nf90_double
-    call nc_print_data(nc_file, outgridfile%value, verbose)
+    call nc_print_data(nc_file, outgridfile%value, verbosemode%value)
   end if
 
   if(hamode%definition .eqv. .true.) then
@@ -111,7 +123,7 @@ program ha
     end if
 
     sh_file%method = trim(hamode%value)
-    write(un, '(a)') 'Expand..'
+    write(stdout, '(a)') 'Expand..'
     select case(trim(hamode%value))
     case('dh')
       sh_file%n = nc_file%variable(3)%len(2)
@@ -139,7 +151,7 @@ program ha
 
       calc_time = cpu_time_2 - cpu_time_1
 
-      write(un, '(2x,a)') 'Calculation time: '//&
+      write(stdout, '(2x,a)') 'Calculation time: '//&
         number_to_string(calc_time, frmt = '(f100.3)')//&
         ' seconds'
 
