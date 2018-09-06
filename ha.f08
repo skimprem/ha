@@ -111,7 +111,11 @@ program ha
   if(outgridfile%definition .eqv. .true.) then
     call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
     nc_file%variable(3)%xtype = nf90_double
-    call nc_print_data(nc_file, outgridfile%value, verbosemode%value)
+    if(verbosemode%definition .eqv. .true.) then
+      call nc_print_data(nc_file, outgridfile%value, verbosemode%value)
+    else
+      call nc_print_data(nc_file, outgridfile%value)
+    end if
   end if
 
   if(hamode%definition .eqv. .true.) then

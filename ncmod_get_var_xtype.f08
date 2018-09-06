@@ -17,13 +17,7 @@ subroutine get_var_xtype(&
   character(*), intent(in), optional :: verbose
   logical :: verbose_mode
 
-  if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) /= '') then
-    verbose_mode = .true.
-  else if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) == '') then
-    verbose_mode = .false.
-  else if(present(verbose) .eqv. .false.) then
-    verbose_mode = .false.
-  end if
+  if(present(verbose) .eqv. .true.) verbose_mode = .true.
 
   if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//' begin get_var_xtype(): varid = '//number_to_string(varid)

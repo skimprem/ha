@@ -92,15 +92,25 @@ subroutine nc_reader(nc_file, verbose)
 
     if(verbose_mode .eqv. .true.)&
     write(stdout, '(a)') verbose//'   inquire_attribute: '
-
-    call get_att_xtype(&
-         ncid = nc_file%ncid,&
-         varid = nf90_global,&
-         xtype = nc_file%attribute(i)%xtype,&
-         name = nc_file%attribute(i)%name,&
-         len = nc_file%attribute(i)%len,&
-         value = nc_file%attribute(i)%value,&
-         verbose = verbose//'  ')
+    
+    if(verbose_mode .eqv. .true.) then
+      call get_att_xtype(&
+           ncid = nc_file%ncid,&
+           varid = nf90_global,&
+           xtype = nc_file%attribute(i)%xtype,&
+           name = nc_file%attribute(i)%name,&
+           len = nc_file%attribute(i)%len,&
+           value = nc_file%attribute(i)%value,&
+           verbose = verbose//'  ')
+    else
+      call get_att_xtype(&
+           ncid = nc_file%ncid,&
+           varid = nf90_global,&
+           xtype = nc_file%attribute(i)%xtype,&
+           name = nc_file%attribute(i)%name,&
+           len = nc_file%attribute(i)%len,&
+           value = nc_file%attribute(i)%value,&
+    end if
 
   end do
 
@@ -174,6 +184,7 @@ subroutine nc_reader(nc_file, verbose)
                )&
              )
 
+      if(verbose_mode .eqv. .true.)
         call get_att_xtype(&
              nc_file%ncid&
              ,nc_file%variable(i)%varid&
@@ -183,6 +194,16 @@ subroutine nc_reader(nc_file, verbose)
              ,nc_file%variable(i)%attribute(j)%value&
              ,verbose = verbose//'  '&
              )
+      else
+        call get_att_xtype(&
+             nc_file%ncid&
+             ,nc_file%variable(i)%varid&
+             ,nc_file%variable(i)%attribute(j)%xtype&
+             ,nc_file%variable(i)%attribute(j)%name&
+             ,nc_file%variable(i)%attribute(j)%len&
+             ,nc_file%variable(i)%attribute(j)%value&
+             )
+      end if
 
      end do
 
@@ -199,18 +220,31 @@ subroutine nc_reader(nc_file, verbose)
              )
      end do
 
-     call get_var_xtype(&
-         ncid = nc_file%ncid,&
-         varid = nc_file%variable(i)%varid,&
-         xtype = nc_file%variable(i)%xtype,&
-         ndims = nc_file%variable(i)%ndims,&
-         len = nc_file%variable(i)%len,&
-         value = nc_file%variable(i)%value,&
-         verbose = verbose//'  '&
-         )
+    if(verbose_mode .eqv. .true.) then
+       call get_var_xtype(&
+           ncid = nc_file%ncid,&
+           varid = nc_file%variable(i)%varid,&
+           xtype = nc_file%variable(i)%xtype,&
+           ndims = nc_file%variable(i)%ndims,&
+           len = nc_file%variable(i)%len,&
+           value = nc_file%variable(i)%value,&
+           verbose = verbose//'  '&
+           )
+    else
+       call get_var_xtype(&
+           ncid = nc_file%ncid,&
+           varid = nc_file%variable(i)%varid,&
+           xtype = nc_file%variable(i)%xtype,&
+           ndims = nc_file%variable(i)%ndims,&
+           len = nc_file%variable(i)%len,&
+           value = nc_file%variable(i)%value,&
+           )
+    end if
+
   end do
 
   if(verbose_mode .eqv. .true.) write(stdout, '(a)') verbose//' end nc_reader()'
 
   return
+
 end subroutine nc_reader
