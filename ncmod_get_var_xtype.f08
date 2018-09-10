@@ -17,6 +17,8 @@ subroutine get_var_xtype(&
   character(*), intent(in), optional :: verbose
   logical :: verbose_mode
 
+  verbose_mode = .false.
+
   if(present(verbose) .eqv. .true.) verbose_mode = .true.
 
   if(verbose_mode .eqv. .true.)&

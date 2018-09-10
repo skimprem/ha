@@ -14,6 +14,8 @@ subroutine nc_print_info(nc_file, output_filename, verbose)
 
   stdout = 6
 
+  verbose_mode = .false.
+
   if(present(verbose)) verbose_mode = .true.
 
   if(verbose_mode) write(stdout, '(a)') verbose//' begin nc_print_info(): '//output_filename

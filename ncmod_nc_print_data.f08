@@ -12,6 +12,8 @@ subroutine nc_print_data(nc_file, output_filename, verbose)
   character(*), intent(in), optional :: verbose
   logical :: verbose_mode
 
+  verbose_mode = .false.
+
   if(present(verbose)) verbose_mode = .true.
 
   if(verbose_mode) write(stdout, '(a)') verbose//' begin nc_print_data(): '//output_filename

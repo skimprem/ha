@@ -11,13 +11,9 @@ subroutine nc_reader(nc_file, verbose)
 
   stdout = 6
 
-  if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) /= '') then
-    verbose_mode = .true.
-  else if(present(verbose) .eqv. .true. .and. trim(adjustl(verbose)) == '') then
-    verbose_mode = .false.
-  else if(present(verbose) .eqv. .false.) then
-    verbose_mode = .false.
-  end if
+  verbose_mode = .false.
+
+  if((present(verbose) .eqv. .true.) .and. (trim(adjustl(verbose)) /= '')) verbose_mode = .true.
 
   if(verbose_mode .eqv. .true.)&
   write(stdout, '(a)') verbose//' begin nc_reader(): '//trim(adjustl(nc_file%path))
@@ -109,7 +105,8 @@ subroutine nc_reader(nc_file, verbose)
            xtype = nc_file%attribute(i)%xtype,&
            name = nc_file%attribute(i)%name,&
            len = nc_file%attribute(i)%len,&
-           value = nc_file%attribute(i)%value,&
+           value = nc_file%attribute(i)%value&
+           )
     end if
 
   end do
@@ -184,7 +181,7 @@ subroutine nc_reader(nc_file, verbose)
                )&
              )
 
-      if(verbose_mode .eqv. .true.)
+      if(verbose_mode .eqv. .true.) then
         call get_att_xtype(&
              nc_file%ncid&
              ,nc_file%variable(i)%varid&
@@ -237,7 +234,7 @@ subroutine nc_reader(nc_file, verbose)
            xtype = nc_file%variable(i)%xtype,&
            ndims = nc_file%variable(i)%ndims,&
            len = nc_file%variable(i)%len,&
-           value = nc_file%variable(i)%value,&
+           value = nc_file%variable(i)%value&
            )
     end if
 

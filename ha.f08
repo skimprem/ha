@@ -13,13 +13,15 @@ program ha
   integer(4) :: k = 0, i, j, stdout = 6
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
-  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, outcoeffile, verbosemode
+  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, verbosemode&
+  , outcsfile
 
   gridfile%definition = .false.
   ncmode%definition = .false.
   hamode%definition = .false.
   outgridfile%definition = .false.
   verbosemode%definition = .false.
+  outcsfile%definition = .false.
   arg = ''
 
   if (command_argument_count() == 0) then
@@ -56,6 +58,13 @@ program ha
       outgridfile%definition = .true.
       outgridfile%option_name = 'outgridfile'
       outgridfile%value = trim(adjustl(arg))
+    case('-oc', '--outcs')
+      k = k + 1
+      call get_command_argument(k, arg)
+      call input_check('noopt', arg, '--outgrid')
+      outcsfile%definition = .true.
+      outcsfile%option_name = 'outgridfile'
+      outcsfile%value = trim(adjustl(arg))
     case('-vm', '--verbose')
       k = k + 1
       call get_command_argument(k, arg)
@@ -63,13 +72,6 @@ program ha
       verbosemode%definition = .true.
       verbosemode%option_name = 'verbosemode'
       verbosemode%value = trim(adjustl(arg))
-    case('-oc', '--outcoef')
-      k = k + 1
-      call get_command_argument(k, arg)
-      call input_check('noopt', arg, '--outcoef')
-      outcoeffile%definition = .true.
-      outcoeffile%option_name = 'outcoeffile'
-      outcoeffile%value = trim(adjustl(arg))
     case('-lm', '--lmax')
       k = k + 1
       call get_command_argument(k, arg)
@@ -156,11 +158,15 @@ program ha
       calc_time = cpu_time_2 - cpu_time_1
 
       write(stdout, '(2x,a)') 'Calculation time: '//&
-        number_to_string(calc_time, frmt = '(f100.3)')//&
-        ' seconds'
+      number_to_string(calc_time, frmt = '(f100.3)')//&
+      ' seconds'
 
     case('ls')
     end select
+
+    if(outcsfile%definition .eqv. .true.) then
+      !call sh_print_data(sh_file)
+    end if
 
     call sh_print_info(sh_file)
 
