@@ -1,0 +1,60 @@
+NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $
+nc file info:
+  ├─ ncid: 65536
+  ├─ path: GAOP2018_1m.nc
+  ├─ mode: 0
+  ├─ ndimensions: 2
+  │  ├─ lon = 21602
+  │  └─ lat = 10800
+  ├─ nVariables: 4
+  │  ├─ crs:
+  │  │  ├─ xtype: char (8-bit character byte)
+  │  │  ├─ memory size: 0.00 MB
+  │  │  ├─ dimid: 
+  │  │  └─ natts: 7
+  │  │     ├─ grid_mapping_name = "latitude_longitude"
+  │  │     ├─ long_name = "CRS definition"
+  │  │     ├─ longitude_of_prime_meridian = 
+  │  │     │  └─ 0.0
+  │  │     ├─ semi_major_axis = 
+  │  │     │  └─ 6378137.0
+  │  │     ├─ inverse_flattening = 
+  │  │     │  └─ 298.25722356300003
+  │  │     ├─ spatial_ref = "GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]"
+  │  │     └─ GeoTransform = "-0.01666666666666667 0.016666666666666 0 90 0 -0.016666666666666 "
+  │  ├─ lat:
+  │  │  ├─ xtype: double (64-bit floating point)
+  │  │  ├─ memory size: 0.09 MB
+  │  │  ├─ dimid: 2; 
+  │  │  └─ natts: 3
+  │  │     ├─ standard_name = "latitude"
+  │  │     ├─ long_name = "latitude"
+  │  │     └─ units = "degrees_north"
+  │  ├─ lon:
+  │  │  ├─ xtype: double (64-bit floating point)
+  │  │  ├─ memory size: 0.17 MB
+  │  │  ├─ dimid: 1; 
+  │  │  └─ natts: 3
+  │  │     ├─ standard_name = "longitude"
+  │  │     ├─ long_name = "longitude"
+  │  │     └─ units = "degrees_east"
+  │  └─ free_air_anomaly:
+  │     ├─ xtype: float (32-bit floating point)
+  │     ├─ memory size: 933.21 MB
+  │     ├─ dimid: 1; 2; 
+  │     └─ natts: 4
+  │        ├─ long_name = "gravity_free_air_anomaly"
+  │        ├─ _FillValue = NaN; 
+  │        ├─ grid_mapping = "crs"
+  │        └─ units = "mGal"
+  ├─ nAttributes: 7
+  │  ├─ GDAL_AREA_OR_POINT = "Area"
+  │  ├─ Conventions = "CF-1.5"
+  │  ├─ GDAL = "GDAL 2.3.1, released 2018/06/22"
+  │  ├─ history = "Thu Sep 06 15:49:08 2018: GDAL CreateCopy( GAOP2018_1m.nc, ... )"
+  │  ├─ title = "Free-air gravity anomalies"
+  │  ├─ comment = "Mean free-air gravity anomalies for GAOP2018 global gravity field model.
+        Reference field: WGS84 (GRS80), atmospheric correction where available."
+  │  └─ source = "DTU13 merged with the local data for Russia, Canada, US, Australia and ArcGP."
+  ├─ unlimitedDimid: -1
+  └─ formatNum: 1
