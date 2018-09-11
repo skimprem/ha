@@ -9,8 +9,11 @@ exec = ha.exe
 shtools = /usr/local
 params = -fbackslash -O3 -march=native -ffast-math -m64 -fopenmp
 
-ha: $(objects)
+ha: mkdir $(objects)
 	$(comp) -o $(build)$(exec) $(params) $(build)*.o -L$(netcdf)/lib/x86_64-linux-gnu/ -lnetcdff -L$(shtools)/lib/ -lSHTOOLS-mp -lfftw3
+
+mkdir:
+	mkdir -p $(build)
 
 ha.o: $(src)ha.f08
 	$(comp) -o $(build)ha.o -c -std=$(std) $(params) -I$(shtools)/include/ $(src)ha.f08 -J$(build)
@@ -31,6 +34,4 @@ uninstall:
 	rm $(install)/$(exec)
 
 clean:
-	rm -rf $(build)*.mod
-	rm -rf $(build)*.o
-	rm -rf $(build)$(exec)
+	rm -rf $(build)
