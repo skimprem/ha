@@ -1,7 +1,7 @@
 objects = hamod.o ncmod.o shmod.o ha.o
 comp = gfortran
 std = f2008
-src = ./src/
+src = ./
 build = ./build/
 install = ~/bin/
 netcdf = /usr
