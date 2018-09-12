@@ -13,15 +13,19 @@ program ha
   integer(4) :: k = 0, i, j, stdout = 6
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
-  type(haoptions) :: gridfile, ncmode, hamode, outgridfile, verbosemode&
-  , outcsfile
+  type(haoptions) :: grid_file&
+                    ,nc_mode&
+                    ,ha_mode&
+                    ,out_grid_file&
+                    ,vb_mode&
+                    ,out_coef_file
 
-  gridfile%definition = .false.
-  ncmode%definition = .false.
-  hamode%definition = .false.
-  outgridfile%definition = .false.
-  verbosemode%definition = .false.
-  outcsfile%definition = .false.
+  grid_file%definition = .false.
+  nc_mode%definition = .false.
+  ha_mode%definition = .false.
+  out_grid_file%definition = .false.
+  vb_mode%definition = .false.
+  out_coef_file%definition = .false.
   arg = ''
 
   if (command_argument_count() == 0) then
@@ -40,38 +44,38 @@ program ha
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncfile')
       call input_check('nofile', arg)
-      gridfile%definition = .true.
-      gridfile%option_name =  'gridfile'
-      gridfile%value = trim(adjustl(arg))
+      grid_file%definition = .true.
+      grid_file%option_name =  'gridfile'
+      grid_file%value = trim(adjustl(arg))
       nc_file%path = trim(adjustl(arg))
     case('-nm', '--ncmode')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--ncmode')
-      ncmode%definition = .true.
-      ncmode%option_name = 'ncmode'
-      ncmode%value = trim(adjustl(arg))
+      nc_mode%definition = .true.
+      nc_mode%option_name = 'ncmode'
+      nc_mode%value = trim(adjustl(arg))
     case('-og', '--outgrid')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--outgrid')
-      outgridfile%definition = .true.
-      outgridfile%option_name = 'outgridfile'
-      outgridfile%value = trim(adjustl(arg))
+      out_grid_file%definition = .true.
+      out_grid_file%option_name = 'outgridfile'
+      out_grid_file%value = trim(adjustl(arg))
     case('-oc', '--outcs')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--outgrid')
-      outcsfile%definition = .true.
-      outcsfile%option_name = 'outgridfile'
-      outcsfile%value = trim(adjustl(arg))
+      out_coef_file%definition = .true.
+      out_coef_file%option_name = 'outgridfile'
+      out_coef_file%value = trim(adjustl(arg))
     case('-vm', '--verbose')
       k = k + 1
       call get_command_argument(k, arg)
       call input_check('noopt', arg, '--verbose')
-      verbosemode%definition = .true.
-      verbosemode%option_name = 'verbosemode'
-      verbosemode%value = trim(adjustl(arg))
+      vb_mode%definition = .true.
+      vb_mode%option_name = 'verbosemode'
+      vb_mode%value = trim(adjustl(arg))
     case('-lm', '--lmax')
       k = k + 1
       call get_command_argument(k, arg)
@@ -84,9 +88,9 @@ program ha
       ! dh - Driskoll and Healy method
       ! ls - Least squares 
       call input_check('charg', arg, 'dh, ls')
-      hamode%definition = .true.
-      hamode%option_name = 'hamode'
-      hamode%value = adjustl(arg)
+      ha_mode%definition = .true.
+      ha_mode%option_name = 'hamode'
+      ha_mode%value = adjustl(arg)
     case('-h', '--help')
       k = k + 1
       call get_command_argument(k, arg)
@@ -96,31 +100,31 @@ program ha
     end select
   end do
 
-  if(verbosemode%definition .eqv. .true.) then
-    call nc_reader(nc_file, verbosemode%value)
+  if(vb_mode%definition .eqv. .true.) then
+    call nc_reader(nc_file, vb_mode%value)
   else
     call nc_reader(nc_file)
   end if
 
-  if(ncmode%definition .eqv. .true.) then
-    if(verbosemode%definition .eqv. .true.) then
-      call nc_print_info(nc_file, ncmode%value, verbosemode%value)
+  if(nc_mode%definition .eqv. .true.) then
+    if(vb_mode%definition .eqv. .true.) then
+      call nc_print_info(nc_file, nc_mode%value, vb_mode%value)
     else
-      call nc_print_info(nc_file, ncmode%value)
+      call nc_print_info(nc_file, nc_mode%value)
     end if
   end if
 
-  if(outgridfile%definition .eqv. .true.) then
+  if(out_grid_file%definition .eqv. .true.) then
     call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
     nc_file%variable(3)%xtype = nf90_double
-    if(verbosemode%definition .eqv. .true.) then
-      call nc_print_data(nc_file, outgridfile%value, verbosemode%value)
+    if(vb_mode%definition .eqv. .true.) then
+      call nc_print_data(nc_file, out_grid_file%value, vb_mode%value)
     else
-      call nc_print_data(nc_file, outgridfile%value)
+      call nc_print_data(nc_file, out_grid_file%value)
     end if
   end if
 
-  if(hamode%definition .eqv. .true.) then
+  if(ha_mode%definition .eqv. .true.) then
 
     call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
 
@@ -128,9 +132,9 @@ program ha
       sh_file%griddh = transpose(sh_file%griddh) 
     end if
 
-    sh_file%method = trim(hamode%value)
+    sh_file%method = trim(ha_mode%value)
     write(stdout, '(a)') 'Expand..'
-    select case(trim(hamode%value))
+    select case(trim(ha_mode%value))
     case('dh')
       sh_file%n = nc_file%variable(3)%len(2)
       sh_file%norm = 1
@@ -143,14 +147,14 @@ program ha
       allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
 
       call shexpanddh(&
-        sh_file%griddh,&! input, real*8, dimension (n, n) or (n, 2*n)
-        n = sh_file%n,&! input, integer
-        cilm = sh_file%cilm,&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
-        lmax = sh_file%lmax,&! output, integer
-        norm = sh_file%norm,&! input, optional, integer, default = 1
-        sampling = sh_file%sampling, &! input, optional, integer, default = 1
-        csphase = sh_file%csphase,&! input, optional, integer, default = 1
-        exitstatus = sh_file%exitstatus&! output, optional, integer
+        sh_file%griddh&! input, real*8, dimension (n, n) or (n, 2*n)
+        ,n = sh_file%n&! input, integer
+        ,cilm = sh_file%cilm&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
+        ,lmax = sh_file%lmax&! output, integer
+        ,norm = sh_file%norm&! input, optional, integer, default = 1
+        ,sampling = sh_file%sampling&! input, optional, integer, default = 1
+        ,csphase = sh_file%csphase&! input, optional, integer, default = 1
+        ,exitstatus = sh_file%exitstatus&! output, optional, integer
         )
 
       call cpu_time(cpu_time_2)
@@ -164,12 +168,11 @@ program ha
     case('ls')
     end select
 
-    if(outcsfile%definition .eqv. .true.) then
-      !call sh_print_data(sh_file)
+    if(out_coef_file%definition .eqv. .true.) then
+      if(vb_mode%definition .eqv. .true.) then
+        call sh_print_data(sh_file, out_coef_file%value, vb_mode%value)
+      else
+        call sh_print_data(sh_file, out_coef_file%value)
     end if
-
-    call sh_print_info(sh_file)
-
-  end if
 
 end program ha
