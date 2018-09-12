@@ -154,7 +154,7 @@ program ha
         ,norm = sh_file%norm&! input, optional, integer, default = 1
         ,sampling = sh_file%sampling&! input, optional, integer, default = 1
         ,csphase = sh_file%csphase&! input, optional, integer, default = 1
-        ,exitstatus = sh_file%exitstatus&! output, optional, integer
+        !,exitstatus = sh_file%exitstatus&! output, optional, integer
         )
 
       call cpu_time(cpu_time_2)
@@ -168,11 +168,15 @@ program ha
     case('ls')
     end select
 
+    call sh_print_info(sh_file)
+
     if(out_coef_file%definition .eqv. .true.) then
       if(vb_mode%definition .eqv. .true.) then
         call sh_print_data(sh_file, out_coef_file%value, vb_mode%value)
       else
         call sh_print_data(sh_file, out_coef_file%value)
+      end if
     end if
 
+  end if
 end program ha
