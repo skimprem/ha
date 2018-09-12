@@ -7,7 +7,7 @@ install = ~/bin/
 netcdf = /usr
 exec = ha.exe
 shtools = /usr/local
-params = -fbackslash -O3 -march=native -ffast-math -m64 -fopenmp
+params = -fbackslash #-O3 -march=native -ffast-math -m64 -fopenmp
 
 ha: mkdir $(objects)
 	$(comp) -o $(build)$(exec) $(params) $(build)*.o -L$(netcdf)/lib/x86_64-linux-gnu/ -lnetcdff -L$(shtools)/lib/ -lSHTOOLS-mp -lfftw3
