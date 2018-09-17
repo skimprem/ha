@@ -10,7 +10,7 @@ program ha
   character(*), parameter :: version = '0.1'
   character(max_name_value) :: arg
   real(8) :: cpu_time_1, cpu_time_2, calc_time
-  integer(4) :: k = 0, i, j, stdout = 6
+  integer(4) :: k, i, j, stdout
   type(ncfile) :: nc_file
   type(shfile) :: sh_file
   type(haoptions) :: grid_file&
@@ -20,6 +20,8 @@ program ha
                     ,vb_mode&
                     ,out_coef_file
 
+  k = 0
+  stdout = 6
   grid_file%definition = .false.
   nc_mode%definition = .false.
   ha_mode%definition = .false.
