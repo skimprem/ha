@@ -1,40 +1,40 @@
 type ncdimensions
   character(len=:), allocatable :: name
-  integer(kind=4) :: dimid, len 
-  integer(kind=1), allocatable :: byte_1(:), byte_2(:,:), byte_3(:,:,:)
-  integer(kind=2), allocatable :: short_1(:), short_2(:,:), short_3(:,:,:)
-  integer(kind=4), allocatable :: int_1(:), int_2(:,:), int_3(:,:,:)
-  integer(kind=8), allocatable :: int64_1(:), int64_2(:,:), int64_3(:,:,:)
-  real(kind=4), allocatable :: float_1(:), float_2(:,:), float_3(:,:,:)
-  real(kind=8), allocatable :: double_1(:), double_2(:,:), double_3(:,:,:)
-  character(kind=1, len=1), allocatable ::char_1(:), char_2(:,:), char_3(:,:,:)
-  character(kind=1, len=:), allocatable :: string_1(:), string_2(:,:), string_3(:,:,:)
+  integer(kind=4) :: len, dimid
+  integer(kind=1), allocatable :: value_byte_1(:), value_byte_2(:,:), value_byte_3(:,:,:)
+  integer(kind=2), allocatable :: value_short_1(:), value_short_2(:,:), value_short_3(:,:,:)
+  integer(kind=4), allocatable :: value_int_1(:), value_int_2(:,:), value_int_3(:,:,:)
+  integer(kind=8), allocatable :: value_int64_1(:), value_int64_2(:,:), value_int64_3(:,:,:)
+  real(kind=4), allocatable :: value_float_1(:), value_float_2(:,:), value_float_3(:,:,:)
+  real(kind=8), allocatable :: value_double_1(:), value_double_2(:,:), value_double_3(:,:,:)
+  character(kind=1, len=1), allocatable :: value_char_1(:), value_char_2(:,:), value_char_3(:,:,:)
+  character(kind=1, len=:), allocatable :: value_string_1(:), value_string_2(:,:),&
+                                                                             value_string_3(:,:,:)
   integer(kind=8) :: mem_bits
 end type ncdimensions
 type ncattributes
   character(len=:), allocatable :: name
   integer(kind=4) :: xtype, len, attnum 
-  integer(kind=1), allocatable :: byte(:)
-  integer(kind=2), allocatable :: short(:)
-  integer(kind=4), allocatable :: int(:)
-  integer(kind=8), allocatable :: int64(:)
-  real(kind=4), allocatable :: float(:)
-  real(kind=8), allocatable :: double(:)
-  character(kind=1, len=1), allocatable :: char(:)
-  character(kind=1, len=:), allocatable :: string(:)
+  integer(kind=1), allocatable :: value_byte(:)
+  integer(kind=2), allocatable :: value_short(:)
+  integer(kind=4), allocatable :: value_int(:)
+  integer(kind=8), allocatable :: value_int64(:)
+  real(kind=4), allocatable :: value_float(:)
+  real(kind=8), allocatable :: value_double(:)
+  character(kind=1, len=1), allocatable :: value_char(:)
+  character(kind=1, len=:), allocatable :: value_string(:)
 end type ncattributes
 type ncvariables
   character(len=:), allocatable :: name
   integer(kind=4) ::  varid, xtype, ndims, natts
   integer(kind=4), dimension(:), allocatable :: dimids
-  integer(kind=4), dimension(:), allocatable :: len
   type(ncattributes), dimension(:), allocatable :: attribute
 end type ncvariables
 type ncfile
   character(len=:), allocatable :: path
-  !character(len=:), allocatable :: name, title, history, conventions
-  integer(kind=4) :: cmode, ncid, ndimensions, nvariables, nattributes, unlimiteddimid, formatnum,&
-                     chunksize
+  integer(kind=4) :: cmode, mode, ncid, initialsize, chunksize, fillmode, old_mode,&
+  h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum,&
+  ndimensions, nvariables, nattributes
   type(ncdimensions), dimension(:), allocatable :: dimension
   type(ncvariables), dimension(:), allocatable :: variable
   type(ncattributes), dimension(:), allocatable :: attribute
