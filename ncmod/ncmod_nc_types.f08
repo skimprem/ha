@@ -8,8 +8,7 @@ type ncdimensions
   real(kind=4), allocatable :: value_float_1(:), value_float_2(:,:), value_float_3(:,:,:)
   real(kind=8), allocatable :: value_double_1(:), value_double_2(:,:), value_double_3(:,:,:)
   character(kind=1, len=1), allocatable :: value_char_1(:), value_char_2(:,:), value_char_3(:,:,:)
-  character(kind=1, len=:), allocatable :: value_string_1(:), value_string_2(:,:),&
-                                                                             value_string_3(:,:,:)
+  character(kind=1, len=:), allocatable :: value_string_1(:), value_string_2(:,:), value_string_3(:,:,:)
   integer(kind=8) :: mem_bits
 end type ncdimensions
 type ncattributes
@@ -32,9 +31,7 @@ type ncvariables
 end type ncvariables
 type ncfile
   character(len=:), allocatable :: path
-  integer(kind=4) :: cmode, mode, ncid, initialsize, chunksize, fillmode, old_mode,&
-  h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum,&
-  ndimensions, nvariables, nattributes
+  integer(kind=4) :: cmode, mode, ncid, initialsize, chunksize, fillmode, old_mode, h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum, ndimensions, nvariables, nattributes
   type(ncdimensions), dimension(:), allocatable :: dimension
   type(ncvariables), dimension(:), allocatable :: variable
   type(ncattributes), dimension(:), allocatable :: attribute
