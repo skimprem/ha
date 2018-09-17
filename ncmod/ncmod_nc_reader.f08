@@ -15,16 +15,16 @@ subroutine nc_reader(nc_file, verbose_phrase)
     write(stdout, '(a)') verbose_phrase//' begin nc_reader(): '//nc_file%path
   end if
 ! ###########################################################################################
-! READ HEADER OF FILE
+! 1. READ HEADER OF FILE
 ! ###########################################################################################
   nc_file%cmode = nf90_nowrite
   call nc_error_check(&
        'nc_open',&
        nf90_open(&
-         path = nc_file%path,&
-         mode = nc_file%cmode,&
-         ncid = nc_file%ncid,&
-         chunksize = nc_file%chunksize&
+         path = nc_file%path,&          ! intent(in)
+         mode = nc_file%mode,&          ! intent(in)
+         ncid = nc_file%ncid,&          ! intent(out)
+         chunksize = nc_file%chunksize& ! intent(inout)
          )&
        )
   if(verbose_mode .eqv. .true.) then
@@ -37,12 +37,12 @@ subroutine nc_reader(nc_file, verbose_phrase)
   call nc_error_check(&
        'nc_inquire',&
        nf90_inquire(&
-         ncid = nc_file%ncid,&
-         ndimensions = nc_file%ndimensions,&
-         nvariables = nc_file%nvariables,&
-         nattributes = nc_file%nattributes,&
-         unlimiteddimid = nc_file%unlimiteddimid,&
-         formatnum = nc_file%formatnum&
+         ncid = nc_file%ncid,&                     ! intent(in)
+         ndimensions = nc_file%ndimensions,&       ! intent(out)
+         nvariables = nc_file%nvariables,&         ! intent(out)
+         nattributes = nc_file%nattributes,&       ! intent(out)
+         unlimiteddimid = nc_file%unlimiteddimid,& ! intent(out)
+         formatnum = nc_file%formatnum&            ! intent(out)
          )&
        )
   if(verbose_mode .eqv. .true.) then
@@ -64,17 +64,17 @@ subroutine nc_reader(nc_file, verbose_phrase)
     number_to_string(nc_file%nattributes)//' attributes'
   end if
 ! ###########################################################################################
-! READ GLOBAL ATTRIBUTES
+! 2. READ GLOBAL ATTRIBUTES
 ! ###########################################################################################
   do i = 1, nc_file%nattributes
     nc_file%attribute(i)%attnum = i
     call nc_error_check(&
         'nc_inq_attname',&
         nf90_inq_attname(&
-          ncid = nc_file%ncid,&
-          varid = nf90_global,&
-          attnum = nc_file%attribute(i)%attnum,&
-          name = nc_file%attribute(i)%name&
+          ncid = nc_file%ncid,&                  ! intent(in)
+          varid = nf90_global,&                  ! intent(in)
+          attnum = nc_file%attribute(i)%attnum,& ! intent(in)
+          name = nc_file%attribute(i)%name&      ! intent(out)
           )&
         )
     if(verbose_mode .eqv. .true.) then
@@ -84,11 +84,11 @@ subroutine nc_reader(nc_file, verbose_phrase)
     call nc_error_check(&
          'nc_inquire_attribute',&
          nf90_inquire_attribute(&
-           ncid = nc_file%ncid,&
-           varid = nf90_global,&
-           name = nc_file%attribute(i)%name,&
-           xtype = nc_file%attribute(i)%xtype,&
-           len = nc_file%attribute(i)%len&
+           ncid = nc_file%ncid,&                ! intent(in)
+           varid = nf90_global,&                ! intent(in)
+           name = nc_file%attribute(i)%name,&   ! intent(in)
+           xtype = nc_file%attribute(i)%xtype,& ! intent(out)
+           len = nc_file%attribute(i)%len&      ! intent(out)
            )&
          )
     if(verbose_mode .eqv. .true.) then
@@ -99,19 +99,20 @@ subroutine nc_reader(nc_file, verbose_phrase)
     end if
     if(verbose_mode .eqv. .true.) then
       call get_att_xtype(&
-           ncid = nc_file%ncid,&
-           varid = nf90_global,&
-           attribute = nc_file%attribute(i),&
-           verbose_phrase = verbose_phrase//'  ')
+           ncid = nc_file%ncid,&                  ! intent(in)
+           varid = nf90_global,&                  ! intent(in)
+           attribute = nc_file%attribute(i),&     ! intent(inout)
+           verbose_phrase = verbose_phrase//'  ') ! intent(in)
     else
-      call get_att_xtype(&
-           ncid = nc_file%ncid,&
-           varid = nf90_global,&
-           attribute = nc_file%attribute(i)&
+      call get_att_xtype(& ! intent
+           ncid = nc_file%ncid,& ! intent
+           varid = nf90_global,& ! intent
+           attribute = nc_file%attribute(i)& ! intent
            )
     end if
   end do
 ! ###########################################################################################
+! READ DIMENSIONS
 ! ###########################################################################################
   do i = 1, nc_file%ndimensions
     nc_file%dimension(i)%dimid = i
@@ -126,24 +127,22 @@ subroutine nc_reader(nc_file, verbose_phrase)
       )
   end do
 ! ###########################################################################################
+! 3. READ VARIABLES
 ! ###########################################################################################
   do i = 1, nc_file%nvariables
     nc_file%variable(i)%varid = i
     call nc_error_check(&
       'nc_inquire_variable',&
       nf90_inquire_variable(&
-        ncid = nc_file%ncid,&
-        varid = nc_file%variable(i)%varid,&
-        name = nc_file%variable(i)%name,&
-        xtype = nc_file%variable(i)%xtype,&
-        ndims = nc_file%variable(i)%ndims,&
-        natts = nc_file%variable(i)%natts&
+        ncid = nc_file%ncid,&               ! intent(in)
+        varid = nc_file%variable(i)%varid,& ! intent(in)
+        name = nc_file%variable(i)%name,&   ! intent(out)
+        xtype = nc_file%variable(i)%xtype,& ! intent(out)
+        ndims = nc_file%variable(i)%ndims,& ! intent(out)
+        natts = nc_file%variable(i)%natts&  ! intent(out)
         )&
       )
-    allocate(&
-      nc_file%variable(i)%dimids(nc_file%variable(i)%ndims),&
-      nc_file%variable(i)%attribute(nc_file%variable(i)%natts)&
-      )
+    allocate(nc_file%variable(i)%dimids(nc_file%variable(i)%ndims))
     call nc_error_check(&
       'nc_inquire_variable',&
       nf90_inquire_variable(&
@@ -152,6 +151,10 @@ subroutine nc_reader(nc_file, verbose_phrase)
         dimids = nc_file%variable(i)%dimids&
         )&
       )
+! *******************************************************************************************
+! 3.1 READ VARIABLE ATTRIBUTES
+! *******************************************************************************************
+    allocate(nc_file%variable(i)%attribute(nc_file%variable(i)%natts))
     do j = 1, nc_file%variable(i)%natts
       nc_file%variable(i)%attribute(j)%attnum = j
       call nc_error_check(&
@@ -188,17 +191,23 @@ subroutine nc_reader(nc_file, verbose_phrase)
              )
       end if
     end do
-    allocate( nc_file%variable(i)%len(nc_file%variable(i)%ndims) )
-    do j = 1, nc_file%variable(i)%ndims
-      call nc_error_check(&
-        'nc_inquire_dimension',&
-        nf90_inquire_dimension(&
-          ncid = nc_file%ncid,&
-          dimid = nc_file%variable(i)%dimids(j),&
-          len = nc_file%variable(i)%len(j)&
-          )&
-        )
-    end do
+! *******************************************************************************************
+! 3.2 
+! *******************************************************************************************
+    !do j = 1, nc_file%variable(i)%ndims
+      !call nc_error_check(&
+        !'nc_inquire_dimension',&
+        !nf90_inquire_dimension(&
+          !ncid = nc_file%ncid,&
+          !dimid = nc_file%variable(i)%dimids(j),&
+          !len = nc_file%variable(i)%dimension(nc_file%variable(i)%dimids(j))%len&
+          !!)&
+        !)
+    !end do
+    !allocate(&
+      !nc_file%variable(i)%dimension(nc_file%variable(i)%ndims),&
+      !)
+
     !if(verbose_mode .eqv. .true.) then
       !call get_var_xtype(&
         !ncid = nc_file%ncid,&
