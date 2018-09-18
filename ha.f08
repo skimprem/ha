@@ -108,77 +108,77 @@ program ha
     call nc_reader(nc_file)
   end if
 
-  if(nc_mode%definition .eqv. .true.) then
-    if(vb_mode%definition .eqv. .true.) then
-      call nc_print_info(nc_file, nc_mode%value, vb_mode%value)
-    else
-      call nc_print_info(nc_file, nc_mode%value)
-    end if
-  end if
+  !if(nc_mode%definition .eqv. .true.) then
+    !if(vb_mode%definition .eqv. .true.) then
+      !call nc_print_info(nc_file, nc_mode%value, vb_mode%value)
+    !else
+      !call nc_print_info(nc_file, nc_mode%value)
+    !end if
+  !end if
 
-  if(out_grid_file%definition .eqv. .true.) then
-    call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
-    nc_file%variable(3)%xtype = nf90_double
-    if(vb_mode%definition .eqv. .true.) then
-      call nc_print_data(nc_file, out_grid_file%value, vb_mode%value)
-    else
-      call nc_print_data(nc_file, out_grid_file%value)
-    end if
-  end if
+  !if(out_grid_file%definition .eqv. .true.) then
+    !call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
+    !nc_file%variable(3)%xtype = nf90_double
+    !if(vb_mode%definition .eqv. .true.) then
+      !call nc_print_data(nc_file, out_grid_file%value, vb_mode%value)
+    !else
+      !call nc_print_data(nc_file, out_grid_file%value)
+    !end if
+  !end if
 
-  if(ha_mode%definition .eqv. .true.) then
+  !if(ha_mode%definition .eqv. .true.) then
 
-    call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
+    !call nc_variable_conv(nc_file%variable(3), sh_file%griddh)
 
-    if(int(nc_file%variable(3)%len(1), 4) / int(nc_file%variable(3)%len(2), 4) == 2) then
-      sh_file%griddh = transpose(sh_file%griddh) 
-    end if
+    !if(int(nc_file%variable(3)%len(1), 4) / int(nc_file%variable(3)%len(2), 4) == 2) then
+      !sh_file%griddh = transpose(sh_file%griddh) 
+    !end if
 
-    sh_file%method = trim(ha_mode%value)
-    write(stdout, '(a)') 'Expand..'
-    select case(trim(ha_mode%value))
-    case('dh')
-      sh_file%n = nc_file%variable(3)%len(2)
-      sh_file%norm = 1
-      sh_file%sampling = 2
-      sh_file%csphase = 1
-      sh_file%lmax_calc = nc_file%variable(3)%len(2)/2-1
+    !sh_file%method = trim(ha_mode%value)
+    !write(stdout, '(a)') 'Expand..'
+    !select case(trim(ha_mode%value))
+    !case('dh')
+      !sh_file%n = nc_file%variable(3)%len(2)
+      !sh_file%norm = 1
+      !sh_file%sampling = 2
+      !sh_file%csphase = 1
+      !sh_file%lmax_calc = nc_file%variable(3)%len(2)/2-1
 
-      call cpu_time(cpu_time_1)
+      !call cpu_time(cpu_time_1)
 
-      allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
+      !allocate( sh_file%cilm(2, nc_file%variable(3)%len(2)/2, nc_file%variable(3)%len(2)/2) )
 
-      call shexpanddh(&
-        sh_file%griddh&! input, real*8, dimension (n, n) or (n, 2*n)
-        ,n = sh_file%n&! input, integer
-        ,cilm = sh_file%cilm&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
-        ,lmax = sh_file%lmax&! output, integer
-        ,norm = sh_file%norm&! input, optional, integer, default = 1
-        ,sampling = sh_file%sampling&! input, optional, integer, default = 1
-        ,csphase = sh_file%csphase&! input, optional, integer, default = 1
-        !,exitstatus = sh_file%exitstatus&! output, optional, integer
-        )
+      !call shexpanddh(&
+        !sh_file%griddh&! input, real*8, dimension (n, n) or (n, 2*n)
+        !,n = sh_file%n&! input, integer
+        !,cilm = sh_file%cilm&! output, real*8, dimension (2, n/2, n/2) or (2, lmax_calc+1, lmax_calc+1)
+        !,lmax = sh_file%lmax&! output, integer
+        !,norm = sh_file%norm&! input, optional, integer, default = 1
+        !,sampling = sh_file%sampling&! input, optional, integer, default = 1
+        !,csphase = sh_file%csphase&! input, optional, integer, default = 1
+        !!,exitstatus = sh_file%exitstatus&! output, optional, integer
+        !)
 
-      call cpu_time(cpu_time_2)
+      !call cpu_time(cpu_time_2)
 
-      calc_time = cpu_time_2 - cpu_time_1
+      !calc_time = cpu_time_2 - cpu_time_1
 
-      write(stdout, '(2x,a)') 'Calculation time: '//&
-      number_to_string(calc_time, frmt = '(f100.3)')//&
-      ' seconds'
+      !write(stdout, '(2x,a)') 'Calculation time: '//&
+      !number_to_string(calc_time, frmt = '(f100.3)')//&
+      !' seconds'
 
-    case('ls')
-    end select
+    !case('ls')
+    !end select
 
-    call sh_print_info(sh_file)
+    !call sh_print_info(sh_file)
 
-    if(out_coef_file%definition .eqv. .true.) then
-      if(vb_mode%definition .eqv. .true.) then
-        call sh_print_data(sh_file, out_coef_file%value, vb_mode%value)
-      else
-        call sh_print_data(sh_file, out_coef_file%value)
-      end if
-    end if
+    !if(out_coef_file%definition .eqv. .true.) then
+      !if(vb_mode%definition .eqv. .true.) then
+        !call sh_print_data(sh_file, out_coef_file%value, vb_mode%value)
+      !else
+        !call sh_print_data(sh_file, out_coef_file%value)
+      !end if
+    !end if
 
-  end if
+  !end if
 end program ha
