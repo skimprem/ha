@@ -4,7 +4,7 @@ subroutine get_var_xtype(ncid, varid, xtype, ndims, len, value, verbose_phrase)
   integer, intent(in) :: ncid, varid, xtype, ndims
   integer, intent(in), dimension(ndims) :: len
   integer :: stdout, i, j, k
-  type(ncvalues), intent(out) :: value
+  type(ncdimensions), intent(inout), allocatable :: dimension 
   character(*), intent(in), optional :: verbose_phrase
   logical :: verbose_mode
   stdout = 6
