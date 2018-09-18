@@ -31,7 +31,8 @@ type ncvariables
 end type ncvariables
 type ncfile
   character(len=:), allocatable :: path
-  integer(kind=4) :: cmode, mode, ncid, initialsize, chunksize, fillmode, old_mode, h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum, ndimensions, nvariables, nattributes
+  integer(kind=4) :: cmode, mode, ncid, initialsize, chunksize, fillmode, old_mode,&
+  h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum, ndimensions, nvariables, nattributes
   type(ncdimensions), dimension(:), allocatable :: dimension
   type(ncvariables), dimension(:), allocatable :: variable
   type(ncattributes), dimension(:), allocatable :: attribute
