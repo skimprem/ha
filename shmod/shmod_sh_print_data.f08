@@ -20,7 +20,7 @@ subroutine sh_print_data(sh_file, output_filename, verbose)
       write(un, *) i, j, sh_file%cilm(1, i, j), sh_file%cilm(2, i, j)
     end do
     do j = 1, string_len + 17
-      write(stdout, '(a)', advance = 'no') '\b'
+      !write(stdout, '(a)', advance = 'no') '\b'
     end do
     write(stdout, '(a)', advance = 'no') string
     write(stdout, '(f5.1)', advance = 'no') real(i, 4) * progress_coef
