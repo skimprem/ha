@@ -13,6 +13,7 @@ type ncdimensions
 end type ncdimensions
 type ncattributes
   character(len=:), allocatable :: name
+  !character(nf90_max_name) :: name
   integer(kind=4) :: xtype, len, attnum 
   integer(kind=1), allocatable :: value_byte(:)
   integer(kind=2), allocatable :: value_short(:)
@@ -37,43 +38,43 @@ type ncfile
   type(ncvariables), dimension(:), allocatable :: variable
   type(ncattributes), dimension(:), allocatable :: attribute
 end type ncfile
-interface nc_variable_conv
-  module procedure nc_variable_conv_byte_one,&
-                   nc_variable_conv_short_one,&
-                   nc_variable_conv_int_one,&
-                   nc_variable_conv_int64_one,&
-                   nc_variable_conv_float_one,&
-                   nc_variable_conv_double_one,&
-                   nc_variable_conv_byte_two,&
-                   nc_variable_conv_short_two,&
-                   nc_variable_conv_int_two,&
-                   nc_variable_conv_int64_two,&
-                   nc_variable_conv_float_two,&
-                   nc_variable_conv_double_two,&
-                   nc_variable_conv_byte_three,&
-                   nc_variable_conv_short_three,&
-                   nc_variable_conv_int_three,&
-                   nc_variable_conv_int64_three,&
-                   nc_variable_conv_float_three,&
-                   nc_variable_conv_double_three
-end interface nc_variable_conv
-interface nc_value_conv
-  module procedure nc_value_conv_byte_one,&
-                   nc_value_conv_short_one,&
-                   nc_value_conv_int_one,&
-                   nc_value_conv_int64_one,&
-                   nc_value_conv_float_one,&
-                   nc_value_conv_double_one,&
-                   nc_value_conv_byte_two,&
-                   nc_value_conv_short_two,&
-                   nc_value_conv_int_two,&
-                   nc_value_conv_int64_two,&
-                   nc_value_conv_float_two,&
-                   nc_value_conv_double_two,&
-                   nc_value_conv_byte_three,&
-                   nc_value_conv_short_three,&
-                   nc_value_conv_int_three,&
-                   nc_value_conv_int64_three,&
-                   nc_value_conv_float_three,&
-                   nc_value_conv_double_three
-end interface nc_value_conv
+!interface nc_variable_conv
+  !module procedure nc_variable_conv_byte_one,&
+                   !nc_variable_conv_short_one,&
+                   !nc_variable_conv_int_one,&
+                   !nc_variable_conv_int64_one,&
+                   !nc_variable_conv_float_one,&
+                   !nc_variable_conv_double_one,&
+                   !nc_variable_conv_byte_two,&
+                   !nc_variable_conv_short_two,&
+                   !nc_variable_conv_int_two,&
+                   !nc_variable_conv_int64_two,&
+                   !nc_variable_conv_float_two,&
+                   !nc_variable_conv_double_two,&
+                   !nc_variable_conv_byte_three,&
+                   !nc_variable_conv_short_three,&
+                   !nc_variable_conv_int_three,&
+                   !nc_variable_conv_int64_three,&
+                   !nc_variable_conv_float_three,&
+                   !nc_variable_conv_double_three
+!end interface nc_variable_conv
+!interface nc_value_conv
+  !module procedure nc_value_conv_byte_one,&
+                   !nc_value_conv_short_one,&
+                   !nc_value_conv_int_one,&
+                   !nc_value_conv_int64_one,&
+                   !nc_value_conv_float_one,&
+                   !nc_value_conv_double_one,&
+                   !nc_value_conv_byte_two,&
+                   !nc_value_conv_short_two,&
+                   !nc_value_conv_int_two,&
+                   !nc_value_conv_int64_two,&
+                   !nc_value_conv_float_two,&
+                   !nc_value_conv_double_two,&
+                   !nc_value_conv_byte_three,&
+                   !nc_value_conv_short_three,&
+                   !nc_value_conv_int_three,&
+                   !nc_value_conv_int64_three,&
+                   !nc_value_conv_float_three,&
+                   !nc_value_conv_double_three
+!end interface nc_value_conv
