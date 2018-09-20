@@ -101,7 +101,7 @@ subroutine get_att_xtype(ncid, varid, attribute, verbose_phrase)
           )&
         )
   case(nf90_string) ! NC_STRING: variable length character string
-    !allocate( attribute%value_string(attribute%len) )
+    allocate(character(len=nf90_max_name) :: attribute%value_string(attribute%len))
     call nc_error_check(&
         'nc_get_att',&
         nf90_get_att(&
