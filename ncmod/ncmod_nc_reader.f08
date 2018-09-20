@@ -19,7 +19,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
     write(stdout, frmt) verbose_phrase, 'begin nc_reader(): '
   end if
 ! ###########################################################################################
-! 1. READ HEADER OF FILE
+! 1. INQUIRE HEADER OF FILE
 ! ###########################################################################################
   nc_file%mode = nf90_nowrite
   call nc_error_check(&
@@ -33,6 +33,12 @@ subroutine nc_reader(nc_file, verbose_phrase)
        )
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 2x, a)'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
+    write(stdout, frmt) verbose_phrase,&
+    'OPEN NC FILE'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
     write(stdout, frmt) verbose_phrase, 'nc_open(): done!'
     frmt = '(a, 4x, 2a)'
     write(stdout, frmt) verbose_phrase, 'path: ', nc_file%path
@@ -60,24 +66,32 @@ subroutine nc_reader(nc_file, verbose_phrase)
     write(stdout, frmt) verbose_phrase, 'inquired nattributes: ', number_to_string(nc_file%nattributes)
     write(stdout, frmt) verbose_phrase, 'inquired unlimiteddimid: ', number_to_string(nc_file%unlimiteddimid)
   end if
+! ###########################################################################################
+! 2. INQUIRE GLOBAL ATTRIBUTES
+! ###########################################################################################
+  if(verbose_mode .eqv. .true.) then
+    frmt = '(a, 2x, a)'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
+    write(stdout, frmt) verbose_phrase,&
+    'INQUIRE GLOBAL ATTRIBUTES'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
+  end if
   allocate(nc_file%attribute(nc_file%nattributes))
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 2x, a)'
     write(stdout, frmt) verbose_phrase, 'allocated nattributes: done!'
   end if
-! ###########################################################################################
-! 2. READ GLOBAL ATTRIBUTES
-! ###########################################################################################
   do i = 1, nc_file%nattributes
-    nc_file%attribute(i)%attnum = i
     temp_string = ''
     call nc_error_check(&
         'nc_inq_attname',&
         nf90_inq_attname(&
-          ncid = nc_file%ncid,&                  ! intent(in)
-          varid = nf90_global,&                  ! intent(in)
-          attnum = nc_file%attribute(i)%attnum,& ! intent(in)
-          name = temp_string&                    ! intent(out)
+          ncid = nc_file%ncid,& ! intent(in)
+          varid = nf90_global,& ! intent(in)
+          attnum = i,&          ! intent(in)
+          name = temp_string&   ! intent(out)
           )&
         )
     nc_file%attribute(i)%name = trim(adjustl(temp_string))
@@ -85,7 +99,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
       frmt = '(a, 4x, a)'
       write(stdout, frmt) verbose_phrase, 'nc_inq_attname(): done!'
       frmt = '(a, 6x, 2a)'
-      write(stdout, frmt) verbose_phrase, 'attnum: ', number_to_string(nc_file%attribute(i)%attnum)
+      write(stdout, frmt) verbose_phrase, 'attnum: ', number_to_string(i)
       write(stdout, frmt) verbose_phrase, 'name: ', nc_file%attribute(i)%name
     end if
     call nc_error_check(&
@@ -120,50 +134,38 @@ subroutine nc_reader(nc_file, verbose_phrase)
     end if
   end do
 ! ###########################################################################################
-! READ DIMENSIONS
+! 3. INQUIRE VARIABLES
 ! ###########################################################################################
-  allocate(nc_file%dimension(nc_file%ndimensions))
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 2x, a)'
-    write(stdout, frmt) verbose_phrase, 'allocated ndimensions: done!'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
+    write(stdout, frmt) verbose_phrase,&
+    'INQUIRE VARIABLES'
+    write(stdout, frmt) verbose_phrase,&
+    '###########################################################################################'
   end if
-  do i = 1, nc_file%ndimensions
-    nc_file%dimension(i)%dimid = i
-    temp_string = ''
-    call nc_error_check(&
-      'nc_inquire_dimension',&
-      nf90_inquire_dimension(&
-          ncid = nc_file%ncid,&                ! intent(in)
-          dimid = nc_file%dimension(i)%dimid,& ! intent(in)
-          name = temp_string,&                 ! intent(out)
-          len = nc_file%dimension(i)%len&      ! intent(out)
-        )&
-      )
-    nc_file%dimension(i)%name = trim(adjustl(temp_string))
-    if(verbose_mode .eqv. .true.) then
-      frmt = '(a, 4x, a)'
-      write(stdout, frmt) verbose_phrase, 'nc_inquire_dimensions(): done!'
-      frmt = '(a, 6x, 2a)'
-      write(stdout, frmt) verbose_phrase, 'name: ', nc_file%dimension(i)%name
-      write(stdout, frmt) verbose_phrase, 'len: ', number_to_string(nc_file%dimension(i)%len)
-    end if
-  end do
-! ###########################################################################################
-! 3. READ VARIABLES
-! ###########################################################################################
   allocate(nc_file%variable(nc_file%nvariables))
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 2x, a)'
     write(stdout, frmt) verbose_phrase, 'allocated nvariables: done!'
   end if
   do i = 1, nc_file%nvariables
-    nc_file%variable(i)%varid = i
+    if(verbose_mode .eqv. .true.) then
+      frmt = '(a, 4x, a)'
+      write(stdout, frmt) verbose_phrase,&
+      '#########################################################################################'
+      write(stdout, frmt) verbose_phrase,&
+      'INQUIRE OF VARIABLE '//number_to_string(i)
+      write(stdout, frmt) verbose_phrase,&
+      '#########################################################################################'
+    end if
     temp_string = ''
     call nc_error_check(&
       'nc_inquire_variable',&
       nf90_inquire_variable(&
         ncid = nc_file%ncid,&               ! intent(in)
-        varid = nc_file%variable(i)%varid,& ! intent(in)
+        varid = i,&                         ! intent(in)
         name = temp_string,&                ! intent(out)
         xtype = nc_file%variable(i)%xtype,& ! intent(out)
         ndims = nc_file%variable(i)%ndims,& ! intent(out)
@@ -180,76 +182,70 @@ subroutine nc_reader(nc_file, verbose_phrase)
       write(stdout, frmt) verbose_phrase, 'ndims: ', number_to_string(nc_file%variable(i)%ndims)
       write(stdout, frmt) verbose_phrase, 'natts: ', number_to_string(nc_file%variable(i)%natts)
     end if
-    if(nc_file%variable(i)%ndims > 0) then
-      allocate(nc_file%variable(i)%dimids(nc_file%variable(i)%ndims))
-      call nc_error_check(&
-        'nc_inquire_variable',&
-        nf90_inquire_variable(&
-          ncid = nc_file%ncid,&                ! intent(in)
-          varid = nc_file%variable(i)%varid,&  ! intent(in)
-          dimids = nc_file%variable(i)%dimids& ! intent(out), dimension(:)
-          )&
-        )
-      if(verbose_mode .eqv. .true.) then
-        frmt = '(a, 4x, a)'
-        write(stdout, frmt) verbose_phrase, 'nc_inquire_variable(): done!'
-        frmt = '(a, 6x, 2a)'
-        write(stdout, frmt)&
-        (verbose_phrase, 'dimids: ', number_to_string(nc_file%variable(i)%dimids(j)), j = 1, nc_file%variable(i)%ndims)
-      end if
+! *******************************************************************************************
+! 3.1 INQUIRE VARIABLE ATTRIBUTES
+! *******************************************************************************************
+    if(verbose_mode .eqv. .true.) then
+      frmt = '(a, 6x, a)'
+      write(stdout, frmt) verbose_phrase,&
+      '#######################################################################################'
+      write(stdout, frmt) verbose_phrase,&
+      'INQUIRE ATTRIBUTE OF VARIABLE '//number_to_string(i)
+      write(stdout, frmt) verbose_phrase,&
+      '#######################################################################################'
     end if
-    stop
-! *******************************************************************************************
-! 3.1 READ VARIABLE ATTRIBUTES
-! *******************************************************************************************
     allocate(nc_file%variable(i)%attribute(nc_file%variable(i)%natts))
     if(verbose_mode .eqv. .true.) then
+      frmt = '(a, 6x, a)'
       write(stdout, frmt) verbose_phrase, 'allocated variable attributes: done!'
     end if
     do j = 1, nc_file%variable(i)%natts
-      nc_file%variable(i)%attribute(j)%attnum = j
       temp_string = ''
       call nc_error_check(&
         'nc_inq_attname',&
         nf90_inq_attname(&
-          ncid = nc_file%ncid,&                              ! intent(in)
-          varid = nc_file%variable(i)%varid,&                ! intent(in)
-          attnum = nc_file%variable(i)%attribute(j)%attnum,& ! intent(in)
-          name = temp_string&                                ! intent(out)
+          ncid = nc_file%ncid,& ! intent(in)
+          varid = i,&           ! intent(in)
+          attnum = j,&          ! intent(in)
+          name = temp_string&   ! intent(out)
           )&
         )
       nc_file%variable(i)%attribute(j)%name = trim(adjustl(temp_string))
       if(verbose_mode .eqv. .true.) then
+        frmt = '(a, 8x, a)'
         write(stdout, frmt) verbose_phrase, 'nc_inq_attname(): done!'
-        write(stdout, frmt) verbose_phrase, 'attnum: ', number_to_string(nc_file%variable(i)%attribute(j)%attnum)
+        frmt = '(a, 10x, 2a)'
+        write(stdout, frmt) verbose_phrase, 'attnum: ', number_to_string(j)
         write(stdout, frmt) verbose_phrase, 'name: ', nc_file%variable(i)%attribute(j)%name
       end if
       call nc_error_check(&
         'nc_inquire_attribute',&
         nf90_inquire_attribute(&
           ncid = nc_file%ncid,&                            ! intent(in)
-          varid = nc_file%variable(i)%varid,&              ! intent(in)
+          varid = i,&                                      ! intent(in)
           name = nc_file%variable(i)%attribute(j)%name,&   ! intent(in)
           xtype = nc_file%variable(i)%attribute(j)%xtype,& ! intent(out)
           len = nc_file%variable(i)%attribute(j)%len&      ! intent(out)
           )&
         )
       if(verbose_mode .eqv. .true.) then
+        frmt = '(a, 10x, a)'
         write(stdout, frmt) verbose_phrase, 'nc_inquire_attribute(): done!'
+        frmt = '(a, 12x, 2a)'
         write(stdout, frmt) verbose_phrase, 'xtype: ', nc_xtype_info(nc_file%variable(i)%attribute(j)%xtype)
         write(stdout, frmt) verbose_phrase, 'len: ', number_to_string(nc_file%variable(i)%attribute(j)%len)
       end if
       if(verbose_mode .eqv. .true.) then
         call get_att_xtype(&
              ncid = nc_file%ncid, &
-             varid = nc_file%variable(i)%varid,&
+             varid = i,&
              attribute = nc_file%variable(i)%attribute(j),&
-             verbose_phrase = verbose_phrase//''&
+             verbose_phrase = verbose_phrase//'       '&
              )
       else
         call get_att_xtype(&
              ncid = nc_file%ncid,&
-             varid = nc_file%variable(i)%varid,&
+             varid = i,&
              attribute = nc_file%variable(i)%attribute(j)&
              )
       end if
@@ -257,42 +253,83 @@ subroutine nc_reader(nc_file, verbose_phrase)
 ! *******************************************************************************************
 ! 3.2 
 ! *******************************************************************************************
-    !do j = 1, nc_file%variable(i)%ndims
-      !call nc_error_check(&
-        !'nc_inquire_dimension',&
-        !nf90_inquire_dimension(&
-          !ncid = nc_file%ncid,&
-          !dimid = nc_file%variable(i)%dimids(j),&
-          !len = nc_file%variable(i)%dimension(nc_file%variable(i)%dimids(j))%len&
-          !!)&
-        !)
-    !end do
-    !allocate(&
-      !nc_file%variable(i)%dimension(nc_file%variable(i)%ndims),&
-      !)
+    if(nc_file%variable(i)%ndims > 0) then
+      if(verbose_mode .eqv. .true.) then
+        frmt = '(a, 6x, a)'
+        write(stdout, frmt) verbose_phrase,&
+        '#######################################################################################'
+        write(stdout, frmt) verbose_phrase,&
+        'INQUIRE DIMENSION OF VARIABLE '//number_to_string(i)
+        write(stdout, frmt) verbose_phrase,&
+        '#######################################################################################'
+      end if
+      allocate(nc_file%variable(i)%dimids(nc_file%variable(i)%ndims))
+      allocate(nc_file%variable(i)%dimension(nc_file%variable(i)%ndims))
+      if(verbose_mode .eqv. .true.) then
+        frmt = '(a, 6x, a)'
+        write(stdout, frmt) verbose_phrase, 'allocated dimensions: done!'
+      end if
+      call nc_error_check(&
+        'nc_inquire_variable',&
+        nf90_inquire_variable(&
+          ncid = nc_file%ncid,&                 ! intent(in)
+          varid = i,&                           ! intent(in)
+          dimids = nc_file%variable(i)%dimids& ! intent(out)
+          )&
+        )
+      !if(verbose_mode .eqv. .true.) then
+        !frmt = '(a, 4x, a)'
+        !write(stdout, frmt) verbose_phrase, 'nc_inquire_variable(): done!'
+        !frmt = '(a, 6x, 2a)'
+        !write(stdout, frmt)&
+        !(verbose_phrase, 'dimids: ', number_to_string(nc_file%variable(i)%dimids(j)), j = 1, nc_file%variable(i)%ndims)
+      !end if
+      do j = 1, nc_file%variable(i)%ndims
+        temp_string = ''
+        call nc_error_check(&
+          'nc_inquire_dimension',&
+          nf90_inquire_dimension(&
+            ncid = nc_file%ncid,&
+            dimid = nc_file%variable(i)%dimids(j),&
+            len = nc_file%variable(i)%dimension(j)%len,&
+            name = temp_string&
+            )&
+          )
+        nc_file%variable(i)%dimension(j)%name = trim(adjustl(temp_string))
+        if(verbose_mode .eqv. .true.) then
+          frmt = '(a, 8x, a)'
+          write(stdout, frmt) verbose_phrase, 'nc_inquire_dimension(): done!'
+          frmt = '(a, 10x, 2a)'
+          write(stdout, frmt) verbose_phrase, 'dimid: ', number_to_string(nc_file%variable(i)%dimids(j))
+          write(stdout, frmt) verbose_phrase, 'len: ', number_to_string(nc_file%variable(i)%dimension(j)%len)
+          write(stdout, frmt) verbose_phrase, 'name: ', nc_file%variable(i)%dimension(j)%name
+        end if
+      end do
 
-    !if(verbose_mode .eqv. .true.) then
-      !call get_var_xtype(&
-        !ncid = nc_file%ncid,&
-        !varid = nc_file%variable(i)%varid,&
-        !xtype = nc_file%variable(i)%xtype,&
-        !ndims = nc_file%variable(i)%ndims,&
-        !len = nc_file%variable(i)%len,&
-        !value = nc_file%variable(i)%value,&
-        !verbose_phrase = verbose_phrase, ''&
-        !)
-    !else
-      !call get_var_xtype(&
-        !ncid = nc_file%ncid,&
-        !varid = nc_file%variable(i)%varid,&
-        !xtype = nc_file%variable(i)%xtype,&
-        !ndims = nc_file%variable(i)%ndims,&
-        !len = nc_file%variable(i)%len,&
-        !value = nc_file%variable(i)%value&
-        !)
-    !end if
+      !if(verbose_mode .eqv. .true.) then
+        !call get_var_xtype(&
+          !ncid = nc_file%ncid,&
+          !varid = nc_file%variable(i)%varid,&
+          !xtype = nc_file%variable(i)%xtype,&
+          !ndims = nc_file%variable(i)%ndims,&
+          !len = nc_file%variable(i)%len,&
+          !value = nc_file%variable(i)%value,&
+          !verbose_phrase = verbose_phrase//''&
+          !)
+      !else
+        !call get_var_xtype(&
+          !ncid = nc_file%ncid,&
+          !varid = nc_file%variable(i)%varid,&
+          !xtype = nc_file%variable(i)%xtype,&
+          !ndims = nc_file%variable(i)%ndims,&
+          !len = nc_file%variable(i)%len,&
+          !value = nc_file%variable(i)%value&
+          !)
+      !end if
+    end if
   end do
   if(verbose_mode .eqv. .true.) then
+    frmt = '(a, 1x, a)'
     write(stdout, frmt) verbose_phrase, 'end nc_reader()'
   end if
   return

@@ -1,4 +1,4 @@
-subroutine get_var_xtype(ncid, varid, xtype, ndims, len, value, verbose_phrase)
+subroutine get_var_xtype(ncid, varid, xtype, ndims, len, ???, verbose_phrase)
   use hamodule
   implicit none
   integer, intent(in) :: ncid, varid, xtype, ndims
