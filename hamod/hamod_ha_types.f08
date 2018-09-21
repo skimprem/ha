@@ -1,12 +1,10 @@
 integer, parameter :: max_name_value = 1000
 integer, parameter :: max_string_value = 1000
-
 type haoptions
   logical :: definition
   character(:), allocatable :: option_name
   character(:), allocatable :: value
 end type
-
 interface num_len
   module procedure num_len_real_4,&
                    num_len_real_8,&
@@ -15,7 +13,6 @@ interface num_len
                    num_len_int_1,&
                    num_len_int_8
 end interface num_len
-
 interface number_to_string
   module procedure number_to_string_int_1,&
                    number_to_string_int_2,&
@@ -24,7 +21,6 @@ interface number_to_string
                    number_to_string_real_4,&
                    number_to_string_real_8
 end interface number_to_string
-
 interface value_conv
   module procedure value_conv_byte_one_dim,&
                    value_conv_short_one_dim,&
@@ -45,3 +41,11 @@ interface value_conv
                    value_conv_float_three_dim,&
                    value_conv_double_three_dim
 end interface value_conv
+interface ha_mem_info
+  module procedure ha_mem_info_byte,&
+                   ha_mem_info_short,&
+                   ha_mem_info_int,&
+                   ha_mem_info_int64,&
+                   ha_mem_info_float,&
+                   ha_mem_info_double
+end interface ha_mem_info

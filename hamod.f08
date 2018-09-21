@@ -10,5 +10,6 @@ contains
   include "hamod/hamod_number_to_string.f08"
   include "hamod/hamod_value_conv.f08"
   include "hamod/hamod_trim_null.f08"
+  include "hamod/hamod_ha_mem_info.f08"
 
 end module hamodule

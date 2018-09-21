@@ -114,7 +114,7 @@ subroutine get_att_xtype(ncid, varid, attribute, verbose_phrase)
   end select
   if(verbose_mode .eqv. .true.) then
     write(stdout, '(a)') verbose_phrase//'   nc_get_att(): done!'
-    write(stdout, '(a)') verbose_phrase//'     value: '//nc_attribute_print(attribute)
+    write(stdout, '(a)') verbose_phrase//'     value: '//trim(nc_attribute_print(attribute))
   end if
   if(error_stat /= 0) then
     if(verbose_mode .eqv. .true.) then
