@@ -7,7 +7,7 @@ module ncmodule
 contains
 
   include "ncmod/ncmod_get_att_xtype.f08"
-  !include "ncmod/ncmod_get_var_xtype.f08"
+  include "ncmod/ncmod_get_var_xtype.f08"
   include "ncmod/ncmod_nc_xtype_info.f08"
   include "ncmod/ncmod_nc_error_check.f08"
   include "ncmod/ncmod_nc_reader.f08"
