@@ -272,18 +272,11 @@ subroutine nc_reader(nc_file, verbose_phrase)
       call nc_error_check(&
         'nc_inquire_variable',&
         nf90_inquire_variable(&
-          ncid = nc_file%ncid,&                 ! intent(in)
-          varid = i,&                           ! intent(in)
+          ncid = nc_file%ncid,&                ! intent(in)
+          varid = i,&                          ! intent(in)
           dimids = nc_file%variable(i)%dimids& ! intent(out)
           )&
         )
-      !if(verbose_mode .eqv. .true.) then
-        !frmt = '(a, 4x, a)'
-        !write(stdout, frmt) verbose_phrase, 'nc_inquire_variable(): done!'
-        !frmt = '(a, 6x, 2a)'
-        !write(stdout, frmt)&
-        !(verbose_phrase, 'dimids: ', number_to_string(nc_file%variable(i)%dimids(j)), j = 1, nc_file%variable(i)%ndims)
-      !end if
       do j = 1, nc_file%variable(i)%ndims
         temp_string = ''
         call nc_error_check(&
@@ -306,26 +299,20 @@ subroutine nc_reader(nc_file, verbose_phrase)
         end if
       end do
 
-      !if(verbose_mode .eqv. .true.) then
-        !call get_var_xtype(&
-          !ncid = nc_file%ncid,&
-          !varid = nc_file%variable(i)%varid,&
-          !xtype = nc_file%variable(i)%xtype,&
-          !ndims = nc_file%variable(i)%ndims,&
-          !len = nc_file%variable(i)%len,&
-          !value = nc_file%variable(i)%value,&
-          !verbose_phrase = verbose_phrase//''&
-          !)
-      !else
-        !call get_var_xtype(&
-          !ncid = nc_file%ncid,&
-          !varid = nc_file%variable(i)%varid,&
-          !xtype = nc_file%variable(i)%xtype,&
-          !ndims = nc_file%variable(i)%ndims,&
-          !len = nc_file%variable(i)%len,&
-          !value = nc_file%variable(i)%value&
-          !)
-      !end if
+      if(verbose_mode .eqv. .true.) then
+        call get_var_xtype(&
+          ncid = nc_file%ncid,&
+          varid = i,&
+          variable = nc_file%variable(i),&
+          verbose_phrase = verbose_phrase//'        '&
+          )
+      else
+        call get_var_xtype(&
+          ncid = nc_file%ncid,&
+          varid = i,&
+          variable = nc_file%variable(i)&
+          )
+      end if
     end if
   end do
   if(verbose_mode .eqv. .true.) then
