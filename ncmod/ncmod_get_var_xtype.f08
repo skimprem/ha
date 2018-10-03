@@ -319,7 +319,7 @@ subroutine get_var_xtype(ncid, varid, variable, verbose_phrase)
     end select
   end select
   if(verbose_mode .eqv. .true.) then
-    write(stdout, '(a)') verbose_phrase//'nc_get_var(): done'
+    write(stdout, '(a)') verbose_phrase//'nc_get_var(): done!'
     write(stdout, '(a)') verbose_phrase//'  loaded values: '//ha_mem_info(variable%mem_bits, 'B')
   end if
   if(error_stat > 0) then

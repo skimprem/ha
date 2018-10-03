@@ -20,7 +20,6 @@ type ncvariables
   integer(kind=4), dimension(:), allocatable :: dimids
   type(ncdimensions), dimension(:), allocatable :: dimension
   type(ncattributes), dimension(:), allocatable :: attribute
-
   integer(kind=1), allocatable :: value_byte_1(:), value_byte_2(:,:), value_byte_3(:,:,:)
   integer(kind=2), allocatable :: value_short_1(:), value_short_2(:,:), value_short_3(:,:,:)
   integer(kind=4), allocatable :: value_int_1(:), value_int_2(:,:), value_int_3(:,:,:)
@@ -30,7 +29,6 @@ type ncvariables
   character(kind=1, len=1), allocatable :: value_char_1(:), value_char_2(:,:), value_char_3(:,:,:)
   character(kind=1, len=:), allocatable :: value_string_1(:), value_string_2(:,:), value_string_3(:,:,:)
   integer(kind=8) :: mem_bits
-
 end type ncvariables
 type ncfile
   character(len=:), allocatable :: path
