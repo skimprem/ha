@@ -16,7 +16,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
   end if
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 1x, a)'
-    write(stdout, frmt) verbose_phrase, 'begin nc_reader(): '
+    write(stdout, frmt) verbose_phrase, 'begin nc_reader():'
   end if
 ! ###########################################################################################
 ! 1. INQUIRE HEADER OF FILE

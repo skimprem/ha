@@ -108,15 +108,15 @@ program ha
     call nc_reader(nc_file)
   end if
 
-  !if(nc_mode%definition .eqv. .true.) then
-    !if(vb_mode%definition .eqv. .true.) then
+  if(nc_mode%definition .eqv. .true.) then
+    if(vb_mode%definition .eqv. .true.) then
       !call nc_print_info(nc_file, nc_mode%value, vb_mode%value)
-    !else
+    else
       !call nc_print_info(nc_file, nc_mode%value)
-    !end if
-  !end if
+    end if
+  end if
 
-  !if(out_grid_file%definition .eqv. .true.) then
+  if(out_grid_file%definition .eqv. .true.) then
     !call nc_variable_conv(nc_file%variable(3), nc_file%variable(3)%value%double_2)
     !nc_file%variable(3)%xtype = nf90_double
     !if(vb_mode%definition .eqv. .true.) then
@@ -124,7 +124,7 @@ program ha
     !else
       !call nc_print_data(nc_file, out_grid_file%value)
     !end if
-  !end if
+  end if
 
   !if(ha_mode%definition .eqv. .true.) then
 
