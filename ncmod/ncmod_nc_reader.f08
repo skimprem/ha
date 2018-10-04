@@ -3,7 +3,8 @@ subroutine nc_reader(nc_file, verbose_phrase)
   use hamodule
   implicit none
   type(ncfile), intent(inout) :: nc_file
-  integer :: i, j, stdout
+  integer(kind=4) :: i, j, stdout
+  integer(kind=4), dimension(:), allocatable :: len_dim
   character(*), intent(in), optional :: verbose_phrase
   character(10000), allocatable :: temp_string
   character(len=:), allocatable :: frmt
@@ -16,7 +17,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
   end if
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 1x, a)'
-    write(stdout, frmt) verbose_phrase, 'begin nc_reader():'
+    write(stdout, frmt) verbose_phrase, 'begin nc_reader()'
   end if
 ! ###########################################################################################
 ! 1. INQUIRE HEADER OF FILE
@@ -134,6 +135,44 @@ subroutine nc_reader(nc_file, verbose_phrase)
     end if
   end do
 ! ###########################################################################################
+! 3. INQUIRE DIMENSIONS
+! ###########################################################################################
+  if(verbose_mode .eqv. .true.) then
+    frmt = '(a, 2x, a)'
+    write(stdout, frmt) verbose_phrase,&
+    '#######################################################################################'
+    write(stdout, frmt) verbose_phrase,&
+    'INQUIRE DIMENSIONS'
+    write(stdout, frmt) verbose_phrase,&
+    '#######################################################################################'
+  end if
+  allocate(nc_file%dimension(nc_file%ndimensions))
+  if(verbose_mode .eqv. .true.) then
+    frmt = '(a, 2x, a)'
+    write(stdout, frmt) verbose_phrase, 'allocated dimensions: done!'
+  end if
+  temp_string = ''
+  do i = 1, nc_file%ndimensions
+    call nc_error_check(&
+      'nc_inquire_dimension',&
+      nf90_inquire_dimension(&
+        ncid = nc_file%ncid,&
+        dimid = i,&
+        len = nc_file%dimension(i)%len,&
+        name = temp_string&
+        )&
+      )
+    nc_file%dimension(i)%name = trim(adjustl(temp_string))
+    if(verbose_mode .eqv. .true.) then
+      frmt = '(a, 4x, a)'
+      write(stdout, frmt) verbose_phrase, 'nc_inquire_dimension(): done!'
+      frmt = '(a, 6x, 2a)'
+      write(stdout, frmt) verbose_phrase, 'dimid: ', number_to_string(i)
+      write(stdout, frmt) verbose_phrase, 'len: ', number_to_string(nc_file%dimension(i)%len)
+      write(stdout, frmt) verbose_phrase, 'name: ', nc_file%dimension(i)%name
+    end if
+  end do
+! ###########################################################################################
 ! 3. INQUIRE VARIABLES
 ! ###########################################################################################
   if(verbose_mode .eqv. .true.) then
@@ -181,6 +220,40 @@ subroutine nc_reader(nc_file, verbose_phrase)
       write(stdout, frmt) verbose_phrase, 'xtype: ', nc_xtype_info(nc_file%variable(i)%xtype)
       write(stdout, frmt) verbose_phrase, 'ndims: ', number_to_string(nc_file%variable(i)%ndims)
       write(stdout, frmt) verbose_phrase, 'natts: ', number_to_string(nc_file%variable(i)%natts)
+    end if
+    if(nc_file%variable(i)%ndims > 0) then
+      allocate(nc_file%variable(i)%dimids(nc_file%variable(i)%ndims))
+      call nc_error_check(&
+        'nc_inquire_variable',&
+        nf90_inquire_variable(&
+          ncid = nc_file%ncid,&                ! intent(in)
+          varid = i,&                          ! intent(in)
+          dimids = nc_file%variable(i)%dimids& ! intent(out)
+          )&
+        )
+      if(verbose_mode .eqv. .true.) then
+        frmt = '(a, 4x, a)'
+        write(stdout, frmt) verbose_phrase, 'nc_inquire_variable(): done!'
+        frmt = '(a, 6x, 2a)'
+        write(stdout, frmt)&
+        (verbose_phrase, 'dimids: ', number_to_string(nc_file%variable(i)%dimids(j)), j = 1, nc_file%variable(i)%ndims)
+      end if
+      if(verbose_mode .eqv. .true.) then
+        call get_var_xtype(&
+          ncid = nc_file%ncid,&
+          varid = i,&
+          dimension = nc_file%dimension,&
+          variable = nc_file%variable(i),&
+          verbose_phrase = verbose_phrase//'        '&
+          )
+      else
+        call get_var_xtype(&
+          ncid = nc_file%ncid,&
+          varid = i,&
+          dimension = nc_file%dimension,&
+          variable = nc_file%variable(i)&
+          )
+      end if
     end if
 ! *******************************************************************************************
 ! 3.1 INQUIRE VARIABLE ATTRIBUTES
@@ -240,7 +313,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
              ncid = nc_file%ncid, &
              varid = i,&
              attribute = nc_file%variable(i)%attribute(j),&
-             verbose_phrase = verbose_phrase//'       '&
+             verbose_phrase = verbose_phrase//'     '&
              )
       else
         call get_att_xtype(&
@@ -250,70 +323,6 @@ subroutine nc_reader(nc_file, verbose_phrase)
              )
       end if
     end do
-! *******************************************************************************************
-! 3.2 
-! *******************************************************************************************
-    if(nc_file%variable(i)%ndims > 0) then
-      if(verbose_mode .eqv. .true.) then
-        frmt = '(a, 6x, a)'
-        write(stdout, frmt) verbose_phrase,&
-        '#######################################################################################'
-        write(stdout, frmt) verbose_phrase,&
-        'INQUIRE DIMENSION OF VARIABLE '//number_to_string(i)
-        write(stdout, frmt) verbose_phrase,&
-        '#######################################################################################'
-      end if
-      allocate(nc_file%variable(i)%dimids(nc_file%variable(i)%ndims))
-      allocate(nc_file%variable(i)%dimension(nc_file%variable(i)%ndims))
-      if(verbose_mode .eqv. .true.) then
-        frmt = '(a, 6x, a)'
-        write(stdout, frmt) verbose_phrase, 'allocated dimensions: done!'
-      end if
-      call nc_error_check(&
-        'nc_inquire_variable',&
-        nf90_inquire_variable(&
-          ncid = nc_file%ncid,&                ! intent(in)
-          varid = i,&                          ! intent(in)
-          dimids = nc_file%variable(i)%dimids& ! intent(out)
-          )&
-        )
-      do j = 1, nc_file%variable(i)%ndims
-        temp_string = ''
-        call nc_error_check(&
-          'nc_inquire_dimension',&
-          nf90_inquire_dimension(&
-            ncid = nc_file%ncid,&
-            dimid = nc_file%variable(i)%dimids(j),&
-            len = nc_file%variable(i)%dimension(j)%len,&
-            name = temp_string&
-            )&
-          )
-        nc_file%variable(i)%dimension(j)%name = trim(adjustl(temp_string))
-        if(verbose_mode .eqv. .true.) then
-          frmt = '(a, 8x, a)'
-          write(stdout, frmt) verbose_phrase, 'nc_inquire_dimension(): done!'
-          frmt = '(a, 10x, 2a)'
-          write(stdout, frmt) verbose_phrase, 'dimid: ', number_to_string(nc_file%variable(i)%dimids(j))
-          write(stdout, frmt) verbose_phrase, 'len: ', number_to_string(nc_file%variable(i)%dimension(j)%len)
-          write(stdout, frmt) verbose_phrase, 'name: ', nc_file%variable(i)%dimension(j)%name
-        end if
-      end do
-
-      if(verbose_mode .eqv. .true.) then
-        call get_var_xtype(&
-          ncid = nc_file%ncid,&
-          varid = i,&
-          variable = nc_file%variable(i),&
-          verbose_phrase = verbose_phrase//'        '&
-          )
-      else
-        call get_var_xtype(&
-          ncid = nc_file%ncid,&
-          varid = i,&
-          variable = nc_file%variable(i)&
-          )
-      end if
-    end if
   end do
   if(verbose_mode .eqv. .true.) then
     frmt = '(a, 1x, a)'

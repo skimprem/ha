@@ -12,8 +12,8 @@ oc=coef.tst
 
 $bin\
   -nf $data\
+  -og $og\
   --verbose $vm
   #-hm $hm\
   #-nm stdout\
   #-oc $oc\
-  #-og $og\
