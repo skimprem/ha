@@ -12,7 +12,7 @@ contains
   include "ncmod/ncmod_nc_error_check.f08"
   include "ncmod/ncmod_nc_reader.f08"
   !include "ncmod/ncmod_nc_print_info.f08"
-  !include "ncmod/ncmod_nc_print_data.f08"
+  include "ncmod/ncmod_nc_print_data_two_dim.f08"
   !include "ncmod/ncmod_nc_value_print.f08"
   !include "ncmod/ncmod_nc_allocate.f08"
   !include "ncmod/ncmod_nc_value_conv.f08"
