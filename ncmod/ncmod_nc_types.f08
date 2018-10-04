@@ -18,7 +18,6 @@ type ncvariables
   character(len=:), allocatable :: name
   integer(kind=4) ::  xtype, ndims, natts
   integer(kind=4), dimension(:), allocatable :: dimids
-  type(ncdimensions), dimension(:), allocatable :: dimension
   type(ncattributes), dimension(:), allocatable :: attribute
   integer(kind=1), allocatable :: value_byte_1(:), value_byte_2(:,:), value_byte_3(:,:,:)
   integer(kind=2), allocatable :: value_short_1(:), value_short_2(:,:), value_short_3(:,:,:)
@@ -36,6 +35,7 @@ type ncfile
   h_minfree, v_align, v_minfree, r_align, unlimiteddimid, formatnum, ndimensions, nvariables, nattributes
   type(ncvariables), dimension(:), allocatable :: variable
   type(ncattributes), dimension(:), allocatable :: attribute
+  type(ncdimensions), dimension(:), allocatable :: dimension
 end type ncfile
 !interface nc_variable_conv
   !module procedure nc_variable_conv_byte_one,&
