@@ -244,7 +244,7 @@ subroutine nc_reader(nc_file, verbose_phrase)
           varid = i,&
           dimension = nc_file%dimension,&
           variable = nc_file%variable(i),&
-          verbose_phrase = verbose_phrase//'        '&
+          verbose_phrase = verbose_phrase//'    '&
           )
       else
         call get_var_xtype(&
