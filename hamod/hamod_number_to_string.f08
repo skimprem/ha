@@ -59,7 +59,7 @@ function number_to_string_int_1(value, frmt)
   integer(1), intent(in) :: value
   character(*), intent(in), optional :: frmt
   character(max_string_value) :: string
-  character(len=:) :: number_to_string_int_1
+  character(len=:), allocatable :: number_to_string_int_1
   if(present(frmt)) then
     write(string, frmt) value
   else
