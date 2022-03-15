@@ -24,7 +24,7 @@ subroutine nc_print_data_two_dim(nc_file, output_filename, verbose_phrase)
   integer(kind=4) :: i, j, k, un, stdout, string_len 
   real(kind=8) :: progress_coef
   character(*), intent(in), optional :: verbose_phrase
-  logical :: verbose_mode
+  logical :: verbose_mode, rotation
   verbose_mode = .false.
   stdout = 6
   if((present(verbose_phrase) .eqv. .true.) .and. (trim(adjustl(verbose_phrase)) /= '')) then
@@ -81,36 +81,36 @@ subroutine nc_print_data_two_dim(nc_file, output_filename, verbose_phrase)
     end if
     select case(nc_file%variable(one_dim(k)%varid)%xtype)
     case(nf90_byte)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_byte_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_byte_1(i))
       end do
     case(nf90_short)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_short_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_short_1(i))
       end do
     case(nf90_int)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_int_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_int_1(i))
       end do
     case(nf90_int64)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_int64_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_int64_1(i))
       end do
     case(nf90_float)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_float_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_float_1(i))
       end do
     case(nf90_double)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_double_1(j))
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = number_to_string(nc_file%variable(one_dim(k)%varid)%value_double_1(i))
       end do
     case(nf90_char)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = nc_file%variable(one_dim(k)%varid)%value_char_1(j)
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = nc_file%variable(one_dim(k)%varid)%value_char_1(i)
       end do
     case(nf90_string)
-      do j = 1, one_dim(k)%len
-        one_dim(k)%value(j)%string = nc_file%variable(one_dim(k)%varid)%value_string_1(j)
+      do i = 1, one_dim(k)%len
+        one_dim(k)%value(i)%string = nc_file%variable(one_dim(k)%varid)%value_string_1(i)
       end do
     end select
     if(verbose_mode .eqv. .true.) then
@@ -120,57 +120,60 @@ subroutine nc_print_data_two_dim(nc_file, output_filename, verbose_phrase)
   end do
 
   do k = 1, size(two_dim)
-    allocate( two_dim(k)%value(two_dim(k)%len(1), two_dim(k)%len(2)) )
+    allocate(two_dim(k)%value(one_dim(1)%len, one_dim(2)%len))
+    print *, shape(nc_file%variable(two_dim(k)%varid)%value_float_2, kind=1)
+    print *, shape(nc_file%variable(two_dim(k)%varid)%value_float_2, kind=2)
+    print *, one_dim(1)%len, one_dim(2)%len
     if(verbose_mode .eqv. .true.) then
       frmt = '(a, 2x, a)'
       write(stdout, frmt) verbose_phrase, 'allocated two dimension string array: done!'
     end if
     select case(nc_file%variable(two_dim(k)%varid)%xtype)
     case(nf90_byte)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_byte_2(i, j))
         end do
       end do
     case(nf90_short)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_short_2(i, j))
         end do
       end do
     case(nf90_int)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_int_2(i, j))
         end do
       end do
     case(nf90_int64)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_int64_2(i, j))
         end do
       end do
     case(nf90_float)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_float_2(i, j))
         end do
       end do
     case(nf90_double)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = number_to_string(nc_file%variable(two_dim(k)%varid)%value_double_2(i, j))
         end do
       end do
     case(nf90_char)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(2)%len
           two_dim(k)%value(i, j)%string = nc_file%variable(two_dim(k)%varid)%value_char_2(i, j)
         end do
       end do
     case(nf90_string)
-      do i = 1, two_dim(k)%len(1)
-        do j = 1, two_dim(k)%len(2)
+      do i = 1, one_dim(1)%len
+        do j = 1, one_dim(1)%len
           two_dim(k)%value(i, j)%string = nc_file%variable(two_dim(k)%varid)%value_string_2(i, j)
         end do
       end do
@@ -193,7 +196,7 @@ subroutine nc_print_data_two_dim(nc_file, output_filename, verbose_phrase)
     do i = 1, one_dim(1)%len
       do j = 1, one_dim(2)%len
         write(un, '(a)', advance = 'no') one_dim(1)%value(i)%string//' '//one_dim(2)%value(j)%string//' '//&
-        two_dim(1)%value(j, i)%string
+        two_dim(1)%value(i, j)%string
         !write(un, '(a)', advance = 'no') (' '//two_dim(k)%value(i, j)%string, k = 1, size(two_dim))
         write(un, *)
       end do
